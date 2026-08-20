@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/utils/responsive.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../navigation/main_layout.dart';
 import 'add_client_screen.dart';

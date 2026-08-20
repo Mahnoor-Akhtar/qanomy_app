@@ -4,11 +4,13 @@ import '../../core/theme/app_typography.dart';
 import '../../core/utils/responsive.dart';
 import '../dashboard/screens/dashboard_screen.dart';
 import '../cases/screens/cases_screen.dart';
+import '../cases/screens/case_history_screen.dart';
 import '../clients/screens/clients_screen.dart';
 import '../team/screens/team_members_screen.dart';
 import '../invoices/screens/invoices_screen.dart';
 import '../notifications/screens/notifications_screen.dart';
 import '../activity/screens/activity_screen.dart';
+import '../support/screens/support_screen.dart';
 import 'screens/more_menu_screen.dart';
 import 'widgets/custom_bottom_app_bar.dart';
 import 'widgets/qanomy_sidebar.dart';
@@ -50,8 +52,9 @@ class MainLayoutState extends State<MainLayout> {
     _buildPlaceholderScreen('Reports'), // 8
     const NotificationsScreen(), // 9
     _buildPlaceholderScreen('Settings'), // 10
-    _buildPlaceholderScreen('Support'), // 11
+    const SupportScreen(), // 11
     const ActivityScreen(), // 12
+    const CaseHistoryScreen(), // 13
   ];
 
   Widget _buildPlaceholderScreen(String title) {

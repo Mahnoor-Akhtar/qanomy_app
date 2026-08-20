@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/utils/responsive.dart';
 import '../widgets/case_list_item.dart';
 import 'add_case_screen.dart';
 import 'case_history_screen.dart';

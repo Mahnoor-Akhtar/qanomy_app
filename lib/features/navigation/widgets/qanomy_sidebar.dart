@@ -64,10 +64,10 @@ class QanomySidebar extends StatelessWidget {
                   onTap: () => onItemSelected(1),
                 ),
                 _SidebarItem(
-                  icon: Icons.calendar_today_outlined,
-                  label: 'Hearings & Calendar',
-                  isSelected: selectedIndex == 2,
-                  onTap: () => onItemSelected(2),
+                  icon: Icons.history_rounded,
+                  label: 'Case History',
+                  isSelected: selectedIndex == 13,
+                  onTap: () => onItemSelected(13),
                 ),
                 _SidebarItem(
                   icon: Icons.people_outline,
@@ -76,46 +76,22 @@ class QanomySidebar extends StatelessWidget {
                   onTap: () => onItemSelected(3),
                 ),
                 _SidebarItem(
-                  icon: Icons.description_outlined,
-                  label: 'Documents',
-                  isSelected: selectedIndex == 4,
-                  onTap: () => onItemSelected(4),
-                ),
-                _SidebarItem(
                   icon: Icons.receipt_long_outlined,
                   label: 'Invoices & Billing',
                   isSelected: selectedIndex == 5,
                   onTap: () => onItemSelected(5),
                 ),
                 _SidebarItem(
-                  icon: Icons.group_outlined, // Team
+                  icon: Icons.group_outlined,
                   label: 'Team',
                   isSelected: selectedIndex == 6,
                   onTap: () => onItemSelected(6),
-                ),
-                _SidebarItem(
-                  icon: Icons.check_box_outlined,
-                  label: 'Tasks',
-                  isSelected: selectedIndex == 7,
-                  onTap: () => onItemSelected(7),
-                ),
-                _SidebarItem(
-                  icon: Icons.bar_chart_outlined,
-                  label: 'Reports',
-                  isSelected: selectedIndex == 8,
-                  onTap: () => onItemSelected(8),
                 ),
                 _SidebarItem(
                   icon: Icons.notifications_none,
                   label: 'Notifications',
                   isSelected: selectedIndex == 9,
                   onTap: () => onItemSelected(9),
-                ),
-                _SidebarItem(
-                  icon: Icons.settings_outlined,
-                  label: 'Settings',
-                  isSelected: selectedIndex == 10,
-                  onTap: () => onItemSelected(10),
                 ),
                 _SidebarItem(
                   icon: Icons.support,
@@ -128,6 +104,46 @@ class QanomySidebar extends StatelessWidget {
                   label: 'Activity Log',
                   isSelected: selectedIndex == 12,
                   onTap: () => onItemSelected(12),
+                ),
+
+                // Divider
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    children: [
+                      Expanded(child: Divider(color: Colors.white.withOpacity(0.12))),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Text('COMING SOON', style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 9, letterSpacing: 1)),
+                      ),
+                      Expanded(child: Divider(color: Colors.white.withOpacity(0.12))),
+                    ],
+                  ),
+                ),
+
+                _SidebarItem(
+                  icon: Icons.calendar_today_outlined,
+                  label: 'Hearings & Calendar',
+                  isSelected: selectedIndex == 2,
+                  onTap: () => onItemSelected(2),
+                ),
+                _SidebarItem(
+                  icon: Icons.description_outlined,
+                  label: 'Documents',
+                  isSelected: selectedIndex == 4,
+                  onTap: () => onItemSelected(4),
+                ),
+                _SidebarItem(
+                  icon: Icons.bar_chart_outlined,
+                  label: 'Reports',
+                  isSelected: selectedIndex == 8,
+                  onTap: () => onItemSelected(8),
+                ),
+                _SidebarItem(
+                  icon: Icons.settings_outlined,
+                  label: 'Settings',
+                  isSelected: selectedIndex == 10,
+                  onTap: () => onItemSelected(10),
                 ),
               ],
             ),
