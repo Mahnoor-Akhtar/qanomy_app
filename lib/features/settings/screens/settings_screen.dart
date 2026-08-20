@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/image_picker_helper.dart';
 import '../../../core/widgets/qanomy_app_bar.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -57,7 +58,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
         });
       }
     } catch (e) {
-      debugPrint("Error picking image: $e");
+      debugPrint("Error picking image with image_picker: $e");
+      // Fallback for Web if the runner was not restarted (MissingPluginException)
+      try {
+        final bytes = await pickImageFromDevice();
+        if (bytes != null) {
+          setState(() {
+            _profileImageBytes = Uint8List.fromList(bytes);
+          });
+        }
+      } catch (innerErr) {
+        debugPrint("Error in fallback web picker: $innerErr");
+      }
     }
   }
 
