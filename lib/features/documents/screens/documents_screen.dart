@@ -3,6 +3,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/image_picker_helper.dart';
 import '../../../core/widgets/qanomy_app_bar.dart';
 
 class DocumentsScreen extends StatefulWidget {
@@ -15,7 +16,7 @@ class DocumentsScreen extends StatefulWidget {
 class _DocumentsScreenState extends State<DocumentsScreen> {
   String _selectedCase = 'Ali vs Ahmed';
   String _selectedFolder = 'All';
-  bool _isMobileViewingFiles = false; // Tracks if mobile is viewing the files list
+  bool _isMobileViewingFiles = false;
 
   final List<Map<String, String>> _cases = [
     {'title': 'Ali vs Ahmed', 'type': 'Family'},
@@ -61,7 +62,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   Widget build(BuildContext context) {
     final isMobile = Responsive.isMobile(context);
 
-    // If mobile and viewing files, show back button
     final appBar = QanomyAppBar(
       title: 'Documents',
       leading: (isMobile && _isMobileViewingFiles)
@@ -276,7 +276,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Filters & Search Bar
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -314,7 +313,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         ),
         const SizedBox(height: 16),
 
-        // Files List Table Container
         Expanded(
           child: Container(
             padding: const EdgeInsets.all(20),
@@ -329,7 +327,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Header details
                 Row(
                   children: [
                     const Icon(Icons.folder_open_rounded, color: Color(0xFFFF8A00), size: 24),
@@ -363,7 +360,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 const Divider(height: 1),
                 const SizedBox(height: 16),
 
-                // Table or list of files
                 Expanded(
                   child: filteredDocs.isEmpty
                       ? Center(
@@ -488,10 +484,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted, fontSize: 11),
-          ),
-          Text(value, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 12),
-          ),
+          Text(label, style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted, fontSize: 11)),
+          Text(value, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 12)),
         ],
       ),
     );
@@ -561,6 +555,10 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
   final _nameController = TextEditingController();
   final _descController = TextEditingController();
 
+  String? _pickedFileName;
+  String? _pickedFileSize;
+  bool _isPicking = false;
+
   final List<String> _types = ['Petition / Plaint', 'Court Order', 'Vakalatnama', 'Evidence / Document'];
 
   @override
@@ -574,6 +572,35 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
     _nameController.dispose();
     _descController.dispose();
     super.dispose();
+  }
+
+  Future<void> _selectDocument() async {
+    setState(() {
+      _isPicking = true;
+    });
+    try {
+      final doc = await pickDocumentFromDevice();
+      if (doc != null) {
+        setState(() {
+          _pickedFileName = doc.name;
+          final kb = doc.size / 1024;
+          if (kb >= 1024) {
+            _pickedFileSize = "${(kb / 1024).toStringAsFixed(1)} MB";
+          } else {
+            _pickedFileSize = "${kb.toStringAsFixed(0)} KB";
+          }
+          if (_nameController.text.isEmpty) {
+            _nameController.text = doc.name;
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint("Error picking document: $e");
+    } finally {
+      setState(() {
+        _isPicking = false;
+      });
+    }
   }
 
   @override
@@ -655,18 +682,22 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
                       ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            final fileName = _nameController.text.isNotEmpty
-                                ? _nameController.text
-                                : 'ChatGPT Image Aug 12, 2026, 02:30 pm.png';
+                            final fileName = _pickedFileName ?? _nameController.text;
+                            if (fileName.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Please select or name a file first')),
+                              );
+                              return;
+                            }
                             
                             final newDoc = {
                               'case': _selectedCase,
-                              'folder': _selectedType,
+                              'folder': _selectedType == 'Evidence / Document' ? 'All' : _selectedType,
                               'name': fileName,
                               'type': _selectedType,
                               'uploadedBy': 'Haris khan',
                               'date': '13-Aug-2026, 03:20 pm',
-                              'size': '1.6 MB',
+                              'size': _pickedFileSize ?? '1.6 MB',
                             };
                             widget.onUpload(newDoc);
                             Navigator.pop(context);
@@ -703,49 +734,91 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withOpacity(0.5), style: BorderStyle.none),
+        border: Border.all(color: AppColors.border.withOpacity(0.5)),
       ),
       child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: const BoxDecoration(
-                color: Color(0xFFE8F5E9),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.arrow_upward_rounded, color: Color(0xFF10B981), size: 28),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Drag & drop files here',
-              style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 15),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'or',
-              style: AppTypography.bodyInter.copyWith(color: AppColors.textMuted, fontSize: 13),
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFF00A980)),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              ),
-              child: Text(
-                'Browse Files',
-                style: AppTypography.bodyInterMedium.copyWith(color: const Color(0xFF00A980)),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Max file size: 25 MB',
-              style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted, fontSize: 11),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (_pickedFileName != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFE3F2FD),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.insert_drive_file_rounded, color: Color(0xFF1E88E5), size: 28),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  _pickedFileName!,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.bodyInterMedium.copyWith(
+                    color: AppColors.primaryNavy,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _pickedFileSize ?? 'Unknown size',
+                  style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted, fontSize: 11),
+                ),
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: _selectDocument,
+                  child: Text(
+                    'Change File',
+                    style: AppTypography.bodyInterMedium.copyWith(
+                      color: const Color(0xFF00A980),
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ] else ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFE8F5E9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.arrow_upward_rounded, color: Color(0xFF10B981), size: 28),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Drag & drop files here',
+                  style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 15),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'or',
+                  style: AppTypography.bodyInter.copyWith(color: AppColors.textMuted, fontSize: 13),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton(
+                  onPressed: _selectDocument,
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF00A980)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  ),
+                  child: Text(
+                    _isPicking ? 'Opening...' : 'Browse Files',
+                    style: AppTypography.bodyInterMedium.copyWith(color: const Color(0xFF00A980)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Max file size: 25 MB',
+                  style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted, fontSize: 11),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );
