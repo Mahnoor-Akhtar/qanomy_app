@@ -4,7 +4,6 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/qanomy_app_bar.dart';
-import '../../navigation/main_layout.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
@@ -39,11 +38,20 @@ class NotificationsScreen extends StatelessWidget {
   Widget _buildMarkAsReadButton() {
     return Align(
       alignment: Alignment.centerRight,
-      child: TextButton(
+      child: TextButton.icon(
         onPressed: () {},
-        child: Text(
+        icon: const Icon(
+          Icons.done_all_rounded,
+          size: 18,
+          color: Color(0xFF00A980),
+        ),
+        label: Text(
           'Mark all as read',
-          style: AppTypography.bodyInterMedium.copyWith(color: const Color(0xFF00A980), fontSize: 13),
+          style: AppTypography.bodyInterMedium.copyWith(
+            color: const Color(0xFF00A980),
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
@@ -77,30 +85,20 @@ class NotificationsScreen extends StatelessWidget {
       },
     ];
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border.withOpacity(0.5)),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.01), blurRadius: 4, offset: const Offset(0, 2)),
-        ],
-      ),
-      child: ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: notifications.length,
-        separatorBuilder: (context, index) => Divider(color: AppColors.border.withOpacity(0.3), height: 1),
-        itemBuilder: (context, index) {
-          final n = notifications[index];
-          return _buildNotificationItem(
-            title: n['title'] as String,
-            desc: n['desc'] as String,
-            time: n['time'] as String,
-            unread: n['unread'] as bool,
-          );
-        },
-      ),
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: notifications.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
+      itemBuilder: (context, index) {
+        final n = notifications[index];
+        return _buildNotificationItem(
+          title: n['title'] as String,
+          desc: n['desc'] as String,
+          time: n['time'] as String,
+          unread: n['unread'] as bool,
+        );
+      },
     );
   }
 
@@ -110,46 +108,123 @@ class NotificationsScreen extends StatelessWidget {
     required String time,
     required bool unread,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Unread indicator dot
-          Container(
-            width: 8,
-            height: 8,
-            margin: const EdgeInsets.only(top: 6),
-            decoration: BoxDecoration(
-              color: unread ? const Color(0xFF00A980) : Colors.transparent,
-              shape: BoxShape.circle,
-            ),
+    final isHearing = title.contains('Hearing');
+    final iconColor = isHearing ? const Color(0xFFFB8500) : const Color(0xFF219EBC);
+    final iconData = isHearing ? Icons.calendar_today_rounded : Icons.folder_shared_rounded;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border(
+          left: BorderSide(
+            color: unread ? iconColor : Colors.grey.withOpacity(0.2),
+            width: 5,
           ),
-          const SizedBox(width: 16),
-          // Content
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: AppTypography.titleMedium.copyWith(color: AppColors.primaryNavy, fontSize: 15),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  desc,
-                  style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary, fontSize: 13),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          // Time
-          Text(
-            time,
-            style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted, fontSize: 11),
+          top: BorderSide(color: AppColors.border.withOpacity(0.3)),
+          bottom: BorderSide(color: AppColors.border.withOpacity(0.3)),
+          right: BorderSide(color: AppColors.border.withOpacity(0.3)),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Icon Avatar Container
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: iconColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  iconData,
+                  color: iconColor,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 16),
+              // Content details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: AppTypography.titleMedium.copyWith(
+                              color: AppColors.primaryNavy,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        if (unread)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE8F5E9),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              'NEW',
+                              style: AppTypography.labelSmall.copyWith(
+                                color: const Color(0xFF00A980),
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      desc,
+                      style: AppTypography.bodyInter.copyWith(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Soft responsive timestamp with clock icon
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.access_time_rounded,
+                          color: AppColors.textMuted,
+                          size: 13,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          time,
+                          style: AppTypography.labelSmall.copyWith(
+                            color: AppColors.textMuted,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
