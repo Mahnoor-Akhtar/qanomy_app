@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_typography.dart';
 import '../../core/utils/responsive.dart';
 import '../dashboard/screens/dashboard_screen.dart';
+import '../cases/screens/cases_screen.dart';
+import '../clients/screens/clients_screen.dart';
 import 'screens/more_menu_screen.dart';
 import 'widgets/custom_bottom_app_bar.dart';
 import 'widgets/qanomy_sidebar.dart';
@@ -9,28 +12,69 @@ import 'widgets/qanomy_sidebar.dart';
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
 
+  static final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  static MainLayoutState? instance;
+
   @override
-  State<MainLayout> createState() => _MainLayoutState();
+  State<MainLayout> createState() => MainLayoutState();
 }
 
-class _MainLayoutState extends State<MainLayout> {
+class MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final List<Widget> _screens = [
+  @override
+  void initState() {
+    super.initState();
+    MainLayout.instance = this;
+  }
+
+  void switchTab(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
+  List<Widget> get _screens => [
     const DashboardScreen(), // 0
-    const Scaffold(body: Center(child: Text('Cases'))), // 1
-    const Scaffold(body: Center(child: Text('Hearings & Calendar'))), // 2
-    const Scaffold(body: Center(child: Text('Clients'))), // 3
-    const Scaffold(body: Center(child: Text('Documents'))), // 4
-    const Scaffold(body: Center(child: Text('Invoices & Billing'))), // 5
-    const Scaffold(body: Center(child: Text('Team'))), // 6
-    const Scaffold(body: Center(child: Text('Tasks'))), // 7
-    const Scaffold(body: Center(child: Text('Reports'))), // 8
-    const Scaffold(body: Center(child: Text('Notifications'))), // 9
-    const Scaffold(body: Center(child: Text('Settings'))), // 10
+    const CasesScreen(), // 1
+    _buildPlaceholderScreen('Hearings & Calendar'), // 2
+    const ClientsScreen(), // 3
+    _buildPlaceholderScreen('Documents'), // 4
+    _buildPlaceholderScreen('Invoices & Billing'), // 5
+    _buildPlaceholderScreen('Team'), // 6
+    _buildPlaceholderScreen('Tasks'), // 7
+    _buildPlaceholderScreen('Reports'), // 8
+    _buildPlaceholderScreen('Notifications'), // 9
+    _buildPlaceholderScreen('Settings'), // 10
   ];
 
+  Widget _buildPlaceholderScreen(String title) {
+    return Scaffold(
+      backgroundColor: AppColors.pageBackground,
+      appBar: AppBar(
+        backgroundColor: AppColors.sidebarNavy,
+        elevation: 0,
+        centerTitle: false,
+        leading: IconButton(
+          icon: const Icon(Icons.menu, color: Colors.white),
+          onPressed: () {
+            MainLayout.scaffoldKey.currentState?.openDrawer();
+          },
+        ),
+        title: Text(
+          title,
+          style: AppTypography.header.copyWith(color: Colors.white, fontSize: 24),
+        ),
+      ),
+      body: Center(
+        child: Text(
+          '$title Screen\n(Coming Soon)',
+          textAlign: TextAlign.center,
+          style: AppTypography.titleLarge.copyWith(color: AppColors.textMuted),
+        ),
+      ),
+    );
+  }
   // Helper to map bottom nav index to main screen index
   int _mapBottomNavToMainIndex(int bottomIndex) {
     switch (bottomIndex) {
@@ -65,7 +109,7 @@ class _MainLayoutState extends State<MainLayout> {
 
     if (isMobile) {
       return Scaffold(
-        key: _scaffoldKey,
+        key: MainLayout.scaffoldKey,
         drawer: Drawer(
           width: 280,
           backgroundColor: Colors.transparent,

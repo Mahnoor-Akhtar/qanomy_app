@@ -36,7 +36,7 @@ class TodaysHearingsSection extends StatelessWidget {
               ),
               child: Text(
                 'View all',
-                style: AppTypography.labelMedium.copyWith(color: AppColors.skyBlue),
+                style: AppTypography.labelMedium.copyWith(color: AppColors.primaryNavy),
               ),
             ),
           ],
@@ -86,10 +86,10 @@ class TodaysHearingsSection extends StatelessWidget {
               ),
               TextButton.icon(
                 onPressed: () {},
-                icon: const Icon(Icons.add, size: 18, color: AppColors.skyBlue),
+                icon: const Icon(Icons.add, size: 18, color: AppColors.primaryNavy),
                 label: Text(
                   'Add case',
-                  style: AppTypography.bodyInterMedium.copyWith(color: AppColors.skyBlue),
+                  style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy),
                 ),
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.zero,

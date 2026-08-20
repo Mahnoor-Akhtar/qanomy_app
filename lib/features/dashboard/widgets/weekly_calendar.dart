@@ -21,10 +21,10 @@ class WeeklyCalendar extends StatelessWidget {
             ),
             TextButton.icon(
               onPressed: () {},
-              icon: const Icon(Icons.calendar_today_outlined, size: 14, color: AppColors.skyBlue),
+              icon: const Icon(Icons.calendar_today_outlined, size: 14, color: AppColors.primaryNavy),
               label: Text(
                 'View calendar',
-                style: AppTypography.labelMedium.copyWith(color: AppColors.skyBlue),
+                style: AppTypography.labelMedium.copyWith(color: AppColors.primaryNavy),
               ),
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,

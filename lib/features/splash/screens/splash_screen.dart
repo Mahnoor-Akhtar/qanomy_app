@@ -22,7 +22,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _navigateToHome() async {
-    // Wait for the animation sequence (2.8s) + 2 seconds as requested = 4.8 seconds total
     await Future.delayed(const Duration(milliseconds: 4800));
     if (mounted) {
       Navigator.of(context).pushReplacement(
@@ -89,7 +88,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       children: [
                         TextSpan(
                           text: 'Qanoon',
-                          style: AppTypography.bodyInterMedium.copyWith(color: AppColors.skyBlue),
+                          style: AppTypography.bodyInterMedium.copyWith(color: Colors.white),
                         ),
                         const TextSpan(text: ' and '),
                         TextSpan(
@@ -112,7 +111,14 @@ class _SplashScreenState extends State<SplashScreen> {
               const Spacer(flex: 2),
               
               // Step 7: Loader Appear
-              MinimalLoader(),
+              const SizedBox(
+                width: 32,
+                height: 32,
+                child: CircularProgressIndicator(
+                  color: AppColors.princetonOrange,
+                  strokeWidth: 3,
+                ),
+              ).animate(delay: 2000.ms).fadeIn(duration: 400.ms),
               const SizedBox(height: 48),
             ],
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../navigation/main_layout.dart';
 
 class QuickActionsGrid extends StatelessWidget {
   const QuickActionsGrid({super.key});
@@ -30,9 +31,9 @@ class QuickActionsGrid extends StatelessWidget {
                 children: [
                   Text(
                     'View all modules ',
-                    style: AppTypography.labelMedium.copyWith(color: AppColors.skyBlue),
+                    style: AppTypography.labelMedium.copyWith(color: AppColors.primaryNavy),
                   ),
-                  const Icon(Icons.chevron_right, size: 14, color: AppColors.skyBlue),
+                  const Icon(Icons.chevron_right, size: 14, color: AppColors.primaryNavy),
                 ],
               ),
             ),
@@ -49,9 +50,13 @@ class QuickActionsGrid extends StatelessWidget {
               runSpacing: AppSpacing.s16,
               children: [
                 _buildActionItem('Dashboard', Icons.dashboard_outlined, AppColors.princetonOrange, AppColors.pastelOrange, itemWidth),
-                _buildActionItem('Cases', Icons.work_outline, AppColors.skyBlue, AppColors.pastelBlue, itemWidth),
+                _buildActionItem('Cases', Icons.work_outline, AppColors.skyBlue, AppColors.pastelBlue, itemWidth, onTap: () {
+                  MainLayout.instance?.switchTab(1);
+                }),
                 _buildActionItem('Hearings', Icons.calendar_today_outlined, Colors.green, AppColors.pastelGreen, itemWidth),
-                _buildActionItem('Clients', Icons.people_outline, Colors.purple, AppColors.pastelPurple, itemWidth),
+                _buildActionItem('Clients', Icons.people_outline, Colors.purple, AppColors.pastelPurple, itemWidth, onTap: () {
+                  MainLayout.instance?.switchTab(3);
+                }),
                 _buildActionItem('Documents', Icons.description_outlined, AppColors.princetonOrange, AppColors.pastelOrange, itemWidth),
                 _buildActionItem('Invoices', Icons.receipt_long_outlined, Colors.amber, AppColors.pastelYellow, itemWidth),
                 _buildActionItem('Team', Icons.group_outlined, Colors.red, AppColors.pastelRed, itemWidth),
@@ -67,40 +72,44 @@ class QuickActionsGrid extends StatelessWidget {
     );
   }
 
-  Widget _buildActionItem(String label, IconData icon, Color iconColor, Color bgColor, double width) {
-    return SizedBox(
-      width: width,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.s16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Container(
-              padding: const EdgeInsets.all(AppSpacing.s8),
+  Widget _buildActionItem(String label, IconData icon, Color iconColor, Color bgColor, double width, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: width,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.s16),
               decoration: BoxDecoration(
-                color: bgColor,
-                shape: BoxShape.circle,
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.border),
               ),
-              child: Icon(icon, color: iconColor, size: 20),
+              child: Container(
+                padding: const EdgeInsets.all(AppSpacing.s8),
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: iconColor, size: 20),
+              ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.s8),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: AppTypography.labelSmall.copyWith(
-              color: AppColors.primaryNavy,
-              fontWeight: FontWeight.w500,
+            const SizedBox(height: AppSpacing.s8),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: AppTypography.labelSmall.copyWith(
+                color: AppColors.primaryNavy,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
