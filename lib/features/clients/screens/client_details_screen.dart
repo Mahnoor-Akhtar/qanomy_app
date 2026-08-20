@@ -3,6 +3,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/responsive.dart';
+import '../../cases/screens/case_details_screen.dart';
 
 class ClientDetailsScreen extends StatelessWidget {
   final String name;
@@ -56,7 +57,7 @@ class ClientDetailsScreen extends StatelessWidget {
                             desktop: _buildDesktopContent(context),
                           );
                         case 1:
-                          return _buildCasesTab();
+                          return _buildCasesTab(context);
                         case 2:
                           return _buildInvoicesTab();
                         default:
@@ -511,69 +512,83 @@ class ClientDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCasesTab() {
+  Widget _buildCasesTab(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildCaseCard('Ejaz vs Adnan', '-', 'OPEN'),
+        _buildCaseCard(context, 'Ejaz vs Adnan', '-', 'OPEN'),
         const SizedBox(height: AppSpacing.s12),
-        _buildCaseCard('Alia vs Adnan', '-', 'REOPEN'),
+        _buildCaseCard(context, 'Alia vs Adnan', '-', 'REOPEN'),
         const SizedBox(height: AppSpacing.s12),
-        _buildCaseCard('Momina vs Muheeb', '-', 'REOPEN'),
+        _buildCaseCard(context, 'Momina vs Muheeb', '-', 'REOPEN'),
       ],
     );
   }
 
-  Widget _buildCaseCard(String title, String caseNo, String status) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.s16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withOpacity(0.5)),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: AppTypography.titleMedium.copyWith(color: AppColors.primaryNavy, fontSize: 16),
-                ),
-              ),
-              _buildStatusBadge(status),
-            ],
+  Widget _buildCaseCard(BuildContext context, String title, String caseNo, String status) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CaseDetailsScreen(
+              caseTitle: title,
+              caseNo: caseNo,
+              status: status,
+            ),
           ),
-          const SizedBox(height: AppSpacing.s12),
-          Divider(color: AppColors.border.withOpacity(0.3), height: 1),
-          const SizedBox(height: AppSpacing.s12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Case No: $caseNo',
-                style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
-              ),
-              InkWell(
-                onTap: () {},
-                borderRadius: BorderRadius.circular(4),
-                child: Padding(
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.s16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.border.withOpacity(0.5)),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    style: AppTypography.titleMedium.copyWith(color: AppColors.primaryNavy, fontSize: 16),
+                  ),
+                ),
+                _buildStatusBadge(status),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.s12),
+            Divider(color: AppColors.border.withOpacity(0.3), height: 1),
+            const SizedBox(height: AppSpacing.s12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Case No: $caseNo',
+                  style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
+                ),
+                Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00A980).withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                   child: Text(
                     'View Details',
                     style: AppTypography.labelSmall.copyWith(color: const Color(0xFF00A980), fontWeight: FontWeight.bold),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

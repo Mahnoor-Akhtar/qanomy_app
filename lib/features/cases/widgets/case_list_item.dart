@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../screens/case_details_screen.dart';
 
 class CaseListItem extends StatelessWidget {
   final String title;
@@ -17,8 +18,21 @@ class CaseListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.s12),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CaseDetailsScreen(
+              caseTitle: title,
+              caseNo: 'ABBD87AA',
+              status: 'OPEN',
+            ),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: AppSpacing.s12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -97,6 +111,7 @@ class CaseListItem extends StatelessWidget {
             ],
           ),
         ],
+      ),
       ),
     );
   }
