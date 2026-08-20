@@ -43,36 +43,58 @@ class ActivityScreen extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Container(
-          height: 44,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.border.withOpacity(0.5)),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppColors.border.withOpacity(0.3)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.play_circle_outline, color: Color(0xFF10B981), size: 18),
+              const Icon(Icons.circle_notifications_rounded, color: Color(0xFF10B981), size: 20),
               const SizedBox(width: 8),
-              Text('Track Activity', style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 13)),
-              const SizedBox(width: 8),
+              Text(
+                'Track Activity',
+                style: AppTypography.bodyInterMedium.copyWith(
+                  color: AppColors.primaryNavy,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 12),
               Switch(
                 value: true,
                 onChanged: (v) {},
                 activeColor: const Color(0xFFFF8A00),
+                activeTrackColor: const Color(0xFFFF8A00).withOpacity(0.3),
               ),
             ],
           ),
         ),
-        const SizedBox(width: 12),
         TextButton.icon(
           onPressed: () {},
-          icon: const Icon(Icons.delete_outline, size: 18, color: Color(0xFFEF4444)),
-          label: Text('Clear Log', style: AppTypography.bodyInterMedium.copyWith(color: const Color(0xFFEF4444))),
+          icon: const Icon(Icons.delete_sweep_rounded, size: 18, color: Color(0xFFEF4444)),
+          label: Text(
+            'Clear Log',
+            style: AppTypography.bodyInterMedium.copyWith(
+              color: const Color(0xFFEF4444),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           style: TextButton.styleFrom(
             backgroundColor: const Color(0xFFFEF2F2),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            minimumSize: const Size(0, 44),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            minimumSize: const Size(0, 48),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           ),
         ),
       ],
@@ -87,34 +109,23 @@ class ActivityScreen extends StatelessWidget {
       {'name': 'Haris khan', 'tag': 'LOGIN FAILED', 'desc': 'Invalid password', 'time': '2d ago • 8/17/2026, 7:10:25 PM'},
       {'name': 'Haris khan', 'tag': 'LOGIN FAILED', 'desc': 'Invalid password', 'time': '2d ago • 8/17/2026, 7:10:11 PM'},
       {'name': 'Qanomy Admin (MA)', 'tag': 'LOGIN', 'desc': 'Administrator impersonated firm owner mahnoorakhtar002@gmail.com', 'time': '2d ago • 8/17/2026, 6:45:02 PM'},
-      {'name': 'Haris khan', 'tag': 'UPDATED FIRM', 'desc': 'Firm "Khan\'s Firm" updated', 'time': '2d ago • 8/17/2026, 6:19:26 PM'},
+      {'name': 'Haris khan', 'tag': 'UPDATED FIRM', 'desc': 'Firm "Khan's Firm" updated', 'time': '2d ago • 8/17/2026, 6:19:26 PM'},
     ];
 
-    return Container(
-      padding: const EdgeInsets.only(top: 24, bottom: 8, right: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withOpacity(0.5)),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
-        ],
-      ),
-      child: ListView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: activities.length,
-        itemBuilder: (context, index) {
-          final act = activities[index];
-          return _buildTimelineItem(
-            name: act['name']!,
-            tag: act['tag']!,
-            desc: act['desc']!,
-            time: act['time']!,
-            isLast: index == activities.length - 1,
-          );
-        },
-      ),
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: activities.length,
+      itemBuilder: (context, index) {
+        final act = activities[index];
+        return _buildTimelineItem(
+          name: act['name']!,
+          tag: act['tag']!,
+          desc: act['desc']!,
+          time: act['time']!,
+          isLast: index == activities.length - 1,
+        );
+      },
     );
   }
 
@@ -125,6 +136,31 @@ class ActivityScreen extends StatelessWidget {
     required String time,
     required bool isLast,
   }) {
+    final isSuccess = tag == 'LOGIN';
+    final isFailure = tag == 'LOGIN FAILED';
+    
+    Color statusColor;
+    IconData nodeIcon;
+    Color badgeBg;
+    Color badgeText;
+    
+    if (isSuccess) {
+      statusColor = const Color(0xFF10B981);
+      nodeIcon = Icons.check_rounded;
+      badgeBg = const Color(0xFFD1FAE5);
+      badgeText = const Color(0xFF059669);
+    } else if (isFailure) {
+      statusColor = const Color(0xFFEF4444);
+      nodeIcon = Icons.close_rounded;
+      badgeBg = const Color(0xFFFEE2E2);
+      badgeText = const Color(0xFFDC2626);
+    } else {
+      statusColor = const Color(0xFF3B82F6);
+      nodeIcon = Icons.edit_rounded;
+      badgeBg = const Color(0xFFEFF6FF);
+      badgeText = const Color(0xFF2563EB);
+    }
+
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -132,74 +168,142 @@ class ActivityScreen extends StatelessWidget {
           SizedBox(
             width: 48,
             child: Stack(
+              alignment: Alignment.topCenter,
               children: [
-                // Vertical line
                 Positioned(
-                  left: 24,
                   top: 0,
                   bottom: isLast ? null : 0,
-                  height: isLast ? 40 : null, // Stop line at mid-point for last item
-                  child: Container(width: 2, color: const Color(0xFFE2E8F0)),
+                  height: isLast ? 28 : null,
+                  child: Container(
+                    width: 2,
+                    color: AppColors.border.withOpacity(0.5),
+                  ),
                 ),
-                // Horizontal connecting line
                 Positioned(
-                  left: 24,
-                  top: 40,
-                  right: 0,
-                  child: Container(height: 2, color: const Color(0xFFE2E8F0)),
+                  top: 16,
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: statusColor, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: statusColor.withOpacity(0.2),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Icon(
+                        nodeIcon,
+                        size: 14,
+                        color: statusColor,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
+          const SizedBox(width: 8),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: Container(
-                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border.withOpacity(0.5)),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF0F9FF),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.description_outlined, color: Color(0xFF0EA5E9), size: 20),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Wrap(
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            spacing: 8,
-                            runSpacing: 4,
-                            children: [
-                              Text(name, style: AppTypography.titleMedium.copyWith(color: AppColors.primaryNavy, fontSize: 15)),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFEFF6FF), // Light blue bg
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(tag, style: AppTypography.labelSmall.copyWith(color: const Color(0xFF3B82F6), fontWeight: FontWeight.bold, fontSize: 10)),
-                              ),
-                              Text(desc, style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary, fontSize: 14)),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Text(time, style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted)),
-                        ],
-                      ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.border.withOpacity(0.3)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
                     ),
                   ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Container(
+                          width: 4,
+                          color: statusColor,
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        name,
+                                        style: AppTypography.titleMedium.copyWith(
+                                          color: AppColors.primaryNavy,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: badgeBg,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        tag,
+                                        style: AppTypography.labelSmall.copyWith(
+                                          color: badgeText,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 9,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  desc,
+                                  style: AppTypography.bodyInter.copyWith(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 13,
+                                    height: 1.4,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.access_time_rounded,
+                                      color: AppColors.textMuted,
+                                      size: 13,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      time,
+                                      style: AppTypography.labelSmall.copyWith(
+                                        color: AppColors.textMuted,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
