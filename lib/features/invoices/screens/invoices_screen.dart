@@ -127,32 +127,30 @@ class InvoicesScreen extends StatelessWidget {
   }
 
   Widget _buildTableSection(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withOpacity(0.5)),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: _buildFilterBar(),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Filter bar wrapped in its own premium shadow card
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.border.withOpacity(0.3)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          Divider(color: AppColors.border.withOpacity(0.5), height: 1),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 1000),
-              child: _buildDataTable(),
-            ),
-          ),
-        ],
-      ),
+          child: _buildFilterBar(),
+        ),
+        const SizedBox(height: 16),
+        // Custom Invoices List using our brand-new expanded cards!
+        _buildInvoicesList(),
+      ],
     );
   }
 
@@ -200,7 +198,7 @@ class InvoicesScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDataTable() {
+  Widget _buildInvoicesList() {
     final invoices = [
       {'no': 'INV-2026-4167', 'client': 'Hamad Client', 'case': 'Alia vs Adnan', 'issue': '13-Aug-2026', 'due': '22-Aug-2026', 'amount': 'PKR 150,000', 'paid': 'PKR 0', 'status': 'Draft'},
       {'no': 'INV-2026-1192', 'client': 'Arooj Client', 'case': 'Ali vs Babar', 'issue': '13-Aug-2026', 'due': '21-Aug-2026', 'amount': 'PKR 20,000', 'paid': 'PKR 0', 'status': 'Draft'},
@@ -209,79 +207,286 @@ class InvoicesScreen extends StatelessWidget {
       {'no': 'INV-2026-1310', 'client': 'Arooj Client', 'case': 'Alia vs Adnan', 'issue': '13-Aug-2026', 'due': '02-Sept-2026', 'amount': 'PKR 50,000', 'paid': 'PKR 50,000', 'status': 'Paid'},
     ];
 
-    return DataTable(
-      headingRowHeight: 56,
-      dataRowMaxHeight: 64,
-      dataRowMinHeight: 64,
-      horizontalMargin: 24,
-      columnSpacing: 24,
-      headingTextStyle: AppTypography.labelSmall.copyWith(color: AppColors.textMuted, fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 0.5),
-      columns: const [
-        DataColumn(label: Text('#')),
-        DataColumn(label: Text('INVOICE NO.')),
-        DataColumn(label: Text('CLIENT')),
-        DataColumn(label: Text('CASE')),
-        DataColumn(label: Text('ISSUE DATE')),
-        DataColumn(label: Text('DUE DATE')),
-        DataColumn(label: Text('AMOUNT')),
-        DataColumn(label: Text('PAID')),
-        DataColumn(label: Text('STATUS')),
-        DataColumn(label: Text('ACTIONS')),
-      ],
-      rows: invoices.asMap().entries.map((entry) {
-        final index = entry.key;
-        final inv = entry.value;
-        final isPaid = inv['status'] == 'Paid';
-        
-        return DataRow(
-          cells: [
-            DataCell(Text('${index + 1}', style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary, fontSize: 13))),
-            DataCell(Text(inv['no']!, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 13))),
-            DataCell(Text(inv['client']!, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 13))),
-            DataCell(Text(inv['case']!, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 13))),
-            DataCell(Text(inv['issue']!, style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary, fontSize: 13))),
-            DataCell(Text(inv['due']!, style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary, fontSize: 13))),
-            DataCell(Text(inv['amount']!, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 13))),
-            DataCell(Text(inv['paid']!, style: AppTypography.bodyInterMedium.copyWith(color: isPaid ? const Color(0xFF10B981) : const Color(0xFF10B981), fontSize: 13))), // Green color for Paid amounts
-            DataCell(
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isPaid ? const Color(0xFFD1FAE5) : const Color(0xFFF1F5F9), // Light green vs Light grey
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  inv['status']!,
-                  style: AppTypography.labelSmall.copyWith(
-                    color: isPaid ? const Color(0xFF10B981) : AppColors.textSecondary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            DataCell(
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.remove_red_eye_outlined, size: 18, color: AppColors.textSecondary),
-                    onPressed: () {},
-                    constraints: const BoxConstraints(),
-                    padding: EdgeInsets.zero,
-                  ),
-                  const SizedBox(width: 12),
-                  IconButton(
-                    icon: const Icon(Icons.download_outlined, size: 18, color: AppColors.textSecondary),
-                    onPressed: () {},
-                    constraints: const BoxConstraints(),
-                    padding: EdgeInsets.zero,
-                  ),
-                ],
-              ),
-            ),
-          ],
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: invoices.length,
+      itemBuilder: (context, index) {
+        final inv = invoices[index];
+        return InvoiceCard(
+          index: index,
+          no: inv['no']!,
+          client: inv['client']!,
+          caseName: inv['case']!,
+          issueDate: inv['issue']!,
+          dueDate: inv['due']!,
+          amount: inv['amount']!,
+          paid: inv['paid']!,
+          status: inv['status']!,
         );
-      }).toList(),
+      },
+    );
+  }
+}
+
+class InvoiceCard extends StatefulWidget {
+  final int index;
+  final String no;
+  final String client;
+  final String caseName;
+  final String issueDate;
+  final String dueDate;
+  final String amount;
+  final String paid;
+  final String status;
+
+  const InvoiceCard({
+    super.key,
+    required this.index,
+    required this.no,
+    required this.client,
+    required this.caseName,
+    required this.issueDate,
+    required this.dueDate,
+    required this.amount,
+    required this.paid,
+    required this.status,
+  });
+
+  @override
+  State<InvoiceCard> createState() => _InvoiceCardState();
+}
+
+class _InvoiceCardState extends State<InvoiceCard> {
+  bool _isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final isMobile = Responsive.isMobile(context);
+    final isPaid = widget.status == 'Paid';
+    
+    // Status colors
+    final statusBgColor = isPaid ? const Color(0xFFD1FAE5) : const Color(0xFFF1F5F9);
+    final statusTextColor = isPaid ? const Color(0xFF10B981) : AppColors.textSecondary;
+    
+    // Accent color bar on the left based on status
+    final accentColor = isPaid ? const Color(0xFF10B981) : const Color(0xFF94A3B8); // Slate grey for drafts
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border.withOpacity(0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Left Accent Status Bar
+              Container(
+                width: 5,
+                color: accentColor,
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      _isExpanded = !_isExpanded;
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Collapsed Header Row (Always Visible)
+                        Row(
+                          children: [
+                            Icon(
+                              _isExpanded
+                                  ? Icons.keyboard_arrow_up_rounded
+                                  : Icons.keyboard_arrow_down_rounded,
+                              color: AppColors.textSecondary,
+                              size: 24,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    widget.no,
+                                    style: AppTypography.titleMedium.copyWith(
+                                      color: AppColors.primaryNavy,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    widget.client,
+                                    style: AppTypography.bodyInter.copyWith(
+                                      color: AppColors.textSecondary,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            // Amount (Visible collapsed)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  widget.amount,
+                                  style: AppTypography.bodyInterMedium.copyWith(
+                                    color: AppColors.primaryNavy,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: statusBgColor,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    widget.status,
+                                    style: AppTypography.labelSmall.copyWith(
+                                      color: statusTextColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        
+                        // Collapsible Details Content
+                        AnimatedCrossFade(
+                          firstChild: const SizedBox.shrink(),
+                          secondChild: GestureDetector(
+                            onTap: () {}, // Swallows taps on details so card doesn't collapse
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: AppSpacing.s16),
+                                Divider(color: AppColors.border.withOpacity(0.5), height: 1),
+                                const SizedBox(height: AppSpacing.s16),
+                                
+                                // Details Grid
+                                if (isMobile)
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _buildInfoColumn('Case', widget.caseName),
+                                      const SizedBox(height: 12),
+                                      _buildInfoColumn('Issue Date', widget.issueDate),
+                                      const SizedBox(height: 12),
+                                      _buildInfoColumn('Due Date', widget.dueDate),
+                                      const SizedBox(height: 12),
+                                      _buildInfoColumn('Paid Amount', widget.paid),
+                                    ],
+                                  )
+                                else
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(flex: 3, child: _buildInfoColumn('Case', widget.caseName)),
+                                      Expanded(flex: 2, child: _buildInfoColumn('Issue Date', widget.issueDate)),
+                                      Expanded(flex: 2, child: _buildInfoColumn('Due Date', widget.dueDate)),
+                                      Expanded(flex: 2, child: _buildInfoColumn('Paid Amount', widget.paid)),
+                                    ],
+                                  ),
+                                  
+                                const SizedBox(height: AppSpacing.s16),
+                                Divider(color: AppColors.border.withOpacity(0.5), height: 1),
+                                const SizedBox(height: AppSpacing.s16),
+                                
+                                // Actions
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {},
+                                      icon: const Icon(Icons.remove_red_eye_outlined, color: AppColors.textSecondary, size: 20),
+                                      tooltip: 'View Invoice',
+                                    ),
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      onPressed: () {},
+                                      icon: const Icon(Icons.download_outlined, color: AppColors.textSecondary, size: 20),
+                                      tooltip: 'Download PDF',
+                                    ),
+                                    const SizedBox(width: 12),
+                                    if (!isPaid)
+                                      OutlinedButton.icon(
+                                        onPressed: () {},
+                                        icon: const Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF10B981)),
+                                        label: Text(
+                                          'Mark as Paid',
+                                          style: AppTypography.bodyInterMedium.copyWith(
+                                            color: const Color(0xFF10B981),
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        style: OutlinedButton.styleFrom(
+                                          side: const BorderSide(color: Color(0xFF10B981)),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          crossFadeState: _isExpanded
+                              ? CrossFadeState.showSecond
+                              : CrossFadeState.showFirst,
+                          duration: const Duration(milliseconds: 250),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoColumn(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label.toUpperCase(),
+          style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted, fontSize: 10, letterSpacing: 0.5),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 13, height: 1.4),
+        ),
+      ],
     );
   }
 }
