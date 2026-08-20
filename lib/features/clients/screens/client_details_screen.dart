@@ -42,10 +42,36 @@ class ClientDetailsScreen extends StatelessWidget {
               const SizedBox(height: AppSpacing.s32),
               _buildTabBar(),
               const SizedBox(height: AppSpacing.s32),
-              Responsive(
-                mobile: _buildMobileContent(context),
-                tablet: _buildDesktopContent(context),
-                desktop: _buildDesktopContent(context),
+              Builder(
+                builder: (context) {
+                  final tabController = DefaultTabController.of(context);
+                  return AnimatedBuilder(
+                    animation: tabController,
+                    builder: (context, _) {
+                      switch (tabController.index) {
+                        case 0:
+                          return Responsive(
+                            mobile: _buildMobileContent(context),
+                            tablet: _buildDesktopContent(context),
+                            desktop: _buildDesktopContent(context),
+                          );
+                        case 1:
+                          return _buildCasesTab();
+                        case 2:
+                          return _buildInvoicesTab();
+                        default:
+                          return Container(
+                            padding: const EdgeInsets.all(48),
+                            alignment: Alignment.center,
+                            child: Text(
+                              'Content for this tab is coming soon.',
+                              style: AppTypography.bodyInter.copyWith(color: AppColors.textMuted),
+                            ),
+                          );
+                      }
+                    },
+                  );
+                },
               ),
             ],
           ),
@@ -481,6 +507,171 @@ class ClientDetailsScreen extends StatelessWidget {
             Text(subValue, style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted)),
           ]
         ],
+      ),
+    );
+  }
+
+  Widget _buildCasesTab() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildCaseCard('Ejaz vs Adnan', '-', 'OPEN'),
+        const SizedBox(height: AppSpacing.s12),
+        _buildCaseCard('Alia vs Adnan', '-', 'REOPEN'),
+        const SizedBox(height: AppSpacing.s12),
+        _buildCaseCard('Momina vs Muheeb', '-', 'REOPEN'),
+      ],
+    );
+  }
+
+  Widget _buildCaseCard(String title, String caseNo, String status) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.s16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border.withOpacity(0.5)),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: AppTypography.titleMedium.copyWith(color: AppColors.primaryNavy, fontSize: 16),
+                ),
+              ),
+              _buildStatusBadge(status),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.s12),
+          Divider(color: AppColors.border.withOpacity(0.3), height: 1),
+          const SizedBox(height: AppSpacing.s12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Case No: $caseNo',
+                style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
+              ),
+              InkWell(
+                onTap: () {},
+                borderRadius: BorderRadius.circular(4),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Text(
+                    'View Details',
+                    style: AppTypography.labelSmall.copyWith(color: const Color(0xFF00A980), fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInvoicesTab() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildInvoiceCard('-', 'PKR 50,000', '9/2/2026', 'PAID'),
+        const SizedBox(height: AppSpacing.s12),
+        _buildInvoiceCard('-', 'PKR 20,000', '8/21/2026', 'DRAFT'),
+        const SizedBox(height: AppSpacing.s12),
+        _buildInvoiceCard('-', 'PKR 60,000', '9/4/2026', 'DRAFT'),
+      ],
+    );
+  }
+
+  Widget _buildInvoiceCard(String invoiceNo, String amount, String dueDate, String status) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.s16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border.withOpacity(0.5)),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                amount,
+                style: AppTypography.titleMedium.copyWith(color: AppColors.primaryNavy, fontSize: 18),
+              ),
+              _buildStatusBadge(status),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.s12),
+          Divider(color: AppColors.border.withOpacity(0.3), height: 1),
+          const SizedBox(height: AppSpacing.s12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Inv: $invoiceNo',
+                style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.calendar_today, size: 12, color: AppColors.textSecondary),
+                  const SizedBox(width: 4),
+                  Text(
+                    dueDate,
+                    style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(String status) {
+    Color bgColor;
+    Color textColor;
+
+    switch (status.toUpperCase()) {
+      case 'OPEN':
+      case 'REOPEN':
+      case 'PAID':
+        bgColor = const Color(0xFFE8F5E9);
+        textColor = const Color(0xFF00A980);
+        break;
+      case 'DRAFT':
+        bgColor = const Color(0xFFFFEBEE);
+        textColor = const Color(0xFFD32F2F);
+        break;
+      default:
+        bgColor = const Color(0xFFF1F5F9);
+        textColor = AppColors.textSecondary;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        status.toUpperCase(),
+        style: AppTypography.labelSmall.copyWith(color: textColor, fontSize: 10, fontWeight: FontWeight.bold),
       ),
     );
   }
