@@ -1,0 +1,131 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../navigation/main_layout.dart';
+import '../widgets/courtline_illustration.dart';
+import '../widgets/minimal_loader.dart';
+import '../widgets/qanomy_animated_logo.dart';
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _navigateToHome();
+  }
+
+  Future<void> _navigateToHome() async {
+    // Wait for the animation sequence (2.8s) + 2 seconds as requested = 4.8 seconds total
+    await Future.delayed(const Duration(milliseconds: 4800));
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const MainLayout()),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.primaryNavy,
+      body: Stack(
+        children: [
+          // Subtle glowing background effect behind the logo
+          Center(
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppColors.skyBlue.withOpacity(0.1),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+          
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Spacer(flex: 3),
+              // Step 2 & 3: Logo Build and Tail Reveal
+              Center(child: QanomyAnimatedLogo()),
+              
+              const SizedBox(height: 32),
+              
+              // Step 4: Brand Name Fade In
+              Text(
+                'QANOMY',
+                style: AppTypography.header.copyWith(
+                  color: Colors.white,
+                  fontSize: 48,
+                  letterSpacing: 4,
+                ),
+              ).animate(delay: 1000.ms).fadeIn(duration: 600.ms).slideY(
+                    begin: 0.5,
+                    end: 0,
+                    duration: 600.ms,
+                    curve: Curves.easeOutCubic,
+                  ),
+              
+              const SizedBox(height: 16),
+              
+              // Step 5: Tagline Fade In
+              Column(
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      style: AppTypography.bodyInter.copyWith(fontSize: 18, color: Colors.white),
+                      children: [
+                        TextSpan(
+                          text: 'Qanoon',
+                          style: AppTypography.bodyInterMedium.copyWith(color: AppColors.skyBlue),
+                        ),
+                        const TextSpan(text: ' and '),
+                        TextSpan(
+                          text: 'economy,',
+                          style: AppTypography.bodyInterMedium.copyWith(color: AppColors.princetonOrange),
+                        ),
+                      ],
+                    ),
+                  ).animate(delay: 1400.ms).fadeIn(duration: 400.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+                  
+                  const SizedBox(height: 4),
+                  
+                  Text(
+                    'held in balance.',
+                    style: AppTypography.bodyInter.copyWith(fontSize: 18, color: Colors.white),
+                  ).animate(delay: 1600.ms).fadeIn(duration: 400.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+                ],
+              ),
+              
+              const Spacer(flex: 2),
+              
+              // Step 7: Loader Appear
+              MinimalLoader(),
+              const SizedBox(height: 48),
+            ],
+          ),
+          
+          // Step 6: Illustration Fade In (at the bottom)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: CourtlineIllustration(),
+          ),
+        ],
+      ),
+    );
+  }
+}
