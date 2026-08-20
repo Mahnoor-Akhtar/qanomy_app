@@ -4,10 +4,41 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/qanomy_app_bar.dart';
-import '../../navigation/main_layout.dart';
 
-class InvoicesScreen extends StatelessWidget {
+class InvoicesScreen extends StatefulWidget {
   const InvoicesScreen({super.key});
+
+  @override
+  State<InvoicesScreen> createState() => _InvoicesScreenState();
+}
+
+class _InvoicesScreenState extends State<InvoicesScreen> {
+  final List<Map<String, String>> _invoices = [
+    {'no': 'INV-2026-4167', 'client': 'Hamad Client', 'case': 'Alia vs Adnan', 'issue': '13-Aug-2026', 'due': '22-Aug-2026', 'amount': 'PKR 150,000', 'paid': 'PKR 0', 'status': 'Draft'},
+    {'no': 'INV-2026-1192', 'client': 'Arooj Client', 'case': 'Ali vs Babar', 'issue': '13-Aug-2026', 'due': '21-Aug-2026', 'amount': 'PKR 20,000', 'paid': 'PKR 0', 'status': 'Draft'},
+    {'no': 'INV-2026-8724', 'client': 'Muhammad Ali', 'case': 'Momina vs Muheeb', 'issue': '13-Aug-2026', 'due': '05-Sept-2026', 'amount': 'PKR 70,000', 'paid': 'PKR 0', 'status': 'Draft'},
+    {'no': 'INV-2026-7899', 'client': 'Arooj Client', 'case': 'Ali vs Ahmed', 'issue': '13-Aug-2026', 'due': '04-Sept-2026', 'amount': 'PKR 60,000', 'paid': 'PKR 0', 'status': 'Draft'},
+    {'no': 'INV-2026-1310', 'client': 'Arooj Client', 'case': 'Alia vs Adnan', 'issue': '13-Aug-2026', 'due': '02-Sept-2026', 'amount': 'PKR 50,000', 'paid': 'PKR 50,000', 'status': 'Paid'},
+  ];
+
+  void _addInvoice(Map<String, String> newInv) {
+    setState(() {
+      _invoices.insert(0, newInv);
+    });
+  }
+
+  void _showCreateInvoiceDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const CreateInvoiceDialog();
+      },
+    ).then((value) {
+      if (value != null && value is Map<String, String>) {
+        _addInvoice(value);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +56,7 @@ class InvoicesScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: null,
-        onPressed: () {},
+        onPressed: _showCreateInvoiceDialog,
         backgroundColor: const Color(0xFF00A980),
         child: const Icon(Icons.add, color: Colors.white),
       ),
@@ -65,7 +96,7 @@ class InvoicesScreen extends StatelessWidget {
       mainAxisSpacing: 12,
       childAspectRatio: isMobile ? 1.4 : (isTablet ? 2.0 : 2.5),
       children: [
-        _buildStatCard('Total Invoices', '5', 'All time', Icons.description_outlined, const Color(0xFF10B981), const Color(0xFFD1FAE5)),
+        _buildStatCard('Total Invoices', '${_invoices.length}', 'All time', Icons.description_outlined, const Color(0xFF10B981), const Color(0xFFD1FAE5)),
         _buildStatCard('Total Billed', 'PKR 350,000', 'All time', Icons.currency_rupee, const Color(0xFF3B82F6), const Color(0xFFDBEAFE)),
         _buildStatCard('Paid Amount', 'PKR 50,000', 'All time', Icons.credit_card_outlined, const Color(0xFFF59E0B), const Color(0xFFFEF3C7)),
         _buildStatCard('Outstanding', 'PKR 250,000', 'Unpaid', Icons.error_outline, const Color(0xFFEF4444), const Color(0xFFFEE2E2)),
@@ -99,7 +130,7 @@ class InvoicesScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: bgColor,
-                  borderRadius: BorderRadius.circular(10),
+                  shape: BoxShape.circle,
                 ),
                 child: Icon(icon, color: iconColor, size: 18),
               ),
@@ -199,20 +230,12 @@ class InvoicesScreen extends StatelessWidget {
   }
 
   Widget _buildInvoicesList() {
-    final invoices = [
-      {'no': 'INV-2026-4167', 'client': 'Hamad Client', 'case': 'Alia vs Adnan', 'issue': '13-Aug-2026', 'due': '22-Aug-2026', 'amount': 'PKR 150,000', 'paid': 'PKR 0', 'status': 'Draft'},
-      {'no': 'INV-2026-1192', 'client': 'Arooj Client', 'case': 'Ali vs Babar', 'issue': '13-Aug-2026', 'due': '21-Aug-2026', 'amount': 'PKR 20,000', 'paid': 'PKR 0', 'status': 'Draft'},
-      {'no': 'INV-2026-8724', 'client': 'Muhammad Ali', 'case': 'Momina vs Muheeb', 'issue': '13-Aug-2026', 'due': '05-Sept-2026', 'amount': 'PKR 70,000', 'paid': 'PKR 0', 'status': 'Draft'},
-      {'no': 'INV-2026-7899', 'client': 'Arooj Client', 'case': 'Ali vs Ahmed', 'issue': '13-Aug-2026', 'due': '04-Sept-2026', 'amount': 'PKR 60,000', 'paid': 'PKR 0', 'status': 'Draft'},
-      {'no': 'INV-2026-1310', 'client': 'Arooj Client', 'case': 'Alia vs Adnan', 'issue': '13-Aug-2026', 'due': '02-Sept-2026', 'amount': 'PKR 50,000', 'paid': 'PKR 50,000', 'status': 'Paid'},
-    ];
-
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: invoices.length,
+      itemCount: _invoices.length,
       itemBuilder: (context, index) {
-        final inv = invoices[index];
+        final inv = _invoices[index];
         return InvoiceCard(
           index: index,
           no: inv['no']!,
@@ -487,6 +510,362 @@ class _InvoiceCardState extends State<InvoiceCard> {
           style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 13, height: 1.4),
         ),
       ],
+    );
+  }
+}
+
+class CreateInvoiceDialog extends StatefulWidget {
+  const CreateInvoiceDialog({super.key});
+
+  @override
+  State<CreateInvoiceDialog> createState() => _CreateInvoiceDialogState();
+}
+
+class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
+  final _formKey = GlobalKey<FormState>();
+  
+  String? _selectedClient;
+  String? _selectedCase;
+  DateTime? _dueDate;
+  final _amountController = TextEditingController();
+  String _paymentTerms = '15 Days';
+
+  final List<String> _clients = ['Hamad Client', 'Arooj Client', 'Muhammad Ali'];
+  final List<String> _cases = ['Alia vs Adnan', 'Ali vs Babar', 'Momina vs Muheeb', 'Ali vs Ahmed', 'No case linked'];
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  String _formatDate(DateTime date) {
+    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return "${date.day}-${months[date.month - 1]}-${date.year}";
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now().add(const Duration(days: 15)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2101),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF023047),
+              onPrimary: Colors.white,
+              onSurface: Color(0xFF023047),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _dueDate) {
+      setState(() {
+        _dueDate = picked;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      elevation: 24,
+      backgroundColor: Colors.white,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Create Invoice',
+                        style: AppTypography.titleMedium.copyWith(
+                          color: AppColors.primaryNavy,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close, color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 24),
+                  
+                  Text(
+                    'Client *',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: AppColors.primaryNavy,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: _selectedClient,
+                    hint: const Text('Select client...'),
+                    validator: (value) => value == null ? 'Client is required' : null,
+                    items: _clients.map((client) {
+                      return DropdownMenuItem(
+                        value: client,
+                        child: Text(client),
+                      );
+                    }).toList(),
+                    onChanged: (val) {
+                      setState(() {
+                        _selectedClient = val;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  Text(
+                    'Case (optional)',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: AppColors.primaryNavy,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: _selectedCase,
+                    hint: const Text('No case linked'),
+                    items: _cases.map((c) {
+                      return DropdownMenuItem(
+                        value: c,
+                        child: Text(c),
+                      );
+                    }).toList(),
+                    onChanged: (val) {
+                      setState(() {
+                        _selectedCase = val;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              'Due Date *',
+                              style: AppTypography.labelSmall.copyWith(
+                                color: AppColors.primaryNavy,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            InkWell(
+                              onTap: () => _selectDate(context),
+                              child: Container(
+                                height: 48,
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: AppColors.border.withOpacity(0.5)),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      _dueDate == null ? 'mm/dd/yyyy' : _formatDate(_dueDate!),
+                                      style: AppTypography.bodyInter.copyWith(
+                                        color: _dueDate == null ? AppColors.textMuted : AppColors.primaryNavy,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    const Icon(Icons.calendar_today_rounded, size: 18, color: AppColors.textSecondary),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Amount (PKR) *',
+                              style: AppTypography.labelSmall.copyWith(
+                                color: AppColors.primaryNavy,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _amountController,
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Required';
+                                }
+                                if (double.tryParse(value) == null) {
+                                  return 'Must be a number';
+                                }
+                                return null;
+                              },
+                              decoration: InputDecoration(
+                                hintText: 'e.g. 150000',
+                                hintStyle: AppTypography.bodyInter.copyWith(color: AppColors.textMuted, fontSize: 13),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  Text(
+                    'Payment Terms',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: AppColors.primaryNavy,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: _paymentTerms,
+                    items: ['15 Days', '30 Days', '45 Days', 'Due on Receipt'].map((term) {
+                      return DropdownMenuItem(
+                        value: term,
+                        child: Text(term),
+                      );
+                    }).toList(),
+                    onChanged: (val) {
+                      setState(() {
+                        _paymentTerms = val ?? '15 Days';
+                      });
+                    },
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: AppColors.border.withOpacity(0.5)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                        ),
+                        child: Text(
+                          'Cancel',
+                          style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            if (_dueDate == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Please pick a due date')),
+                              );
+                              return;
+                            }
+                            
+                            final amountVal = double.tryParse(_amountController.text) ?? 0.0;
+                            final amountFormatted = "PKR ${amountVal.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => "${m[1]},")}";
+                            
+                            final newInv = {
+                              'no': 'INV-2026-${DateTime.now().millisecondsSinceEpoch.toString().substring(9)}',
+                              'client': _selectedClient!,
+                              'case': _selectedCase ?? 'No case linked',
+                              'issue': _formatDate(DateTime.now()),
+                              'due': _formatDate(_dueDate!),
+                              'amount': amountFormatted,
+                              'paid': 'PKR 0',
+                              'status': 'Draft',
+                            };
+                            Navigator.pop(context, newInv);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF00A980),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          'Save Invoice',
+                          style: AppTypography.bodyInterMedium.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
