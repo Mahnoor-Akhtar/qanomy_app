@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/utils/responsive.dart';
@@ -13,6 +13,8 @@ import '../notifications/screens/notifications_screen.dart';
 import '../activity/screens/activity_screen.dart';
 import '../support/screens/support_screen.dart';
 import '../reports/screens/reports_screen.dart';
+import '../documents/screens/documents_screen.dart';
+import '../settings/screens/settings_screen.dart';
 import 'screens/more_menu_screen.dart';
 import 'widgets/custom_bottom_app_bar.dart';
 import 'widgets/qanomy_sidebar.dart';
@@ -47,13 +49,13 @@ class MainLayoutState extends State<MainLayout> {
     const CasesScreen(), // 1
     const HearingsCalendarScreen(), // 2
     const ClientsScreen(), // 3
-    _buildPlaceholderScreen('Documents'), // 4
+    const DocumentsScreen(), // 4
     const InvoicesScreen(), // 5
     const TeamMembersScreen(), // 6
     _buildPlaceholderScreen('Tasks'), // 7
     const ReportsScreen(), // 8
     const NotificationsScreen(), // 9
-    _buildPlaceholderScreen('Settings'), // 10
+    const SettingsScreen(), // 10
     const SupportScreen(), // 11
     const ActivityScreen(), // 12
     const CaseHistoryScreen(), // 13
@@ -86,7 +88,7 @@ class MainLayoutState extends State<MainLayout> {
       ),
     );
   }
-  // Helper to map bottom nav index to main screen index
+
   int _mapBottomNavToMainIndex(int bottomIndex) {
     switch (bottomIndex) {
       case 0: return 3; // Clients
@@ -98,7 +100,6 @@ class MainLayoutState extends State<MainLayout> {
     }
   }
 
-  // Helper to figure out which bottom nav tab should be highlighted
   int _getBottomNavIndex(int mainIndex) {
     switch (mainIndex) {
       case 0: return 2; // Home
@@ -106,7 +107,7 @@ class MainLayoutState extends State<MainLayout> {
       case 3: return 0; // Clients
       case 2: return 3; // Hearings
       case 6: return 4; // Teams
-      default: return -1; // No bottom nav item highlighted if deeply nested in drawer
+      default: return -1;
     }
   }
 
@@ -169,4 +170,3 @@ class MainLayoutState extends State<MainLayout> {
     );
   }
 }
-

@@ -20,7 +20,6 @@ class _ReportsScreenState extends State<ReportsScreen>
   int _touchedDonutIndex = -1;
   int _touchedRevDonutIndex = -1;
 
-  // ── Stat data ──────────────────────────────────────────────────────────────
   final _stats = [
     {'label': 'TOTAL ACTIVE CASES', 'value': '7', 'sub': 'All time', 'icon': Icons.work_outline, 'color': Color(0xFF3B82F6)},
     {'label': 'CASES DISPOSED', 'value': '1', 'sub': 'Fully closed', 'icon': Icons.check_circle_outline, 'color': Color(0xFF10B981)},
@@ -64,7 +63,7 @@ class _ReportsScreenState extends State<ReportsScreen>
       ),
       body: Column(
         children: [
-          // Stats Row
+          // Stats Row (Minimalistic)
           _buildStatsRow(isMobile),
           // Tabs
           Container(
@@ -103,77 +102,66 @@ class _ReportsScreenState extends State<ReportsScreen>
     );
   }
 
-  // ── Stats Row ──────────────────────────────────────────────────────────────
   Widget _buildStatsRow(bool isMobile) {
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: isMobile
-          ? GridView.count(
-              shrinkWrap: true,
-              crossAxisCount: 2,
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              childAspectRatio: 2.2,
-              physics: const NeverScrollableScrollPhysics(),
-              children: _stats.asMap().entries.map((e) => _StatCard(data: e.value, index: e.key)).toList(),
+          ? SizedBox(
+              height: 74,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: _stats.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    width: 145,
+                    margin: const EdgeInsets.only(right: 10),
+                    child: _StatCard(data: _stats[index], index: index),
+                  );
+                },
+              ),
             )
-          : Row(
-              children: _stats.asMap().entries.map((e) => Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(right: e.key < _stats.length - 1 ? 10 : 0),
-                  child: _StatCard(data: e.value, index: e.key),
-                ),
-              )).toList(),
+          : Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: _stats.asMap().entries.map((e) => Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(right: e.key < _stats.length - 1 ? 8 : 0),
+                    child: _StatCard(data: e.value, index: e.key),
+                  ),
+                )).toList(),
+              ),
             ),
     );
   }
 
-  // ── OVERVIEW TAB ───────────────────────────────────────────────────────────
   Widget _buildOverviewTab(bool isMobile) {
+    // Highly minimalistic Overview tab: Shows only 3 clean charts instead of 6 duplicating widgets!
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.s20),
       child: Column(
         children: [
-          // Row 1: 3 charts
           isMobile
               ? Column(children: [
-                  _buildCasesByStatusChart(),
-                  const SizedBox(height: 16),
-                  _buildCasesByCourtChart(),
-                  const SizedBox(height: 16),
                   _buildRevenueLineChart(),
-                ])
-              : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Expanded(flex: 3, child: _buildCasesByStatusChart()),
-                  const SizedBox(width: 16),
-                  Expanded(flex: 3, child: _buildCasesByCourtChart()),
-                  const SizedBox(width: 16),
-                  Expanded(flex: 4, child: _buildRevenueLineChart()),
-                ]),
-          const SizedBox(height: 16),
-          // Row 2: Team + Revenue donut + Quick Reports
-          isMobile
-              ? Column(children: [
-                  _buildTeamPerformanceMini(),
                   const SizedBox(height: 16),
-                  _buildRevByTypeChart(),
+                  _buildCasesByStatusChart(),
                   const SizedBox(height: 16),
                   _buildQuickReports(),
                 ])
               : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Expanded(flex: 3, child: _buildTeamPerformanceMini()),
+                  Expanded(flex: 5, child: _buildRevenueLineChart()),
                   const SizedBox(width: 16),
-                  Expanded(flex: 3, child: _buildRevByTypeChart()),
+                  Expanded(flex: 3, child: _buildCasesByStatusChart()),
                   const SizedBox(width: 16),
-                  Expanded(flex: 2, child: _buildQuickReports()),
+                  Expanded(flex: 3, child: _buildQuickReports()),
                 ]),
         ],
       ),
     );
   }
 
-  // ── CASES TAB ─────────────────────────────────────────────────────────────
   Widget _buildCasesTab(bool isMobile) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.s20),
@@ -197,7 +185,6 @@ class _ReportsScreenState extends State<ReportsScreen>
     );
   }
 
-  // ── REVENUE TAB ───────────────────────────────────────────────────────────
   Widget _buildRevenueTab(bool isMobile) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.s20),
@@ -227,15 +214,12 @@ class _ReportsScreenState extends State<ReportsScreen>
     );
   }
 
-  // ── TEAM TAB ──────────────────────────────────────────────────────────────
   Widget _buildTeamTab(bool isMobile) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.s20),
       child: _buildTeamFullTable(),
     );
   }
-
-  // ── CHART WIDGETS ─────────────────────────────────────────────────────────
 
   Widget _buildCasesByStatusChart() {
     const sections = [
@@ -274,11 +258,9 @@ class _ReportsScreenState extends State<ReportsScreen>
               swapAnimationDuration: 300.ms,
             ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack),
           ),
-          // Center label
           const SizedBox(height: 4),
           Text('Total\n7', textAlign: TextAlign.center, style: AppTypography.labelSmall.copyWith(color: AppColors.primaryNavy, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
-          // Legend
           ...sections.map((s) => Padding(
             padding: const EdgeInsets.symmetric(vertical: 3),
             child: Row(
@@ -314,9 +296,9 @@ class _ReportsScreenState extends State<ReportsScreen>
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
-                  interval: 0.25,
-                  getTitlesWidget: (v, _) => Text(v.toStringAsFixed(2), style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
-                  reservedSize: 36,
+                  interval: 0.5,
+                  getTitlesWidget: (v, _) => Text(v.toStringAsFixed(1), style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
+                  reservedSize: 30,
                 ),
               ),
               bottomTitles: AxisTitles(
@@ -350,7 +332,7 @@ class _ReportsScreenState extends State<ReportsScreen>
 
   Widget _buildRevenueLineChart({bool tall = false}) {
     return _ChartCard(
-      title: 'Revenue Overview (PKR) — Last 6 Months',
+      title: 'Revenue Overview (PKR) - Last 6 Months',
       child: SizedBox(
         height: tall ? 300 : 220,
         child: LineChart(
@@ -389,20 +371,17 @@ class _ReportsScreenState extends State<ReportsScreen>
               rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             ),
             lineBarsData: [
-              // Billed (green)
               LineChartBarData(
                 spots: const [FlSpot(0, 0), FlSpot(1, 0), FlSpot(2, 20000), FlSpot(3, 30000), FlSpot(4, 70000), FlSpot(5, 350000)],
                 isCurved: true, color: const Color(0xFF10B981), barWidth: 2,
                 dotData: FlDotData(show: true, getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(radius: 3, color: const Color(0xFF10B981), strokeWidth: 0, strokeColor: Colors.white)),
                 belowBarData: BarAreaData(show: true, color: const Color(0xFF10B981).withValues(alpha: 0.06)),
               ),
-              // Received (blue)
               LineChartBarData(
                 spots: const [FlSpot(0, 0), FlSpot(1, 0), FlSpot(2, 0), FlSpot(3, 0), FlSpot(4, 0), FlSpot(5, 50000)],
                 isCurved: true, color: const Color(0xFF3B82F6), barWidth: 2,
                 dotData: FlDotData(show: true, getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(radius: 3, color: const Color(0xFF3B82F6), strokeWidth: 0, strokeColor: Colors.white)),
               ),
-              // Outstanding (red)
               LineChartBarData(
                 spots: const [FlSpot(0, 0), FlSpot(1, 0), FlSpot(2, 20000), FlSpot(3, 30000), FlSpot(4, 70000), FlSpot(5, 300000)],
                 isCurved: true, color: const Color(0xFFEF4444), barWidth: 2,
@@ -410,8 +389,6 @@ class _ReportsScreenState extends State<ReportsScreen>
               ),
             ],
           ),
-          duration: 800.ms,
-          curve: Curves.easeOutCubic,
         ).animate().fadeIn(duration: 800.ms).slideY(begin: 0.1, duration: 600.ms),
       ),
     );
@@ -444,7 +421,6 @@ class _ReportsScreenState extends State<ReportsScreen>
                     );
                   }).toList(),
                 ),
-                swapAnimationDuration: 300.ms,
               ).animate().scale(duration: 700.ms, curve: Curves.easeOutBack),
             ),
             const SizedBox(width: 12),
@@ -499,28 +475,14 @@ class _ReportsScreenState extends State<ReportsScreen>
                     Container(width: 10, height: 10, decoration: BoxDecoration(color: e.value['color'] as Color, shape: BoxShape.circle)),
                     const SizedBox(width: 10),
                     Expanded(child: Text(e.value['status'] as String, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 13))),
-                    Text('${e.value['count']}', style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 13)),
-                    const SizedBox(width: 32),
-                    SizedBox(width: 48, child: Text(e.value['pct'] as String, textAlign: TextAlign.end, style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary, fontSize: 13))),
+                    SizedBox(width: 50, child: Text('${e.value['count']}', textAlign: TextAlign.center, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 13))),
+                    SizedBox(width: 50, child: Text(e.value['pct'] as String, textAlign: TextAlign.center, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.textSecondary, fontSize: 13))),
                   ],
                 ),
               ),
               if (e.key < rows.length - 1) const Divider(height: 1),
             ],
           )).toList(),
-          const Divider(height: 1),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Row(
-              children: [
-                const SizedBox(width: 20),
-                Expanded(child: Text('Total', style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontWeight: FontWeight.bold))),
-                Text('7', style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontWeight: FontWeight.bold)),
-                const SizedBox(width: 32),
-                const SizedBox(width: 48, child: Text('100%', textAlign: TextAlign.end, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -528,27 +490,34 @@ class _ReportsScreenState extends State<ReportsScreen>
 
   Widget _buildCasesByTypeHorizBar() {
     final types = [
-      {'label': 'NAB /\nCybercrime', 'value': 4.0, 'color': const Color(0xFF3B82F6)},
-      {'label': 'Family', 'value': 2.0, 'color': const Color(0xFFF59E0B)},
-      {'label': 'Civil', 'value': 1.0, 'color': const Color(0xFF10B981)},
+      {'label': 'NAB / Cybercrime', 'value': 6.0, 'color': const Color(0xFF3B82F6)},
+      {'label': 'Family', 'value': 1.0, 'color': const Color(0xFFF59E0B)},
     ];
     return _ChartCard(
-      title: 'Cases by Type',
+      title: 'Cases by Case Type',
       child: SizedBox(
-        height: 200,
+        height: 220,
         child: BarChart(
           BarChartData(
-            maxY: 5,
-            barTouchData: BarTouchData(enabled: false),
-            gridData: FlGridData(show: true, drawVerticalLine: true, drawHorizontalLine: false, getDrawingVerticalLine: (_) => FlLine(color: AppColors.border.withValues(alpha: 0.4), strokeWidth: 1)),
+            maxY: 6.5,
+            gridData: FlGridData(
+              show: true,
+              drawVerticalLine: false,
+              getDrawingHorizontalLine: (_) => FlLine(color: AppColors.border.withValues(alpha: 0.4), strokeWidth: 1),
+            ),
             borderData: FlBorderData(show: false),
             titlesData: FlTitlesData(
-              bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, interval: 1, getTitlesWidget: (v, _) => Text(v.toInt().toString(), style: const TextStyle(fontSize: 10, color: AppColors.textMuted)), reservedSize: 24)),
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
-                  reservedSize: 80,
-                  getTitlesWidget: (v, meta) {
+                  reservedSize: 24,
+                  getTitlesWidget: (v, _) => Text(v.toInt().toString(), style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
+                ),
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  getTitlesWidget: (v, _) {
                     final idx = v.toInt();
                     if (idx < 0 || idx >= types.length) return const SizedBox.shrink();
                     return Padding(
@@ -566,19 +535,71 @@ class _ReportsScreenState extends State<ReportsScreen>
               barRods: [BarChartRodData(toY: e.value['value'] as double, width: 20, color: e.value['color'] as Color, borderRadius: BorderRadius.circular(4))],
             )).toList(),
           ),
-          swapAnimationDuration: 600.ms,
-          swapAnimationCurve: Curves.easeOutCubic,
-        ).animate().slideX(begin: -0.2, duration: 600.ms, curve: Curves.easeOutCubic),
+        ),
       ),
     );
   }
 
   Widget _buildTeamPerformanceMini() {
+    final isMobile = Responsive.isMobile(context);
     final members = [
       {'name': 'Haris khan', 'role': 'Lawyer', 'active': 2, 'disposed': 0, 'total': 2},
       {'name': 'Fatima', 'role': 'Lawyer', 'active': 2, 'disposed': 0, 'total': 2},
       {'name': 'Ejaz', 'role': 'Lawyer', 'active': 0, 'disposed': 1, 'total': 1},
     ];
+
+    if (isMobile) {
+      return _ChartCard(
+        title: 'Team Performance (By Cases)',
+        child: Column(
+          children: members.asMap().entries.map((e) {
+            final m = e.value;
+            final load = (m['total'] as int) / 2.0;
+            return Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(m['name'] as String, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 13, fontWeight: FontWeight.bold)),
+                      Text(m['role'] as String, style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted, fontSize: 11)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Active: ${m['active']}', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                      Text('Disposed: ${m['disposed']}', style: const TextStyle(fontSize: 11, color: Color(0xFF10B981))),
+                      Text('Total: ${m['total']}', style: const TextStyle(fontSize: 11, color: AppColors.primaryNavy, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: load,
+                      backgroundColor: AppColors.border,
+                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
+                      minHeight: 5,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      );
+    }
+
     return _ChartCard(
       title: 'Team Performance (By Cases)',
       child: Column(
@@ -626,11 +647,89 @@ class _ReportsScreenState extends State<ReportsScreen>
   }
 
   Widget _buildTeamFullTable() {
+    final isMobile = Responsive.isMobile(context);
     final members = [
       {'name': 'Haris khan', 'role': 'Lawyer', 'active': 2, 'disposed': 0, 'total': 2},
       {'name': 'Fatima', 'role': 'Lawyer', 'active': 2, 'disposed': 0, 'total': 2},
       {'name': 'Ejaz', 'role': 'Lawyer', 'active': 0, 'disposed': 1, 'total': 1},
     ];
+
+    if (isMobile) {
+      return _ChartCard(
+        title: 'Team Performance Overview',
+        child: Column(
+          children: members.asMap().entries.map((e) {
+            final m = e.value;
+            final load = (m['total'] as int) / 2.0;
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 12,
+                            backgroundColor: AppColors.primaryNavy.withValues(alpha: 0.1),
+                            child: Text('${e.key + 1}', style: const TextStyle(fontSize: 11, color: AppColors.primaryNavy, fontWeight: FontWeight.bold)),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(m['name'] as String, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 13, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6), border: Border.all(color: AppColors.border.withValues(alpha: 0.4))),
+                        child: Text(m['role'] as String, style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondary, fontSize: 10)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  const Divider(height: 1),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildMiniField('Active', '${m['active']}'),
+                      _buildMiniField('Disposed', '${m['disposed']}'),
+                      _buildMiniField('Total', '${m['total']}'),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Text('Load', style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted, fontSize: 10)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: load,
+                            backgroundColor: AppColors.border,
+                            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
+                            minHeight: 6,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      );
+    }
+
     return _ChartCard(
       title: 'Team Performance Overview',
       child: Column(
@@ -683,6 +782,17 @@ class _ReportsScreenState extends State<ReportsScreen>
           }).toList(),
         ],
       ),
+    );
+  }
+
+  Widget _buildMiniField(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label.toUpperCase(), style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted, fontSize: 9, letterSpacing: 0.3)),
+        const SizedBox(height: 2),
+        Text(value, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 13, fontWeight: FontWeight.bold)),
+      ],
     );
   }
 
@@ -775,7 +885,6 @@ class _ReportsScreenState extends State<ReportsScreen>
   }
 }
 
-// ── Reusable Chart Card ────────────────────────────────────────────────────
 class _ChartCard extends StatelessWidget {
   final String title;
   final Widget child;
@@ -804,7 +913,6 @@ class _ChartCard extends StatelessWidget {
   }
 }
 
-// ── Stat Card ──────────────────────────────────────────────────────────────
 class _StatCard extends StatelessWidget {
   final Map<String, dynamic> data;
   final int index;
@@ -815,12 +923,11 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = data['color'] as Color;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.4)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2))],
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -828,26 +935,32 @@ class _StatCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(data['icon'] as IconData, color: color, size: 16),
-              const SizedBox(width: 6),
-              Expanded(child: Text(data['label'] as String, style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted, fontSize: 9, letterSpacing: 0.5))),
+              Icon(data['icon'] as IconData, color: color, size: 14),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  data['label'] as String,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted, fontSize: 8, letterSpacing: 0.3),
+                ),
+              ),
             ],
           ),
-          Text(data['value'] as String, style: AppTypography.titleMedium.copyWith(color: AppColors.primaryNavy, fontSize: 18, fontWeight: FontWeight.bold)),
-          Row(
-            children: [
-              Icon(Icons.trending_up, size: 11, color: color),
-              const SizedBox(width: 4),
-              Text(data['sub'] as String, style: AppTypography.labelSmall.copyWith(color: color, fontSize: 10)),
-            ],
+          Text(
+            data['value'] as String,
+            style: AppTypography.titleMedium.copyWith(color: AppColors.primaryNavy, fontSize: 15, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            data['sub'] as String,
+            style: AppTypography.labelSmall.copyWith(color: color, fontSize: 9),
           ),
         ],
       ),
-    ).animate(delay: (index * 80).ms).fadeIn(duration: 400.ms).slideY(begin: -0.1, duration: 300.ms);
+    );
   }
 }
 
-// ── AppBar Icon Button ─────────────────────────────────────────────────────
 class _AppBarIconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
