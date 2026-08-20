@@ -24,6 +24,7 @@ class InvoicesScreen extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: null,
         onPressed: () {},
         backgroundColor: const Color(0xFF00A980),
         child: const Icon(Icons.add, color: Colors.white),

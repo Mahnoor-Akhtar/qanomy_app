@@ -20,6 +20,7 @@ class ClientsScreen extends StatelessWidget {
         title: 'Clients',
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: null,
         onPressed: () {
           Navigator.push(
             context,
