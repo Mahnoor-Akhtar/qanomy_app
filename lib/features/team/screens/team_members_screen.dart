@@ -17,7 +17,7 @@ class TeamMembersScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
-      appBar: const QanomyAppBar(
+      appBar: QanomyAppBar(
         title: 'Team Members',
         subtitle: 'Manage your law firm team and their access',
       ),

@@ -13,7 +13,7 @@ class ActivityScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
-      appBar: const QanomyAppBar(
+      appBar: QanomyAppBar(
         title: 'Your Activity',
         subtitle: 'Complete audit log of actions in your firm',
       ),

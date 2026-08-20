@@ -12,7 +12,7 @@ class NotificationsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
-      appBar: const QanomyAppBar(
+      appBar: QanomyAppBar(
         title: 'Notifications & Reminders',
         subtitle: 'View your live activity and notifications',
       ),

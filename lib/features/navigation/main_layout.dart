@@ -11,6 +11,7 @@ import '../invoices/screens/invoices_screen.dart';
 import '../notifications/screens/notifications_screen.dart';
 import '../activity/screens/activity_screen.dart';
 import '../support/screens/support_screen.dart';
+import '../reports/screens/reports_screen.dart';
 import 'screens/more_menu_screen.dart';
 import 'widgets/custom_bottom_app_bar.dart';
 import 'widgets/qanomy_sidebar.dart';
@@ -49,7 +50,7 @@ class MainLayoutState extends State<MainLayout> {
     const InvoicesScreen(), // 5
     const TeamMembersScreen(), // 6
     _buildPlaceholderScreen('Tasks'), // 7
-    _buildPlaceholderScreen('Reports'), // 8
+    const ReportsScreen(), // 8
     const NotificationsScreen(), // 9
     _buildPlaceholderScreen('Settings'), // 10
     const SupportScreen(), // 11

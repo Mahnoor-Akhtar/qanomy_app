@@ -46,7 +46,7 @@ class _SupportScreenState extends State<SupportScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
-      appBar: const QanomyAppBar(
+      appBar: QanomyAppBar(
         title: 'Help & Support',
         subtitle: 'Get in touch with Qanomy Support or view your request history',
       ),
