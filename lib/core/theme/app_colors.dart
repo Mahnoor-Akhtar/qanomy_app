@@ -21,4 +21,19 @@ class AppColors {
 
   // Borders
   static const Color border = Color(0xFFDCE6EC);
+
+  // Navigation Mockup Colors
+  static const Color sidebarNavy = Color(0xFF0D1B2A);
+  static const Color iconInactive = Color(0xFF1B263B);
+  static const Color navHighlight = Color(0xFFE6F0FA);
+  static const Color navOrange = Color(0xFFFFBA00);
+  static const Color navBackground = Color(0xFFF4F6F8);
+
+  // Dashboard Pastel Icon Backgrounds
+  static const Color pastelOrange = Color(0xFFFFF0E6);
+  static const Color pastelBlue = Color(0xFFE8F0FE);
+  static const Color pastelGreen = Color(0xFFE6F4EA);
+  static const Color pastelPurple = Color(0xFFF3E8FD);
+  static const Color pastelYellow = Color(0xFFFFF8E1);
+  static const Color pastelRed = Color(0xFFFCE8E6);
 }

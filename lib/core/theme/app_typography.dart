@@ -28,6 +28,7 @@ class AppTypography {
   static TextStyle get titleLarge => bodyInterSemiBold.copyWith(fontSize: 22);
   static TextStyle get titleMedium => bodyInterMedium.copyWith(fontSize: 16);
   static TextStyle get labelMedium => bodyInterMedium.copyWith(fontSize: 12);
+  static TextStyle get labelSmall => bodyInterMedium.copyWith(fontSize: 11);
       
   // TextTheme mapped to Material Design, using brand colors
   static TextTheme get textTheme {
