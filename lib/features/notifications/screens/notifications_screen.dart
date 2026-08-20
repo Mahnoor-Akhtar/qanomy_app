@@ -116,15 +116,7 @@ class NotificationsScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border(
-          left: BorderSide(
-            color: unread ? iconColor : Colors.grey.withOpacity(0.2),
-            width: 5,
-          ),
-          top: BorderSide(color: AppColors.border.withOpacity(0.3)),
-          bottom: BorderSide(color: AppColors.border.withOpacity(0.3)),
-          right: BorderSide(color: AppColors.border.withOpacity(0.3)),
-        ),
+        border: Border.all(color: AppColors.border.withOpacity(0.3)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -133,93 +125,108 @@ class NotificationsScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: IntrinsicHeight(
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Icon Avatar Container
+              // Left Accent Color Bar
               Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: iconColor.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  iconData,
-                  color: iconColor,
-                  size: 20,
-                ),
+                width: 5,
+                color: unread ? iconColor : Colors.grey.withOpacity(0.3),
               ),
-              const SizedBox(width: 16),
-              // Content details
+              // Content Area
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            title,
-                            style: AppTypography.titleMedium.copyWith(
-                              color: AppColors.primaryNavy,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Icon Avatar
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: iconColor.withOpacity(0.1),
+                          shape: BoxShape.circle,
                         ),
-                        const SizedBox(width: 8),
-                        if (unread)
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE8F5E9),
-                              borderRadius: BorderRadius.circular(12),
+                        child: Icon(
+                          iconData,
+                          color: iconColor,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      // Content details
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    title,
+                                    style: AppTypography.titleMedium.copyWith(
+                                      color: AppColors.primaryNavy,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                if (unread)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFE8F5E9),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      'NEW',
+                                      style: AppTypography.labelSmall.copyWith(
+                                        color: const Color(0xFF00A980),
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
-                            child: Text(
-                              'NEW',
-                              style: AppTypography.labelSmall.copyWith(
-                                color: const Color(0xFF00A980),
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
+                            const SizedBox(height: 6),
+                            Text(
+                              desc,
+                              style: AppTypography.bodyInter.copyWith(
+                                color: AppColors.textSecondary,
+                                fontSize: 13,
+                                height: 1.4,
                               ),
                             ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      desc,
-                      style: AppTypography.bodyInter.copyWith(
-                        color: AppColors.textSecondary,
-                        fontSize: 13,
-                        height: 1.4,
+                            const SizedBox(height: 12),
+                            // Soft responsive timestamp with clock icon
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.access_time_rounded,
+                                  color: AppColors.textMuted,
+                                  size: 13,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  time,
+                                  style: AppTypography.labelSmall.copyWith(
+                                    color: AppColors.textMuted,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    // Soft responsive timestamp with clock icon
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.access_time_rounded,
-                          color: AppColors.textMuted,
-                          size: 13,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          time,
-                          style: AppTypography.labelSmall.copyWith(
-                            color: AppColors.textMuted,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
