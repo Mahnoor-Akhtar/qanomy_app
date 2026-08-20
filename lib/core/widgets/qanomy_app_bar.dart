@@ -90,7 +90,7 @@ class QanomyAppBar extends StatelessWidget implements PreferredSizeWidget {
                           title,
                           style: AppTypography.header.copyWith(
                             color: Colors.white,
-                            fontSize: isMobile ? 20 : 22,
+                            fontSize: isMobile ? 17 : 22,
                             fontWeight: FontWeight.bold,
                             letterSpacing: -0.3,
                           ),
@@ -189,7 +189,26 @@ class QanomyAppBarButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = Responsive.isMobile(context);
     final c = color ?? Colors.white;
+    
+    if (isMobile) {
+      return InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: c.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: c.withOpacity(0.25)),
+          ),
+          child: Icon(icon, color: c, size: 18),
+        ),
+      );
+    }
+
     return OutlinedButton.icon(
       onPressed: onPressed,
       icon: Icon(icon, size: 16, color: c),
