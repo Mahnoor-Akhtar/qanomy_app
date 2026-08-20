@@ -25,7 +25,7 @@ class ActivityScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildHeaderActions(),
+                _buildHeaderActions(context),
                 const SizedBox(height: AppSpacing.s24),
                 _buildActivityList(),
               ],
@@ -36,69 +36,117 @@ class ActivityScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderActions() {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      crossAxisAlignment: WrapCrossAlignment.center,
+  Widget _buildHeaderActions(BuildContext context) {
+    final isMobile = Responsive.isMobile(context);
+    
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border.withOpacity(0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: isMobile
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildTrackActivityRow(),
+                const Divider(height: 32),
+                _buildClearLogButton(isFullWidth: true),
+              ],
+            )
+          : Row(
+              children: [
+                Expanded(child: _buildTrackActivityRow()),
+                const SizedBox(width: 24),
+                _buildClearLogButton(isFullWidth: false),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildTrackActivityRow() {
+    return Row(
       children: [
         Container(
-          height: 48,
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.border.withOpacity(0.3)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
+          padding: const EdgeInsets.all(10),
+          decoration: const BoxDecoration(
+            color: Color(0xFFE8F5E9), // Soft green
+            shape: BoxShape.circle,
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
+          child: const Icon(
+            Icons.sensors_rounded, // Sleek track sensor
+            color: Color(0xFF10B981),
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.circle_notifications_rounded, color: Color(0xFF10B981), size: 20),
-              const SizedBox(width: 8),
               Text(
                 'Track Activity',
-                style: AppTypography.bodyInterMedium.copyWith(
+                style: AppTypography.titleMedium.copyWith(
                   color: AppColors.primaryNavy,
-                  fontSize: 13,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(width: 12),
-              Switch(
-                value: true,
-                onChanged: (v) {},
-                activeColor: const Color(0xFFFF8A00),
-                activeTrackColor: const Color(0xFFFF8A00).withOpacity(0.3),
+              const SizedBox(height: 2),
+              Text(
+                'Monitor and log admin actions in the portal',
+                style: AppTypography.bodyInter.copyWith(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
+                ),
               ),
             ],
           ),
         ),
-        TextButton.icon(
-          onPressed: () {},
-          icon: const Icon(Icons.delete_sweep_rounded, size: 18, color: Color(0xFFEF4444)),
-          label: Text(
-            'Clear Log',
-            style: AppTypography.bodyInterMedium.copyWith(
-              color: const Color(0xFFEF4444),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          style: TextButton.styleFrom(
-            backgroundColor: const Color(0xFFFEF2F2),
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            minimumSize: const Size(0, 48),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          ),
+        Switch(
+          value: true,
+          onChanged: (v) {},
+          activeColor: const Color(0xFFFF8A00),
+          activeTrackColor: const Color(0xFFFF8A00).withOpacity(0.3),
         ),
       ],
     );
+  }
+
+  Widget _buildClearLogButton({required bool isFullWidth}) {
+    final button = TextButton.icon(
+      onPressed: () {},
+      icon: const Icon(Icons.delete_sweep_rounded, size: 18, color: Color(0xFFEF4444)),
+      label: Text(
+        'Clear Log',
+        style: AppTypography.bodyInterMedium.copyWith(
+          color: const Color(0xFFEF4444),
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      style: TextButton.styleFrom(
+        backgroundColor: const Color(0xFFFEF2F2),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        minimumSize: const Size(0, 48),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+
+    if (isFullWidth) {
+      return SizedBox(
+        width: double.infinity,
+        child: button,
+      );
+    }
+    return button;
   }
 
   Widget _buildActivityList() {
