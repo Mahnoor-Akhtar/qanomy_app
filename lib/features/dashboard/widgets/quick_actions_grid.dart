@@ -20,7 +20,10 @@ class QuickActionsGrid extends StatelessWidget {
               style: AppTypography.titleMedium,
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                // Settings tab has "More" options or open settings directly
+                MainLayout.instance?.switchTab(10);
+              },
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: Size.zero,
@@ -42,28 +45,45 @@ class QuickActionsGrid extends StatelessWidget {
         const SizedBox(height: AppSpacing.s16),
         LayoutBuilder(
           builder: (context, constraints) {
-            // Calculate width for 4 items per row
             final double itemWidth = (constraints.maxWidth - (3 * AppSpacing.s12)) / 4;
             
             return Wrap(
               spacing: AppSpacing.s12,
               runSpacing: AppSpacing.s16,
               children: [
-                _buildActionItem('Dashboard', Icons.dashboard_outlined, AppColors.princetonOrange, AppColors.pastelOrange, itemWidth),
+                _buildActionItem('Dashboard', Icons.dashboard_outlined, AppColors.princetonOrange, AppColors.pastelOrange, itemWidth, onTap: () {
+                  MainLayout.instance?.switchTab(0);
+                }),
                 _buildActionItem('Cases', Icons.work_outline, AppColors.skyBlue, AppColors.pastelBlue, itemWidth, onTap: () {
                   MainLayout.instance?.switchTab(1);
                 }),
-                _buildActionItem('Hearings', Icons.calendar_today_outlined, Colors.green, AppColors.pastelGreen, itemWidth),
+                _buildActionItem('Hearings', Icons.calendar_today_outlined, Colors.green, AppColors.pastelGreen, itemWidth, onTap: () {
+                  MainLayout.instance?.switchTab(2);
+                }),
                 _buildActionItem('Clients', Icons.people_outline, Colors.purple, AppColors.pastelPurple, itemWidth, onTap: () {
                   MainLayout.instance?.switchTab(3);
                 }),
-                _buildActionItem('Documents', Icons.description_outlined, AppColors.princetonOrange, AppColors.pastelOrange, itemWidth),
-                _buildActionItem('Invoices', Icons.receipt_long_outlined, Colors.amber, AppColors.pastelYellow, itemWidth),
-                _buildActionItem('Team', Icons.group_outlined, Colors.red, AppColors.pastelRed, itemWidth),
-                _buildActionItem('Tasks', Icons.check_box_outlined, AppColors.skyBlue, AppColors.pastelBlue, itemWidth),
-                _buildActionItem('Reports', Icons.bar_chart_outlined, Colors.green, AppColors.pastelGreen, itemWidth),
-                _buildActionItem('Notifications', Icons.notifications_none, Colors.purple, AppColors.pastelPurple, itemWidth),
-                _buildActionItem('Settings', Icons.settings_outlined, AppColors.princetonOrange, AppColors.pastelOrange, itemWidth),
+                _buildActionItem('Documents', Icons.description_outlined, AppColors.princetonOrange, AppColors.pastelOrange, itemWidth, onTap: () {
+                  MainLayout.instance?.switchTab(4);
+                }),
+                _buildActionItem('Invoices', Icons.receipt_long_outlined, Colors.amber, AppColors.pastelYellow, itemWidth, onTap: () {
+                  MainLayout.instance?.switchTab(5);
+                }),
+                _buildActionItem('Team', Icons.group_outlined, Colors.red, AppColors.pastelRed, itemWidth, onTap: () {
+                  MainLayout.instance?.switchTab(6);
+                }),
+                _buildActionItem('Tasks', Icons.check_box_outlined, AppColors.skyBlue, AppColors.pastelBlue, itemWidth, onTap: () {
+                  MainLayout.instance?.switchTab(7);
+                }),
+                _buildActionItem('Reports', Icons.bar_chart_outlined, Colors.green, AppColors.pastelGreen, itemWidth, onTap: () {
+                  MainLayout.instance?.switchTab(8);
+                }),
+                _buildActionItem('Notifications', Icons.notifications_none, Colors.purple, AppColors.pastelPurple, itemWidth, onTap: () {
+                  MainLayout.instance?.switchTab(9);
+                }),
+                _buildActionItem('Settings', Icons.settings_outlined, AppColors.princetonOrange, AppColors.pastelOrange, itemWidth, onTap: () {
+                  MainLayout.instance?.switchTab(10);
+                }),
               ],
             );
           },

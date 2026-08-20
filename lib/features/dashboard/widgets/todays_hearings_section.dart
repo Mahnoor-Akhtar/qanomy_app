@@ -3,6 +3,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/qanomy_card.dart';
+import '../../navigation/main_layout.dart';
 
 class TodaysHearingsSection extends StatelessWidget {
   const TodaysHearingsSection({super.key});
@@ -28,7 +29,9 @@ class TodaysHearingsSection extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                MainLayout.instance?.switchTab(2); // Go to Hearings
+              },
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: Size.zero,
@@ -47,45 +50,53 @@ class TodaysHearingsSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(AppSpacing.s12),
-                    decoration: BoxDecoration(
-                      color: AppColors.pastelBlue,
-                      borderRadius: BorderRadius.circular(12),
+              InkWell(
+                onTap: () {
+                  MainLayout.instance?.switchTab(2); // Go to Hearings
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(AppSpacing.s12),
+                      decoration: BoxDecoration(
+                        color: AppColors.pastelBlue,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.gavel, color: AppColors.primaryNavy, size: 24),
                     ),
-                    child: const Icon(Icons.gavel, color: AppColors.primaryNavy, size: 24),
-                  ),
-                  const SizedBox(width: AppSpacing.s16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '0 cases today',
-                          style: AppTypography.bodyInterSemiBold.copyWith(fontSize: 15),
-                        ),
-                        const SizedBox(height: AppSpacing.s4),
-                        Text(
-                          'Tap to view your full docket',
-                          style: AppTypography.bodyInter.copyWith(
-                            color: AppColors.textSecondary,
-                            fontSize: 13,
+                    const SizedBox(width: AppSpacing.s16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '0 cases today',
+                            style: AppTypography.bodyInterSemiBold.copyWith(fontSize: 15),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: AppSpacing.s4),
+                          Text(
+                            'Tap to view your full docket',
+                            style: AppTypography.bodyInter.copyWith(
+                              color: AppColors.textSecondary,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const Icon(Icons.chevron_right, color: AppColors.textSecondary),
-                ],
+                    const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+                  ],
+                ),
               ),
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: AppSpacing.s16),
                 child: Divider(color: AppColors.border, height: 1),
               ),
               TextButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  MainLayout.instance?.switchTab(1); // Go to Cases to add
+                },
                 icon: const Icon(Icons.add, size: 18, color: AppColors.primaryNavy),
                 label: Text(
                   'Add case',
