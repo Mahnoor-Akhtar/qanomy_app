@@ -3,6 +3,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/widgets/qanomy_app_bar.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../navigation/main_layout.dart';
 import 'add_client_screen.dart';
@@ -15,28 +16,9 @@ class ClientsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
-      appBar: AppBar(
-        backgroundColor: AppColors.sidebarNavy,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: false,
-        toolbarHeight: 90,
-        leading: Responsive.isMobile(context)
-            ? IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () {
-                  MainLayout.scaffoldKey.currentState?.openDrawer();
-                },
-              )
-            : null,
-        titleSpacing: 0,
-        title: Text(
-          'Clients',
-          style: AppTypography.header.copyWith(
-            color: Colors.white,
-            fontSize: 28,
-          ),
-        ),
+      appBar: const QanomyAppBar(
+        title: 'Clients',
+        subtitle: 'Manage all your clients and their information',
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

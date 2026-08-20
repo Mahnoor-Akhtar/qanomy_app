@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/widgets/qanomy_app_bar.dart';
 import '../../navigation/main_layout.dart';
 import '../../../core/utils/responsive.dart';
 
@@ -12,25 +13,9 @@ class ActivityScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
-      appBar: AppBar(
-        backgroundColor: AppColors.primaryNavy,
-        elevation: 0,
-        leading: Responsive.isMobile(context)
-            ? IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () {
-                  MainLayout.scaffoldKey.currentState?.openDrawer();
-                },
-              )
-            : null,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Your Activity', style: AppTypography.header.copyWith(color: Colors.white, fontSize: 24)),
-            const SizedBox(height: 2),
-            Text('Complete audit log of actions performed in your firm', style: AppTypography.labelSmall.copyWith(color: Colors.white70)),
-          ],
-        ),
+      appBar: const QanomyAppBar(
+        title: 'Your Activity',
+        subtitle: 'Complete audit log of actions in your firm',
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.s24),

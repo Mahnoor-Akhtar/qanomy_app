@@ -3,6 +3,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/widgets/qanomy_app_bar.dart';
 import '../widgets/case_list_item.dart';
 import 'add_case_screen.dart';
 import 'case_history_screen.dart';
@@ -18,60 +19,18 @@ class CasesScreen extends StatelessWidget {
       length: 2,
       child: Scaffold(
         backgroundColor: AppColors.pageBackground,
-        appBar: AppBar(
-          backgroundColor: AppColors.sidebarNavy,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          centerTitle: false,
-          toolbarHeight: 90,
-          leading: isMobile
-              ? IconButton(
-                  icon: const Icon(Icons.menu, color: Colors.white),
-                  onPressed: () {
-                    MainLayout.scaffoldKey.currentState?.openDrawer();
-                  },
-                )
-              : null,
-          titleSpacing: 0,
-          title: Text(
-            'Cases',
-            style: AppTypography.header.copyWith(
-              color: Colors.white,
-              fontSize: 28,
-            ),
-          ),
+        appBar: QanomyAppBar(
+          title: 'Cases',
+          subtitle: 'Manage and track all your legal cases',
           actions: [
-            OutlinedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CaseHistoryScreen()),
-                );
-              },
-              icon: const Icon(
-                Icons.history,
-                color: Colors.white,
-                size: 18,
-              ),
-              label: Text(
-                'History',
-                style: AppTypography.labelSmall.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Colors.white30),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
+            QanomyAppBarButton(
+              label: 'History',
+              icon: Icons.history_rounded,
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CaseHistoryScreen()),
               ),
             ),
-            const SizedBox(width: AppSpacing.s24),
           ],
         ),
         floatingActionButton: FloatingActionButton(

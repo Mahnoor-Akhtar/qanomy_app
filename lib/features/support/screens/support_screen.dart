@@ -3,6 +3,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/widgets/qanomy_app_bar.dart';
 import '../../navigation/main_layout.dart';
 
 class SupportScreen extends StatefulWidget {
@@ -45,23 +46,9 @@ class _SupportScreenState extends State<SupportScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
-      appBar: AppBar(
-        backgroundColor: AppColors.primaryNavy,
-        elevation: 0,
-        leading: isMobile
-            ? IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () => MainLayout.scaffoldKey.currentState?.openDrawer(),
-              )
-            : null,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Help & Support', style: AppTypography.header.copyWith(color: Colors.white, fontSize: 24)),
-            const SizedBox(height: 2),
-            Text('Get in touch with Qanomy Support or view your request history.', style: AppTypography.labelSmall.copyWith(color: Colors.white70)),
-          ],
-        ),
+      appBar: const QanomyAppBar(
+        title: 'Help & Support',
+        subtitle: 'Get in touch with Qanomy Support or view your request history',
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.s24),

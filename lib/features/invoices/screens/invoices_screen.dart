@@ -3,6 +3,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/widgets/qanomy_app_bar.dart';
 import '../../navigation/main_layout.dart';
 
 class InvoicesScreen extends StatelessWidget {
@@ -12,45 +13,15 @@ class InvoicesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
-      appBar: AppBar(
-        backgroundColor: AppColors.primaryNavy,
-        elevation: 0,
-        leading: Responsive.isMobile(context)
-            ? IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () {
-                  MainLayout.scaffoldKey.currentState?.openDrawer();
-                },
-              )
-            : null,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Invoices & Billing', style: AppTypography.header.copyWith(color: Colors.white, fontSize: 24)),
-            const SizedBox(height: 2),
-            Row(
-              children: [
-                Text('Dashboard', style: AppTypography.labelSmall.copyWith(color: Colors.white70)),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
-                  child: Icon(Icons.circle, size: 4, color: Colors.white70),
-                ),
-                Text('Invoices', style: AppTypography.labelSmall.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ],
-        ),
+      appBar: QanomyAppBar(
+        title: 'Invoices & Billing',
+        subtitle: 'Dashboard • Invoices',
         actions: [
-          OutlinedButton.icon(
+          QanomyAppBarButton(
+            label: 'Export',
+            icon: Icons.file_download_outlined,
             onPressed: () {},
-            icon: const Icon(Icons.file_download_outlined, size: 18, color: Colors.white),
-            label: Text('Export', style: AppTypography.bodyInterMedium.copyWith(color: Colors.white, fontSize: 13)),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Colors.white54),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
           ),
-          const SizedBox(width: 16),
         ],
       ),
       floatingActionButton: FloatingActionButton(

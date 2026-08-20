@@ -12,31 +12,9 @@ class NotificationsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
-      appBar: AppBar(
-        backgroundColor: AppColors.primaryNavy,
-        elevation: 0,
-        leading: Responsive.isMobile(context)
-            ? IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () {
-                  MainLayout.scaffoldKey.currentState?.openDrawer();
-                },
-              )
-            : null,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Notifications & Reminders',
-              style: AppTypography.header.copyWith(color: Colors.white, fontSize: 24),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              'View your live activity and notifications.',
-              style: AppTypography.labelSmall.copyWith(color: Colors.white70, fontSize: 13),
-            ),
-          ],
-        ),
+      appBar: const QanomyAppBar(
+        title: 'Notifications & Reminders',
+        subtitle: 'View your live activity and notifications',
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.s24),

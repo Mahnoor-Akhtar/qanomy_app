@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/widgets/qanomy_app_bar.dart';
 import '../../navigation/main_layout.dart';
 import 'team_member_details_screen.dart';
 import 'add_team_member_screen.dart';
@@ -16,27 +17,9 @@ class TeamMembersScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
-      appBar: AppBar(
-        backgroundColor: AppColors.sidebarNavy,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: false,
-        toolbarHeight: 90,
-        leading: Responsive.isMobile(context)
-            ? IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () {
-                  MainLayout.scaffoldKey.currentState?.openDrawer();
-                },
-              )
-            : null,
-        title: Text(
-          'Team Members',
-          style: AppTypography.header.copyWith(
-            color: Colors.white,
-            fontSize: 24,
-          ),
-        ),
+      appBar: const QanomyAppBar(
+        title: 'Team Members',
+        subtitle: 'Manage your law firm team and their access',
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

@@ -3,6 +3,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/widgets/qanomy_app_bar.dart';
 
 class CaseHistoryScreen extends StatelessWidget {
   const CaseHistoryScreen({super.key});
@@ -11,18 +12,10 @@ class CaseHistoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
-      appBar: AppBar(
-        backgroundColor: AppColors.primaryNavy,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Case History', style: AppTypography.header.copyWith(color: Colors.white, fontSize: 24)),
-            const SizedBox(height: 2),
-            Text('View all your closed cases and their final results', style: AppTypography.labelSmall.copyWith(color: Colors.white70)),
-          ],
-        ),
+      appBar: const QanomyAppBar(
+        title: 'Case History',
+        subtitle: 'View all your closed cases and their final results',
+        showBackButton: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.s24),
