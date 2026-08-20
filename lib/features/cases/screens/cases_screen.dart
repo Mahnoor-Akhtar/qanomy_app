@@ -12,6 +12,7 @@ class CasesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = Responsive.isMobile(context);
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -22,12 +23,14 @@ class CasesScreen extends StatelessWidget {
           scrolledUnderElevation: 0,
           centerTitle: false,
           toolbarHeight: 90,
-          leading: IconButton(
-            icon: const Icon(Icons.menu, color: Colors.white),
-            onPressed: () {
-              MainLayout.scaffoldKey.currentState?.openDrawer();
-            },
-          ),
+          leading: isMobile
+              ? IconButton(
+                  icon: const Icon(Icons.menu, color: Colors.white),
+                  onPressed: () {
+                    MainLayout.scaffoldKey.currentState?.openDrawer();
+                  },
+                )
+              : null,
           titleSpacing: 0,
           title: Text(
             'Cases',

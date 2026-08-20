@@ -142,7 +142,14 @@ lib/
 
 ### 2026-08-20
 
+#### Changed
+- Migrated all recently added modules (Notifications, Invoices, Activity Log) to use the unified dark `AppBar` theme for maximum professional consistency.
+- Updated the Invoices screen to use a floating action button for the primary 'Create' action.
+
 #### Added
+- `InvoicesScreen` matching the exact provided UI, featuring dynamic summary cards, search filter, and a comprehensive data table.
+- `NotificationsScreen` with a clean, separated list view and unread indicator dots, mapped to the Notifications bell icon.
+- `ActivityScreen` featuring an elegant custom audit log timeline, dynamic tag styling, and track activity toggles (now added as a dedicated 'Activity Log' sidebar item).
 - `CaseHistoryScreen` allowing users to view closed cases in a beautiful, responsive card layout.
 - `AddTeamMemberScreen` with responsive form and portal permissions checklist.
 - `TeamMemberDetailsScreen` with a styled card showcasing member details and action buttons.

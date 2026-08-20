@@ -123,6 +123,12 @@ class QanomySidebar extends StatelessWidget {
                   isSelected: selectedIndex == 11,
                   onTap: () => onItemSelected(11),
                 ),
+                _SidebarItem(
+                  icon: Icons.history_edu_outlined,
+                  label: 'Activity Log',
+                  isSelected: selectedIndex == 12,
+                  onTap: () => onItemSelected(12),
+                ),
               ],
             ),
           ),

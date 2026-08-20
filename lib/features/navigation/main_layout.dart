@@ -6,6 +6,9 @@ import '../dashboard/screens/dashboard_screen.dart';
 import '../cases/screens/cases_screen.dart';
 import '../clients/screens/clients_screen.dart';
 import '../team/screens/team_members_screen.dart';
+import '../invoices/screens/invoices_screen.dart';
+import '../notifications/screens/notifications_screen.dart';
+import '../activity/screens/activity_screen.dart';
 import 'screens/more_menu_screen.dart';
 import 'widgets/custom_bottom_app_bar.dart';
 import 'widgets/qanomy_sidebar.dart';
@@ -41,12 +44,14 @@ class MainLayoutState extends State<MainLayout> {
     _buildPlaceholderScreen('Hearings & Calendar'), // 2
     const ClientsScreen(), // 3
     _buildPlaceholderScreen('Documents'), // 4
-    _buildPlaceholderScreen('Invoices & Billing'), // 5
+    const InvoicesScreen(), // 5
     const TeamMembersScreen(), // 6
     _buildPlaceholderScreen('Tasks'), // 7
     _buildPlaceholderScreen('Reports'), // 8
-    _buildPlaceholderScreen('Notifications'), // 9
+    const NotificationsScreen(), // 9
     _buildPlaceholderScreen('Settings'), // 10
+    _buildPlaceholderScreen('Support'), // 11
+    const ActivityScreen(), // 12
   ];
 
   Widget _buildPlaceholderScreen(String title) {

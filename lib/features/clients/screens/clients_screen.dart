@@ -20,12 +20,14 @@ class ClientsScreen extends StatelessWidget {
         scrolledUnderElevation: 0,
         centerTitle: false,
         toolbarHeight: 90,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.white),
-          onPressed: () {
-            MainLayout.scaffoldKey.currentState?.openDrawer();
-          },
-        ),
+        leading: Responsive.isMobile(context)
+            ? IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () {
+                  MainLayout.scaffoldKey.currentState?.openDrawer();
+                },
+              )
+            : null,
         titleSpacing: 0,
         title: Text(
           'Clients',
