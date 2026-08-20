@@ -137,9 +137,10 @@ class QanomySidebar extends StatelessWidget {
             ),
             child: Row(
               children: [
-                CircleAvatar(
-                  backgroundColor: AppColors.navBackground,
-                  child: Icon(Icons.person, color: AppColors.primaryNavy),
+                const CircleAvatar(
+                  radius: 20,
+                  backgroundColor: AppColors.primaryNavy,
+                  backgroundImage: AssetImage('assets/images/default_avatar.png'),
                 ),
                 const SizedBox(width: AppSpacing.s12),
                 Expanded(

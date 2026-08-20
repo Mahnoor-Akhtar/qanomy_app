@@ -5,6 +5,7 @@ import '../../core/utils/responsive.dart';
 import '../dashboard/screens/dashboard_screen.dart';
 import '../cases/screens/cases_screen.dart';
 import '../clients/screens/clients_screen.dart';
+import '../team/screens/team_members_screen.dart';
 import 'screens/more_menu_screen.dart';
 import 'widgets/custom_bottom_app_bar.dart';
 import 'widgets/qanomy_sidebar.dart';
@@ -41,7 +42,7 @@ class MainLayoutState extends State<MainLayout> {
     const ClientsScreen(), // 3
     _buildPlaceholderScreen('Documents'), // 4
     _buildPlaceholderScreen('Invoices & Billing'), // 5
-    _buildPlaceholderScreen('Team'), // 6
+    const TeamMembersScreen(), // 6
     _buildPlaceholderScreen('Tasks'), // 7
     _buildPlaceholderScreen('Reports'), // 8
     _buildPlaceholderScreen('Notifications'), // 9

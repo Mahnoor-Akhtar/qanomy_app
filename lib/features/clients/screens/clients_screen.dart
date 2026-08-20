@@ -34,26 +34,17 @@ class ClientsScreen extends StatelessWidget {
             fontSize: 28,
           ),
         ),
-        actions: [
-          OutlinedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AddClientScreen()),
-              );
-            },
-            icon: const Icon(Icons.add, size: 20, color: Colors.white),
-            label: Text(
-              'Add New Client',
-              style: AppTypography.bodyInterMedium.copyWith(color: Colors.white),
-            ),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Colors.white30),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.s24),
-        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddClientScreen()),
+          );
+        },
+        backgroundColor: const Color(0xFFFF8A00),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
       body: Column(
         children: [
@@ -191,13 +182,10 @@ class ClientsScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16, vertical: AppSpacing.s16),
             child: Row(
               children: [
-                CircleAvatar(
-                  backgroundColor: AppColors.primaryNavy,
-                  radius: 22,
-                  child: Text(
-                    name[0].toUpperCase(),
-                    style: AppTypography.titleMedium.copyWith(color: Colors.white),
-                  ),
+                const CircleAvatar(
+                  radius: 24,
+                  backgroundColor: Color(0xFFE8F5E9),
+                  backgroundImage: AssetImage('assets/images/default_avatar.png'),
                 ),
                 const SizedBox(width: AppSpacing.s16),
                 Expanded(

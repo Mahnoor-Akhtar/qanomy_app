@@ -61,28 +61,19 @@ class CasesScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: AppSpacing.s12),
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.princetonOrange,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const AddCaseScreen(),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.add, color: Colors.white),
-                constraints: const BoxConstraints(minWidth: 42, minHeight: 42),
-                padding: EdgeInsets.zero,
-              ),
-            ),
             const SizedBox(width: AppSpacing.s24),
           ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AddCaseScreen()),
+            );
+          },
+          backgroundColor: const Color(0xFFFF8A00),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: const Icon(Icons.add, color: Colors.white, size: 28),
         ),
         body: Column(
           children: [

@@ -104,16 +104,6 @@ class CaseDetailsScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text('Case Detail', style: AppTypography.header.copyWith(color: Colors.white, fontSize: 24)),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Text('Dashboard', style: AppTypography.labelSmall.copyWith(color: Colors.white70)),
-                    const Icon(Icons.chevron_right, size: 14, color: Colors.white70),
-                    Text('Cases', style: AppTypography.labelSmall.copyWith(color: Colors.white70)),
-                    const Icon(Icons.chevron_right, size: 14, color: Colors.white70),
-                    Text('Case Detail', style: AppTypography.labelSmall.copyWith(color: Colors.white)),
-                  ],
-                ),
               ],
             ),
           ),

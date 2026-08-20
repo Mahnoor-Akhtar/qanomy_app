@@ -82,20 +82,10 @@ class DashboardHeader extends StatelessWidget {
                 ],
               ),
               const SizedBox(width: AppSpacing.s16),
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white30, width: 1),
-                ),
-                child: Center(
-                  child: Text(
-                    'HK',
-                    style: AppTypography.bodyInterMedium.copyWith(color: Colors.white, fontSize: 14),
-                  ),
-                ),
+              const CircleAvatar(
+                radius: 20,
+                backgroundColor: Colors.transparent,
+                backgroundImage: AssetImage('assets/images/default_avatar.png'),
               ),
             ],
           ),
