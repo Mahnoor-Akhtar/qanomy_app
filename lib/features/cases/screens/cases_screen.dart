@@ -4,6 +4,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../widgets/case_list_item.dart';
 import 'add_case_screen.dart';
+import 'case_history_screen.dart';
 import '../../navigation/main_layout.dart';
 
 class CasesScreen extends StatelessWidget {
@@ -37,7 +38,12 @@ class CasesScreen extends StatelessWidget {
           ),
           actions: [
             OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CaseHistoryScreen()),
+                );
+              },
               icon: const Icon(
                 Icons.history,
                 color: Colors.white,

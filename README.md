@@ -143,6 +143,7 @@ lib/
 ### 2026-08-20
 
 #### Added
+- `CaseHistoryScreen` allowing users to view closed cases in a beautiful, responsive card layout.
 - `AddTeamMemberScreen` with responsive form and portal permissions checklist.
 - `TeamMemberDetailsScreen` with a styled card showcasing member details and action buttons.
 - Default cat avatar image asset for all users across the app.

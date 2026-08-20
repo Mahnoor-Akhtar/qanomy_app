@@ -123,27 +123,13 @@ class TeamMembersScreen extends StatelessWidget {
   }
 
   Widget _buildMainContainer(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withOpacity(0.5)),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.s16),
-            child: _buildFilterBar(context),
-          ),
-          Divider(color: AppColors.border.withOpacity(0.5), height: 1),
-          _buildTeamTable(),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildFilterBar(context),
+        const SizedBox(height: AppSpacing.s24),
+        _buildTeamTable(),
+      ],
     );
   }
 
@@ -163,6 +149,8 @@ class TeamMembersScreen extends StatelessWidget {
               height: 40,
               child: TextField(
                 decoration: InputDecoration(
+                  fillColor: Colors.white,
+                  filled: true,
                   hintText: 'Search by name, email, phone...',
                   hintStyle: AppTypography.bodyInter.copyWith(color: AppColors.textMuted, fontSize: 13),
                   prefixIcon: const Icon(Icons.search, color: AppColors.textMuted, size: 20),
@@ -197,6 +185,7 @@ class TeamMembersScreen extends StatelessWidget {
       height: 40,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.border.withOpacity(0.5)),
       ),
@@ -216,6 +205,7 @@ class TeamMembersScreen extends StatelessWidget {
       height: 40,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.border.withOpacity(0.5)),
       ),
@@ -242,7 +232,7 @@ class TeamMembersScreen extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: members.length,
-      separatorBuilder: (context, index) => Divider(color: AppColors.border.withOpacity(0.5), height: 1),
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
         final m = members[index];
         return _buildTeamMemberItem(context, m['id']!, m['initial']!, m['name']!, m['subtitle']!, m['email']!, m['phone']!, m['status']!, m['joined']!);
@@ -251,44 +241,83 @@ class TeamMembersScreen extends StatelessWidget {
   }
 
   Widget _buildTeamMemberItem(BuildContext context, String id, String initial, String name, String subtitle, String email, String phone, String status, String joined) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => TeamMemberDetailsScreen(
-              name: name,
-              role: subtitle,
-              email: email,
-              phone: phone,
-              status: status,
-              joined: joined,
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: AppColors.border.withOpacity(0.3)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TeamMemberDetailsScreen(
+                  name: name,
+                  role: subtitle,
+                  email: email,
+                  phone: phone,
+                  status: status,
+                  joined: joined,
+                ),
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16, vertical: AppSpacing.s16),
+            child: Row(
+              children: [
+                const CircleAvatar(
+                  radius: 24,
+                  backgroundColor: Color(0xFFE8F5E9),
+                  backgroundImage: AssetImage('assets/images/default_avatar.png'),
+                ),
+                const SizedBox(width: AppSpacing.s16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(name, style: AppTypography.titleMedium.copyWith(color: AppColors.primaryNavy, fontSize: 16)),
+                      const SizedBox(height: 4),
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          const Icon(Icons.work_outline, size: 14, color: AppColors.textMuted),
+                          const SizedBox(width: 4),
+                          Text(subtitle.toUpperCase(), style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted)),
+                          const SizedBox(width: 12),
+                          const Icon(Icons.tag, size: 14, color: AppColors.textMuted),
+                          const SizedBox(width: 2),
+                          Text('ID: $id', style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.primaryNavy),
+                ),
+              ],
             ),
           ),
-        );
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        child: Row(
-          children: [
-            const CircleAvatar(
-              radius: 20,
-              backgroundColor: Color(0xFFE8F5E9),
-              backgroundImage: AssetImage('assets/images/default_avatar.png'),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name, style: AppTypography.titleMedium.copyWith(color: AppColors.primaryNavy, fontSize: 16)),
-                  const SizedBox(height: 2),
-                  Text(subtitle.toUpperCase(), style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted, fontSize: 11, letterSpacing: 0.5)),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right, size: 20, color: AppColors.textMuted),
-          ],
         ),
       ),
     );
