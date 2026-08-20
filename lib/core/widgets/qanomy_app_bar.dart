@@ -15,6 +15,7 @@ class QanomyAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showMenuButton;
   final bool showBackButton;
   final Color? backgroundColor;
+  final Widget? leading;
 
   const QanomyAppBar({
     super.key,
@@ -24,6 +25,7 @@ class QanomyAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.showMenuButton = true,
     this.showBackButton = false,
     this.backgroundColor,
+    this.leading,
   });
 
   @override
@@ -71,7 +73,9 @@ class QanomyAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: Row(
                 children: [
                   // Leading: menu or back button
-                  if (canPop)
+                  if (leading != null)
+                    leading!
+                  else if (canPop)
                     _NavButton(
                       icon: Icons.arrow_back_ios_new_rounded,
                       onTap: () => Navigator.of(context).pop(),
@@ -109,8 +113,8 @@ class QanomyAppBar extends StatelessWidget implements PreferredSizeWidget {
                               Container(
                                 width: 3,
                                 height: 3,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFF8A00),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFFF8A00),
                                   shape: BoxShape.circle,
                                 ),
                               ),

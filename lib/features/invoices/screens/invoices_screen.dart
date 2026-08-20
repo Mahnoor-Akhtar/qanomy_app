@@ -161,7 +161,6 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Filter bar wrapped in its own premium shadow card
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -179,7 +178,6 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
           child: _buildFilterBar(),
         ),
         const SizedBox(height: 16),
-        // Custom Invoices List using our brand-new expanded cards!
         _buildInvoicesList(),
       ],
     );
@@ -288,12 +286,9 @@ class _InvoiceCardState extends State<InvoiceCard> {
     final isMobile = Responsive.isMobile(context);
     final isPaid = widget.status == 'Paid';
     
-    // Status colors
     final statusBgColor = isPaid ? const Color(0xFFD1FAE5) : const Color(0xFFF1F5F9);
     final statusTextColor = isPaid ? const Color(0xFF10B981) : AppColors.textSecondary;
-    
-    // Accent color bar on the left based on status
-    final accentColor = isPaid ? const Color(0xFF10B981) : const Color(0xFF94A3B8); // Slate grey for drafts
+    final accentColor = isPaid ? const Color(0xFF10B981) : const Color(0xFF94A3B8);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -311,186 +306,185 @@ class _InvoiceCardState extends State<InvoiceCard> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Left Accent Status Bar
-              Container(
-                width: 5,
+        child: Stack(
+          children: [
+            // Left Accent Status Bar using Positioned
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: 5,
+              child: Container(
                 color: accentColor,
               ),
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    setState(() {
-                      _isExpanded = !_isExpanded;
-                    });
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Collapsed Header Row (Always Visible)
-                        Row(
-                          children: [
-                            Icon(
-                              _isExpanded
-                                  ? Icons.keyboard_arrow_up_rounded
-                                  : Icons.keyboard_arrow_down_rounded,
-                              color: AppColors.textSecondary,
-                              size: 24,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    widget.no,
-                                    style: AppTypography.titleMedium.copyWith(
-                                      color: AppColors.primaryNavy,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    widget.client,
-                                    style: AppTypography.bodyInter.copyWith(
-                                      color: AppColors.textSecondary,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            // Amount (Visible collapsed)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  widget.amount,
-                                  style: AppTypography.bodyInterMedium.copyWith(
-                                    color: AppColors.primaryNavy,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: statusBgColor,
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    widget.status,
-                                    style: AppTypography.labelSmall.copyWith(
-                                      color: statusTextColor,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 10,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        
-                        // Collapsible Details Content
-                        AnimatedCrossFade(
-                          firstChild: const SizedBox.shrink(),
-                          secondChild: GestureDetector(
-                            onTap: () {}, // Swallows taps on details so card doesn't collapse
+            ),
+            // Content shifted slightly to make room for Left Accent Bar
+            Padding(
+              padding: const EdgeInsets.only(left: 5),
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    _isExpanded = !_isExpanded;
+                  });
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            _isExpanded
+                                ? Icons.keyboard_arrow_up_rounded
+                                : Icons.keyboard_arrow_down_rounded,
+                            color: AppColors.textSecondary,
+                            size: 24,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const SizedBox(height: AppSpacing.s16),
-                                Divider(color: AppColors.border.withOpacity(0.5), height: 1),
-                                const SizedBox(height: AppSpacing.s16),
-                                
-                                // Details Grid
-                                if (isMobile)
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      _buildInfoColumn('Case', widget.caseName),
-                                      const SizedBox(height: 12),
-                                      _buildInfoColumn('Issue Date', widget.issueDate),
-                                      const SizedBox(height: 12),
-                                      _buildInfoColumn('Due Date', widget.dueDate),
-                                      const SizedBox(height: 12),
-                                      _buildInfoColumn('Paid Amount', widget.paid),
-                                    ],
-                                  )
-                                else
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(flex: 3, child: _buildInfoColumn('Case', widget.caseName)),
-                                      Expanded(flex: 2, child: _buildInfoColumn('Issue Date', widget.issueDate)),
-                                      Expanded(flex: 2, child: _buildInfoColumn('Due Date', widget.dueDate)),
-                                      Expanded(flex: 2, child: _buildInfoColumn('Paid Amount', widget.paid)),
-                                    ],
+                                Text(
+                                  widget.no,
+                                  style: AppTypography.titleMedium.copyWith(
+                                    color: AppColors.primaryNavy,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  
-                                const SizedBox(height: AppSpacing.s16),
-                                Divider(color: AppColors.border.withOpacity(0.5), height: 1),
-                                const SizedBox(height: AppSpacing.s16),
-                                
-                                // Actions
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    IconButton(
-                                      onPressed: () {},
-                                      icon: const Icon(Icons.remove_red_eye_outlined, color: AppColors.textSecondary, size: 20),
-                                      tooltip: 'View Invoice',
-                                    ),
-                                    const SizedBox(width: 8),
-                                    IconButton(
-                                      onPressed: () {},
-                                      icon: const Icon(Icons.download_outlined, color: AppColors.textSecondary, size: 20),
-                                      tooltip: 'Download PDF',
-                                    ),
-                                    const SizedBox(width: 12),
-                                    if (!isPaid)
-                                      OutlinedButton.icon(
-                                        onPressed: () {},
-                                        icon: const Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF10B981)),
-                                        label: Text(
-                                          'Mark as Paid',
-                                          style: AppTypography.bodyInterMedium.copyWith(
-                                            color: const Color(0xFF10B981),
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        style: OutlinedButton.styleFrom(
-                                          side: const BorderSide(color: Color(0xFF10B981)),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                        ),
-                                      ),
-                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  widget.client,
+                                  style: AppTypography.bodyInter.copyWith(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 13,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          crossFadeState: _isExpanded
-                              ? CrossFadeState.showSecond
-                              : CrossFadeState.showFirst,
-                          duration: const Duration(milliseconds: 250),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                widget.amount,
+                                style: AppTypography.bodyInterMedium.copyWith(
+                                  color: AppColors.primaryNavy,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: statusBgColor,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  widget.status,
+                                  style: AppTypography.labelSmall.copyWith(
+                                    color: statusTextColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      
+                      AnimatedCrossFade(
+                        firstChild: const SizedBox.shrink(),
+                        secondChild: GestureDetector(
+                          onTap: () {},
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: AppSpacing.s16),
+                              Divider(color: AppColors.border.withOpacity(0.5), height: 1),
+                              const SizedBox(height: AppSpacing.s16),
+                              
+                              if (isMobile)
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _buildInfoColumn('Case', widget.caseName),
+                                    const SizedBox(height: 12),
+                                    _buildInfoColumn('Issue Date', widget.issueDate),
+                                    const SizedBox(height: 12),
+                                    _buildInfoColumn('Due Date', widget.dueDate),
+                                    const SizedBox(height: 12),
+                                    _buildInfoColumn('Paid Amount', widget.paid),
+                                  ],
+                                )
+                              else
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(flex: 3, child: _buildInfoColumn('Case', widget.caseName)),
+                                    Expanded(flex: 2, child: _buildInfoColumn('Issue Date', widget.issueDate)),
+                                    Expanded(flex: 2, child: _buildInfoColumn('Due Date', widget.dueDate)),
+                                    Expanded(flex: 2, child: _buildInfoColumn('Paid Amount', widget.paid)),
+                                  ],
+                                ),
+                                
+                              const SizedBox(height: AppSpacing.s16),
+                              Divider(color: AppColors.border.withOpacity(0.5), height: 1),
+                              const SizedBox(height: AppSpacing.s16),
+                              
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  IconButton(
+                                    onPressed: () {},
+                                    icon: const Icon(Icons.remove_red_eye_outlined, color: AppColors.textSecondary, size: 20),
+                                    tooltip: 'View Invoice',
+                                  ),
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    onPressed: () {},
+                                    icon: const Icon(Icons.download_outlined, color: AppColors.textSecondary, size: 20),
+                                    tooltip: 'Download PDF',
+                                  ),
+                                  const SizedBox(width: 12),
+                                  if (!isPaid)
+                                    OutlinedButton.icon(
+                                      onPressed: () {},
+                                      icon: const Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF10B981)),
+                                      label: Text(
+                                        'Mark as Paid',
+                                        style: AppTypography.bodyInterMedium.copyWith(
+                                          color: const Color(0xFF10B981),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(color: Color(0xFF10B981)),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
+                        crossFadeState: _isExpanded
+                            ? CrossFadeState.showSecond
+                            : CrossFadeState.showFirst,
+                        duration: const Duration(milliseconds: 250),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -679,7 +673,6 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Due Date stacked vertically
                   Text(
                     'Due Date *',
                     style: AppTypography.labelSmall.copyWith(
@@ -714,7 +707,6 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Amount stacked vertically
                   Text(
                     'Amount (PKR) *',
                     style: AppTypography.labelSmall.copyWith(

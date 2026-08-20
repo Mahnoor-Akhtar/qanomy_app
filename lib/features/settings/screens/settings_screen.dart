@@ -70,7 +70,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _buildActiveTabContent(),
                     ],
                   )
-                : Row(
+                else
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(width: 250, child: _buildDesktopSidebar()),

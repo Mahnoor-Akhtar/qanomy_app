@@ -488,8 +488,10 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted, fontSize: 11)),
-          Text(value, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 12)),
+          Text(label, style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted, fontSize: 11),
+          ),
+          Text(value, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 12),
+          ),
         ],
       ),
     );
@@ -621,7 +623,8 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
                         _buildFormFields(),
                       ],
                     )
-                  : Row(
+                  else
+                    Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(flex: 4, child: _buildUploadDropzone()),
@@ -700,7 +703,7 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withOpacity(0.5), style: BorderStyle.none), // Dotted border
+        border: Border.all(color: AppColors.border.withOpacity(0.5), style: BorderStyle.none),
       ),
       child: Center(
         child: Column(
