@@ -102,14 +102,14 @@ class ActivityScreen extends StatelessWidget {
   }
 
   Widget _buildActivityList() {
-    final activities = [
+    final List<Map<String, String>> activities = [
       {'name': 'Haris khan', 'tag': 'LOGIN', 'desc': 'User logged in successfully', 'time': '3h ago • 8/20/2026, 9:36:12 AM'},
       {'name': 'Haris khan', 'tag': 'LOGIN', 'desc': 'User logged in successfully', 'time': '2d ago • 8/17/2026, 7:11:01 PM'},
       {'name': 'Haris khan', 'tag': 'LOGIN FAILED', 'desc': 'Invalid password', 'time': '2d ago • 8/17/2026, 7:10:28 PM'},
       {'name': 'Haris khan', 'tag': 'LOGIN FAILED', 'desc': 'Invalid password', 'time': '2d ago • 8/17/2026, 7:10:25 PM'},
       {'name': 'Haris khan', 'tag': 'LOGIN FAILED', 'desc': 'Invalid password', 'time': '2d ago • 8/17/2026, 7:10:11 PM'},
       {'name': 'Qanomy Admin (MA)', 'tag': 'LOGIN', 'desc': 'Administrator impersonated firm owner mahnoorakhtar002@gmail.com', 'time': '2d ago • 8/17/2026, 6:45:02 PM'},
-      {'name': 'Haris khan', 'tag': 'UPDATED FIRM', 'desc': 'Firm "Khan's Firm" updated', 'time': '2d ago • 8/17/2026, 6:19:26 PM'},
+      {'name': 'Haris khan', 'tag': 'UPDATED FIRM', 'desc': "Firm \"Khan's Firm\" updated", 'time': '2d ago • 8/17/2026, 6:19:26 PM'},
     ];
 
     return ListView.builder(
