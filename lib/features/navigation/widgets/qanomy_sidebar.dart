@@ -57,36 +57,21 @@ class QanomySidebar extends StatelessWidget {
                   isSelected: selectedIndex == 0,
                   onTap: () => onItemSelected(0),
                 ),
-                _SidebarItem(
-                  icon: Icons.work_outline,
-                  label: 'Cases',
-                  isSelected: selectedIndex == 1,
-                  onTap: () => onItemSelected(1),
-                ),
+
                 _SidebarItem(
                   icon: Icons.history_rounded,
                   label: 'Case History',
                   isSelected: selectedIndex == 13,
                   onTap: () => onItemSelected(13),
                 ),
-                _SidebarItem(
-                  icon: Icons.people_outline,
-                  label: 'Clients',
-                  isSelected: selectedIndex == 3,
-                  onTap: () => onItemSelected(3),
-                ),
+
                 _SidebarItem(
                   icon: Icons.receipt_long_outlined,
                   label: 'Invoices & Billing',
                   isSelected: selectedIndex == 5,
                   onTap: () => onItemSelected(5),
                 ),
-                _SidebarItem(
-                  icon: Icons.group_outlined,
-                  label: 'Team',
-                  isSelected: selectedIndex == 6,
-                  onTap: () => onItemSelected(6),
-                ),
+
                 _SidebarItem(
                   icon: Icons.notifications_none,
                   label: 'Notifications',
@@ -106,27 +91,8 @@ class QanomySidebar extends StatelessWidget {
                   onTap: () => onItemSelected(12),
                 ),
 
-                // Divider
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    children: [
-                      Expanded(child: Divider(color: Colors.white.withOpacity(0.12))),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text('COMING SOON', style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 9, letterSpacing: 1)),
-                      ),
-                      Expanded(child: Divider(color: Colors.white.withOpacity(0.12))),
-                    ],
-                  ),
-                ),
 
-                _SidebarItem(
-                  icon: Icons.calendar_today_outlined,
-                  label: 'Hearings & Calendar',
-                  isSelected: selectedIndex == 2,
-                  onTap: () => onItemSelected(2),
-                ),
+
                 _SidebarItem(
                   icon: Icons.description_outlined,
                   label: 'Documents',

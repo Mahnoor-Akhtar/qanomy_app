@@ -12,9 +12,8 @@ class CaseHistoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
-      appBar: QanomyAppBar(
+      appBar: const QanomyAppBar(
         title: 'Case History',
-        subtitle: 'View all your closed cases and their final results',
         showBackButton: true,
       ),
       body: SingleChildScrollView(

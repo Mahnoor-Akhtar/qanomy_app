@@ -27,7 +27,7 @@ class QanomyAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => const Size.fromHeight(76);
+  Size get preferredSize => const Size.fromHeight(88);
 
   @override
   Widget build(BuildContext context) {
@@ -45,23 +45,29 @@ class QanomyAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ? [backgroundColor!, backgroundColor!]
                 : [
                     const Color(0xFF0D1B2A),
-                    const Color(0xFF132338),
+                    const Color(0xFF1B263B),
                   ],
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.25),
-              blurRadius: 12,
+              color: Colors.black.withOpacity(0.12),
+              blurRadius: 16,
               offset: const Offset(0, 4),
             ),
           ],
+          border: Border(
+            bottom: BorderSide(
+              color: Colors.white.withOpacity(0.08),
+              width: 1,
+            ),
+          ),
         ),
         child: SafeArea(
           bottom: false,
           child: SizedBox(
             height: preferredSize.height,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: isMobile ? 4 : 8),
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
               child: Row(
                 children: [
                   // Leading: menu or back button
@@ -78,7 +84,7 @@ class QanomyAppBar extends StatelessWidget implements PreferredSizeWidget {
                   else
                     const SizedBox(width: 16),
 
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 16),
 
                   // Title + subtitle
                   Expanded(

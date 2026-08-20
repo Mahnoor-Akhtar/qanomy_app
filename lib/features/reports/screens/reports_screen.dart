@@ -50,7 +50,6 @@ class _ReportsScreenState extends State<ReportsScreen>
       backgroundColor: AppColors.pageBackground,
       appBar: QanomyAppBar(
         title: 'Reports & Analytics',
-        subtitle: 'Analyze your law firm performance and case statistics',
         actions: [
           _AppBarIconButton(icon: Icons.refresh_rounded, onTap: () {}),
           QanomyAppBarButton(label: 'Filters', icon: Icons.filter_list_rounded, onPressed: () {}),

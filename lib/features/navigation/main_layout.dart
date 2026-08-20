@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/utils/responsive.dart';
 import '../dashboard/screens/dashboard_screen.dart';
 import '../cases/screens/cases_screen.dart';
 import '../cases/screens/case_history_screen.dart';
+import '../cases/screens/hearings_calendar_screen.dart';
 import '../clients/screens/clients_screen.dart';
 import '../team/screens/team_members_screen.dart';
 import '../invoices/screens/invoices_screen.dart';
@@ -44,7 +45,7 @@ class MainLayoutState extends State<MainLayout> {
   List<Widget> get _screens => [
     const DashboardScreen(), // 0
     const CasesScreen(), // 1
-    _buildPlaceholderScreen('Hearings & Calendar'), // 2
+    const HearingsCalendarScreen(), // 2
     const ClientsScreen(), // 3
     _buildPlaceholderScreen('Documents'), // 4
     const InvoicesScreen(), // 5
@@ -168,3 +169,4 @@ class MainLayoutState extends State<MainLayout> {
     );
   }
 }
+

@@ -21,7 +21,6 @@ class CasesScreen extends StatelessWidget {
         backgroundColor: AppColors.pageBackground,
         appBar: QanomyAppBar(
           title: 'Cases',
-          subtitle: 'Manage and track all your legal cases',
           actions: [
             QanomyAppBarButton(
               label: 'History',

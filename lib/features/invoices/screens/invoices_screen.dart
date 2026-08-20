@@ -15,7 +15,6 @@ class InvoicesScreen extends StatelessWidget {
       backgroundColor: AppColors.pageBackground,
       appBar: QanomyAppBar(
         title: 'Invoices & Billing',
-        subtitle: 'Dashboard • Invoices',
         actions: [
           QanomyAppBarButton(
             label: 'Export',

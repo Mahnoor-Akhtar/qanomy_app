@@ -16,9 +16,8 @@ class ClientsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
-      appBar: QanomyAppBar(
+      appBar: const QanomyAppBar(
         title: 'Clients',
-        subtitle: 'Manage all your clients and their information',
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
