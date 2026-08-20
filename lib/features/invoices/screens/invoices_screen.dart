@@ -679,91 +679,75 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
                   ),
                   const SizedBox(height: 16),
 
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
-                              'Due Date *',
-                              style: AppTypography.labelSmall.copyWith(
-                                color: AppColors.primaryNavy,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            InkWell(
-                              onTap: () => _selectDate(context),
-                              child: Container(
-                                height: 48,
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: AppColors.border.withOpacity(0.5)),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      _dueDate == null ? 'mm/dd/yyyy' : _formatDate(_dueDate!),
-                                      style: AppTypography.bodyInter.copyWith(
-                                        color: _dueDate == null ? AppColors.textMuted : AppColors.primaryNavy,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    const Icon(Icons.calendar_today_rounded, size: 18, color: AppColors.textSecondary),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                  // Due Date stacked vertically
+                  Text(
+                    'Due Date *',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: AppColors.primaryNavy,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  InkWell(
+                    onTap: () => _selectDate(context),
+                    child: Container(
+                      height: 48,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.border.withOpacity(0.5)),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Amount (PKR) *',
-                              style: AppTypography.labelSmall.copyWith(
-                                color: AppColors.primaryNavy,
-                                fontWeight: FontWeight.bold,
-                              ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _dueDate == null ? 'mm/dd/yyyy' : _formatDate(_dueDate!),
+                            style: AppTypography.bodyInter.copyWith(
+                              color: _dueDate == null ? AppColors.textMuted : AppColors.primaryNavy,
+                              fontSize: 14,
                             ),
-                            const SizedBox(height: 8),
-                            TextFormField(
-                              controller: _amountController,
-                              keyboardType: TextInputType.number,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Required';
-                                }
-                                if (double.tryParse(value) == null) {
-                                  return 'Must be a number';
-                                }
-                                return null;
-                              },
-                              decoration: InputDecoration(
-                                hintText: 'e.g. 150000',
-                                hintStyle: AppTypography.bodyInter.copyWith(color: AppColors.textMuted, fontSize: 13),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                          const Icon(Icons.calendar_today_rounded, size: 18, color: AppColors.textSecondary),
+                        ],
                       ),
-                    ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Amount stacked vertically
+                  Text(
+                    'Amount (PKR) *',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: AppColors.primaryNavy,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: _amountController,
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Required';
+                      }
+                      if (double.tryParse(value) == null) {
+                        return 'Must be a number';
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'e.g. 150000',
+                      hintStyle: AppTypography.bodyInter.copyWith(color: AppColors.textMuted, fontSize: 13),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 16),
 
