@@ -109,18 +109,92 @@ class CaseHistoryScreen extends StatelessWidget {
   }
 
   Widget _buildHistoryList() {
+    final List<Map<String, String>> dummyCases = [
+      {
+        'title': 'Sajida vs Fahad',
+        'status': 'CLOSED (WIN)',
+        'client': 'Arooj Client\n03008383388',
+        'oppositeParty': 'Fahad',
+        'court': 'District & Sessions Court, Multan',
+        'caseType': 'NAB / Cybercrime',
+        'judge': 'Murtaza',
+        'lawyer': 'Ejaz',
+      },
+      {
+        'title': 'State vs Muhammad Ali',
+        'status': 'CLOSED (WIN)',
+        'client': 'Muhammad Ali\n03214567890',
+        'oppositeParty': 'The State',
+        'court': 'High Court, Lahore',
+        'caseType': 'Criminal Appeal',
+        'judge': 'Rizwan',
+        'lawyer': 'Ejaz',
+      },
+      {
+        'title': 'Zainab Bibi vs K-Electric',
+        'status': 'CLOSED (WIN)',
+        'client': 'Zainab Bibi\n03339876543',
+        'oppositeParty': 'K-Electric Ltd.',
+        'court': 'Consumer Court, Karachi',
+        'caseType': 'Civil Suit / Damages',
+        'judge': 'Farooq',
+        'lawyer': 'M. Imran',
+      },
+    ];
+
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: 3, // Dummy data count
+      itemCount: dummyCases.length,
       separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
-        return _buildCaseHistoryCard(context);
+        final c = dummyCases[index];
+        return CaseHistoryCard(
+          title: c['title']!,
+          status: c['status']!,
+          client: c['client']!,
+          oppositeParty: c['oppositeParty']!,
+          court: c['court']!,
+          caseType: c['caseType']!,
+          judge: c['judge']!,
+          lawyer: c['lawyer']!,
+        );
       },
     );
   }
+}
 
-  Widget _buildCaseHistoryCard(BuildContext context) {
+class CaseHistoryCard extends StatefulWidget {
+  final String title;
+  final String status;
+  final String client;
+  final String oppositeParty;
+  final String court;
+  final String caseType;
+  final String judge;
+  final String lawyer;
+
+  const CaseHistoryCard({
+    super.key,
+    required this.title,
+    required this.status,
+    required this.client,
+    required this.oppositeParty,
+    required this.court,
+    required this.caseType,
+    required this.judge,
+    required this.lawyer,
+  });
+
+  @override
+  State<CaseHistoryCard> createState() => _CaseHistoryCardState();
+}
+
+class _CaseHistoryCardState extends State<CaseHistoryCard> {
+  bool _isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
     final isMobile = Responsive.isMobile(context);
     
     return Container(
@@ -141,108 +215,146 @@ class CaseHistoryScreen extends StatelessWidget {
           side: BorderSide(color: AppColors.border.withOpacity(0.3)),
         ),
         clipBehavior: Clip.antiAlias,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.s24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Sajida vs Fahad',
-                      style: AppTypography.titleMedium.copyWith(color: AppColors.primaryNavy, fontSize: 18),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE8F5E9),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFF00A980).withOpacity(0.3)),
-                    ),
-                    child: Text(
-                      'CLOSED (WIN)',
-                      style: AppTypography.labelSmall.copyWith(color: const Color(0xFF00A980), fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.s16),
-              Divider(color: AppColors.border.withOpacity(0.5), height: 1),
-              const SizedBox(height: AppSpacing.s16),
-              
-              // Details Grid
-              if (isMobile)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildInfoColumn('Client', 'Arooj Client\n03008383388'),
-                    const SizedBox(height: 12),
-                    _buildInfoColumn('Opposite Party', 'Fahad'),
-                    const SizedBox(height: 12),
-                    _buildInfoColumn('Court', 'District & Sessions Court, Multan'),
-                    const SizedBox(height: 12),
-                    _buildInfoColumn('Case Type', 'NAB / Cybercrime'),
-                    const SizedBox(height: 12),
-                    _buildInfoColumn('Judge', 'Murtaza'),
-                    const SizedBox(height: 12),
-                    _buildInfoColumn('Lawyer', 'Ejaz'),
-                  ],
-                )
-              else
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              _isExpanded = !_isExpanded;
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.s24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header (Always Visible)
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(flex: 2, child: _buildInfoColumn('Client', 'Arooj Client\n03008383388')),
-                    Expanded(flex: 2, child: _buildInfoColumn('Opposite Party', 'Fahad')),
-                    Expanded(flex: 3, child: _buildInfoColumn('Court', 'District & Sessions Court, Multan')),
-                    Expanded(flex: 2, child: _buildInfoColumn('Case Type', 'NAB / Cybercrime')),
-                    Expanded(flex: 2, child: _buildInfoColumn('Judge', 'Murtaza')),
-                    Expanded(flex: 2, child: _buildInfoColumn('Lawyer', 'Ejaz')),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Icon(
+                            _isExpanded
+                                ? Icons.keyboard_arrow_up_rounded
+                                : Icons.keyboard_arrow_down_rounded,
+                            color: AppColors.textSecondary,
+                            size: 24,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              widget.title,
+                              style: AppTypography.titleMedium.copyWith(color: AppColors.primaryNavy, fontSize: 18),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F5E9),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: const Color(0xFF00A980).withOpacity(0.3)),
+                      ),
+                      child: Text(
+                        widget.status,
+                        style: AppTypography.labelSmall.copyWith(color: const Color(0xFF00A980), fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ],
                 ),
                 
-              const SizedBox(height: AppSpacing.s16),
-              Divider(color: AppColors.border.withOpacity(0.5), height: 1),
-              const SizedBox(height: AppSpacing.s16),
-              
-              // Actions
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.remove_red_eye_outlined, color: AppColors.textSecondary, size: 20),
-                    tooltip: 'View Details',
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.edit_outlined, color: AppColors.textSecondary, size: 20),
-                    tooltip: 'Edit Case',
-                  ),
-                  const SizedBox(width: 8),
-                  OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.refresh, size: 16, color: Color(0xFFF59E0B)), // Amber/Orange
-                    label: Text('Reopen', style: AppTypography.bodyInterMedium.copyWith(color: const Color(0xFFF59E0B), fontWeight: FontWeight.bold)),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFFF59E0B)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                // Collapsible Content
+                AnimatedCrossFade(
+                  firstChild: const SizedBox.shrink(),
+                  secondChild: GestureDetector(
+                    onTap: () {}, // Swallows taps on the inner details container so it doesn't collapse
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: AppSpacing.s16),
+                        Divider(color: AppColors.border.withOpacity(0.5), height: 1),
+                        const SizedBox(height: AppSpacing.s16),
+                        
+                        // Details Grid
+                        if (isMobile)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildInfoColumn('Client', widget.client),
+                              const SizedBox(height: 12),
+                              _buildInfoColumn('Opposite Party', widget.oppositeParty),
+                              const SizedBox(height: 12),
+                              _buildInfoColumn('Court', widget.court),
+                              const SizedBox(height: 12),
+                              _buildInfoColumn('Case Type', widget.caseType),
+                              const SizedBox(height: 12),
+                              _buildInfoColumn('Judge', widget.judge),
+                              const SizedBox(height: 12),
+                              _buildInfoColumn('Lawyer', widget.lawyer),
+                            ],
+                          )
+                        else
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(flex: 2, child: _buildInfoColumn('Client', widget.client)),
+                              Expanded(flex: 2, child: _buildInfoColumn('Opposite Party', widget.oppositeParty)),
+                              Expanded(flex: 3, child: _buildInfoColumn('Court', widget.court)),
+                              Expanded(flex: 2, child: _buildInfoColumn('Case Type', widget.caseType)),
+                              Expanded(flex: 2, child: _buildInfoColumn('Judge', widget.judge)),
+                              Expanded(flex: 2, child: _buildInfoColumn('Lawyer', widget.lawyer)),
+                            ],
+                          ),
+                          
+                        const SizedBox(height: AppSpacing.s16),
+                        Divider(color: AppColors.border.withOpacity(0.5), height: 1),
+                        const SizedBox(height: AppSpacing.s16),
+                        
+                        // Actions
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              onPressed: () {},
+                              icon: const Icon(Icons.remove_red_eye_outlined, color: AppColors.textSecondary, size: 20),
+                              tooltip: 'View Details',
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              onPressed: () {},
+                              icon: const Icon(Icons.edit_outlined, color: AppColors.textSecondary, size: 20),
+                              tooltip: 'Edit Case',
+                            ),
+                            const SizedBox(width: 8),
+                            OutlinedButton.icon(
+                              onPressed: () {},
+                              icon: const Icon(Icons.refresh, size: 16, color: Color(0xFFF59E0B)), // Amber/Orange
+                              label: Text('Reopen', style: AppTypography.bodyInterMedium.copyWith(color: const Color(0xFFF59E0B), fontWeight: FontWeight.bold)),
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Color(0xFFF59E0B)),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              onPressed: () {},
+                              icon: const Icon(Icons.more_vert, color: AppColors.textSecondary, size: 20),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.more_vert, color: AppColors.textSecondary, size: 20),
-                  ),
-                ],
-              ),
-            ],
+                  crossFadeState: _isExpanded
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
+                  duration: const Duration(milliseconds: 250),
+                ),
+              ],
+            ),
           ),
         ),
       ),
