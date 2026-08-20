@@ -3,6 +3,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/widgets/qanomy_app_bar.dart';
 import '../../navigation/main_layout.dart';
 
 class NotificationsScreen extends StatelessWidget {
