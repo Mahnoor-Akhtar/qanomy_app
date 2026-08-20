@@ -1,4 +1,6 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -14,6 +16,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   int _activeTab = 0; // 0 = Personal Profile, 1 = Security & Password
+  Uint8List? _profileImageBytes;
 
   final _firstNameController = TextEditingController(text: 'Haris khan');
   final _lastNameController = TextEditingController();
@@ -36,6 +39,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+      if (image != null) {
+        final bytes = await image.readAsBytes();
+        setState(() {
+          _profileImageBytes = bytes;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error picking image: $e");
+    }
   }
 
   @override
@@ -234,35 +257,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // Profile Pic Row
           Row(
             children: [
-              Stack(
-                children: [
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.border.withOpacity(0.5)),
-                      color: AppColors.border.withOpacity(0.2),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(40),
-                      child: const Icon(Icons.person, size: 40, color: AppColors.textSecondary),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+              GestureDetector(
+                onTap: _pickImage,
+                child: Stack(
+                  children: [
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                        border: Border.all(color: AppColors.border.withOpacity(0.5)),
+                        color: AppColors.border.withOpacity(0.2),
                       ),
-                      child: const Icon(Icons.camera_alt_outlined, size: 14, color: AppColors.textSecondary),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: _profileImageBytes != null
+                            ? Image.memory(
+                                _profileImageBytes!,
+                                fit: BoxFit.cover,
+                              )
+                            : const Icon(Icons.person, size: 40, color: AppColors.textSecondary),
+                      ),
                     ),
-                  ),
-                ],
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                        ),
+                        child: const Icon(Icons.camera_alt_outlined, size: 14, color: AppColors.textSecondary),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(width: 16),
               Column(
