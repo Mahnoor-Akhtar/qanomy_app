@@ -34,11 +34,11 @@ class _MainLayoutState extends State<MainLayout> {
   // Helper to map bottom nav index to main screen index
   int _mapBottomNavToMainIndex(int bottomIndex) {
     switch (bottomIndex) {
-      case 0: return 0; // Dashboard
+      case 0: return 3; // Clients
       case 1: return 1; // Cases
-      case 2: return 2; // Calendar
-      case 3: return 7; // Tasks
-      case 4: return 9; // Notifications
+      case 2: return 0; // Dashboard (Home)
+      case 3: return 2; // Hearings & Calendar
+      case 4: return 6; // Teams
       default: return 0;
     }
   }
@@ -46,22 +46,17 @@ class _MainLayoutState extends State<MainLayout> {
   // Helper to figure out which bottom nav tab should be highlighted
   int _getBottomNavIndex(int mainIndex) {
     switch (mainIndex) {
-      case 0: return 0;
-      case 1: return 1;
-      case 2: return 2;
-      case 7: return 3;
-      case 9: return 4;
+      case 0: return 2; // Home
+      case 1: return 1; // Cases
+      case 3: return 0; // Clients
+      case 2: return 3; // Hearings
+      case 6: return 4; // Teams
       default: return -1; // No bottom nav item highlighted if deeply nested in drawer
     }
   }
 
   void _onBottomNavSelected(int bottomIndex) {
-    if (bottomIndex == 5) {
-      // Open Drawer
-      _scaffoldKey.currentState?.openDrawer();
-    } else {
-      setState(() => _currentIndex = _mapBottomNavToMainIndex(bottomIndex));
-    }
+    setState(() => _currentIndex = _mapBottomNavToMainIndex(bottomIndex));
   }
 
   @override
@@ -89,26 +84,6 @@ class _MainLayoutState extends State<MainLayout> {
           index: _currentIndex,
           children: _screens,
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // Show Add action sheet or dialog
-            showModalBottomSheet(
-              context: context,
-              builder: (context) => const SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text('Add Menu Placeholder'),
-                ),
-              ),
-            );
-          },
-          backgroundColor: AppColors.navOrange,
-          foregroundColor: Colors.white,
-          shape: const CircleBorder(),
-          elevation: 4,
-          child: const Icon(Icons.add),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: CustomBottomAppBar(
           selectedIndex: _getBottomNavIndex(_currentIndex),
           onItemSelected: _onBottomNavSelected,

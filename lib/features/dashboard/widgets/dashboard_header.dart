@@ -17,26 +17,23 @@ class DashboardHeader extends StatelessWidget {
         children: [
           // Left Side: Date, Greeting, Subtitle
           Expanded(
-            child: Column(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.calendar_today, size: 12, color: Colors.white70),
-                    const SizedBox(width: AppSpacing.s8),
-                    Text(
-                      'THURSDAY - 20 AUGUST 2026',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: Colors.white70,
-                        letterSpacing: 1,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
+                GestureDetector(
+                  onTap: () => Scaffold.of(context).openDrawer(),
+                  behavior: HitTestBehavior.opaque,
+                  child: const Padding(
+                    padding: EdgeInsets.only(right: 16.0, top: 4.0),
+                    child: Icon(Icons.menu, color: Colors.white, size: 28),
+                  ),
                 ),
-                const SizedBox(height: AppSpacing.s8),
-                Text(
-                  'Good morning',
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Good morning',
                   style: AppTypography.header.copyWith(
                     color: Colors.white,
                     fontSize: 28,
@@ -52,6 +49,9 @@ class DashboardHeader extends StatelessWidget {
                         style: AppTypography.bodyInterMedium.copyWith(color: AppColors.princetonOrange, fontSize: 13),
                       ),
                       const TextSpan(text: ' listed today'),
+                    ],
+                  ),
+                ),
                     ],
                   ),
                 ),

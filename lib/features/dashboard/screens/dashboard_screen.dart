@@ -14,9 +14,9 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.navBackground,
-      body: SafeArea(
+    return ColoredBox(
+      color: AppColors.navBackground,
+      child: SafeArea(
         child: Stack(
           children: [
             // Entire page is scrollable so header doesn't get hidden under content

@@ -117,6 +117,12 @@ class QanomySidebar extends StatelessWidget {
                   isSelected: selectedIndex == 10,
                   onTap: () => onItemSelected(10),
                 ),
+                _SidebarItem(
+                  icon: Icons.support,
+                  label: 'Support',
+                  isSelected: selectedIndex == 11,
+                  onTap: () => onItemSelected(11),
+                ),
               ],
             ),
           ),
