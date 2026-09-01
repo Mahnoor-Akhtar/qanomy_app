@@ -238,6 +238,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
     required Color trendColor,
   }) {
     return Container(
+      height: 105,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -422,8 +423,8 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
           // Scrollable Data Table matching Lawyer Invoices section
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 1050),
+            child: SizedBox(
+              width: 1050,
               child: Column(
                 children: [
                   // Table Column Headers
@@ -469,120 +470,123 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
 
                       return Column(
                         children: [
-                          Container(
-                            color: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                            child: Row(
-                              children: [
-                                // # Index
-                                Expanded(
-                                  flex: 1,
-                                  child: Text(
-                                    '$index',
-                                    style: AppTypography.bodyInter.copyWith(color: AppColors.textMuted, fontSize: 13),
-                                  ),
-                                ),
-                                // Invoice No.
-                                Expanded(
-                                  flex: 3,
-                                  child: Text(
-                                    inv['no']!,
-                                    style: AppTypography.bodyInterMedium.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.primaryNavy,
-                                      fontSize: 13,
+                          InkWell(
+                            onTap: () => _showInvoiceDetailModal(context, inv),
+                            child: Container(
+                              color: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                              child: Row(
+                                children: [
+                                  // # Index
+                                  Expanded(
+                                    flex: 1,
+                                    child: Text(
+                                      '$index',
+                                      style: AppTypography.bodyInter.copyWith(color: AppColors.textMuted, fontSize: 13),
                                     ),
                                   ),
-                                ),
-                                // Case Name
-                                Expanded(
-                                  flex: 3,
-                                  child: Text(
-                                    inv['case']!,
-                                    style: AppTypography.bodyInterMedium.copyWith(
-                                      color: AppColors.primaryNavy,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ),
-                                // Issue Date
-                                Expanded(
-                                  flex: 2,
-                                  child: Text(
-                                    inv['issue']!,
-                                    style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary, fontSize: 13),
-                                  ),
-                                ),
-                                // Due Date
-                                Expanded(
-                                  flex: 2,
-                                  child: Text(
-                                    inv['due']!,
-                                    style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary, fontSize: 13),
-                                  ),
-                                ),
-                                // Amount
-                                Expanded(
-                                  flex: 2,
-                                  child: Text(
-                                    inv['amount']!,
-                                    style: AppTypography.bodyInterMedium.copyWith(
-                                      color: AppColors.primaryNavy,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ),
-                                // Paid
-                                Expanded(
-                                  flex: 2,
-                                  child: Text(
-                                    inv['paid']!,
-                                    style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary, fontSize: 13),
-                                  ),
-                                ),
-                                // Status Pill Badge (Matching Lawyer Portal Tag Style)
-                                Expanded(
-                                  flex: 2,
-                                  child: Center(
-                                    child: _buildStatusBadge(inv['status']!),
-                                  ),
-                                ),
-                                // Actions Buttons
-                                Expanded(
-                                  flex: 2,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.remove_red_eye_outlined, color: AppColors.textMuted, size: 18),
-                                        onPressed: () {
-                                          _showInvoiceDetailModal(context, inv);
-                                        },
-                                        tooltip: 'View Invoice',
-                                        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                                        padding: EdgeInsets.zero,
+                                  // Invoice No.
+                                  Expanded(
+                                    flex: 3,
+                                    child: Text(
+                                      inv['no']!,
+                                      style: AppTypography.bodyInterMedium.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.primaryNavy,
+                                        fontSize: 13,
                                       ),
-                                      const SizedBox(width: 4),
-                                      IconButton(
-                                        icon: const Icon(Icons.download_outlined, color: AppColors.textMuted, size: 18),
-                                        onPressed: () {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text('Downloading PDF for ${inv['no']}...'),
-                                              backgroundColor: AppColors.primaryNavy,
-                                            ),
-                                          );
-                                        },
-                                        tooltip: 'Download PDF',
-                                        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                                        padding: EdgeInsets.zero,
-                                      ),
-                                    ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  // Case Name
+                                  Expanded(
+                                    flex: 3,
+                                    child: Text(
+                                      inv['case']!,
+                                      style: AppTypography.bodyInterMedium.copyWith(
+                                        color: AppColors.primaryNavy,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                  // Issue Date
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      inv['issue']!,
+                                      style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary, fontSize: 13),
+                                    ),
+                                  ),
+                                  // Due Date
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      inv['due']!,
+                                      style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary, fontSize: 13),
+                                    ),
+                                  ),
+                                  // Amount
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      inv['amount']!,
+                                      style: AppTypography.bodyInterMedium.copyWith(
+                                        color: AppColors.primaryNavy,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                  // Paid
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      inv['paid']!,
+                                      style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary, fontSize: 13),
+                                    ),
+                                  ),
+                                  // Status Pill Badge
+                                  Expanded(
+                                    flex: 2,
+                                    child: Center(
+                                      child: _buildStatusBadge(inv['status']!),
+                                    ),
+                                  ),
+                                  // Actions Buttons
+                                  Expanded(
+                                    flex: 2,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.remove_red_eye_outlined, color: AppColors.textMuted, size: 18),
+                                          onPressed: () {
+                                            _showInvoiceDetailModal(context, inv);
+                                          },
+                                          tooltip: 'View Invoice',
+                                          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                                          padding: EdgeInsets.zero,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        IconButton(
+                                          icon: const Icon(Icons.download_outlined, color: AppColors.textMuted, size: 18),
+                                          onPressed: () {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text('Downloading PDF for ${inv['no']}...'),
+                                                backgroundColor: AppColors.primaryNavy,
+                                              ),
+                                            );
+                                          },
+                                          tooltip: 'Download PDF',
+                                          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                                          padding: EdgeInsets.zero,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           const Divider(color: AppColors.border, height: 1),
@@ -636,7 +640,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
       textColor = const Color(0xFF10B981);
       borderColor = const Color(0xFFA7F3D0);
     } else if (status == 'Draft') {
-      bgColor = Colors.white;
+      bgColor = const Color(0xFFF8FAFC);
       textColor = AppColors.textSecondary;
       borderColor = AppColors.border;
     } else if (status == 'Unpaid' || status == 'Overdue') {
@@ -667,78 +671,268 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
     showDialog(
       context: context,
       builder: (context) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        final isMobile = screenWidth < 600;
+
         return Dialog(
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: Container(
-            width: 480,
-            padding: const EdgeInsets.all(24),
+          clipBehavior: Clip.antiAlias,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 760,
+              maxHeight: MediaQuery.of(context).size.height * 0.9,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.princetonOrange.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(Icons.receipt_long, color: AppColors.princetonOrange, size: 22),
+                // Modal Header
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: const BoxDecoration(
+                          color: AppColors.primaryNavy,
+                          shape: BoxShape.circle,
                         ),
-                        const SizedBox(width: 12),
-                        Text(
-                          inv['no']!,
-                          style: AppTypography.header.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
+                        child: const Center(
+                          child: Text(
+                            'Q',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            inv['no']!,
+                            style: AppTypography.header.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryNavy,
+                            ),
+                          ),
+                          Text(
+                            'Issued on ${inv['issue']!}',
+                            style: AppTypography.captionInter.copyWith(
+                              color: AppColors.textMuted,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded, color: AppColors.textMuted, size: 22),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(color: AppColors.border, height: 1),
+
+                // Modal Scrollable Content
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(28),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Billed To & Invoice Details Grid
+                        if (isMobile)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildBilledToSection(inv),
+                              const SizedBox(height: 20),
+                              _buildInvoiceDetailsSection(inv),
+                            ],
+                          )
+                        else
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(child: _buildBilledToSection(inv)),
+                              const SizedBox(width: 24),
+                              Expanded(child: _buildInvoiceDetailsSection(inv)),
+                            ],
+                          ),
+
+                        const SizedBox(height: 32),
+
+                        // Items Table Headers
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: const BoxDecoration(
+                            border: Border(bottom: BorderSide(color: AppColors.border)),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Description',
+                                style: AppTypography.labelSmall.copyWith(
+                                  color: AppColors.textMuted,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                'Amount (PKR)',
+                                style: AppTypography.labelSmall.copyWith(
+                                  color: AppColors.textMuted,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Item Row
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          decoration: const BoxDecoration(
+                            border: Border(bottom: BorderSide(color: AppColors.border)),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Legal Services rendered for case ${inv['case']!}',
+                                  style: AppTypography.bodyInter.copyWith(
+                                    color: AppColors.primaryNavy,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Text(
+                                inv['amount']!.replaceAll('PKR ', ''),
+                                style: AppTypography.bodyInterMedium.copyWith(
+                                  color: AppColors.primaryNavy,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Financial Summary (Right Aligned)
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: SizedBox(
+                            width: isMobile ? double.infinity : 320,
+                            child: Column(
+                              children: [
+                                _buildSummaryLine('Subtotal', inv['amount']!, isMuted: true),
+                                const Divider(color: AppColors.border, height: 20),
+                                _buildSummaryLine('Total', inv['amount']!, isBold: true, fontSize: 16),
+                                const Divider(color: AppColors.border, height: 20),
+                                _buildSummaryLine('Amount Paid', inv['paid']!, valueColor: const Color(0xFF10B981)),
+                                const SizedBox(height: 14),
+
+                                // Amount Due Banner Container
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFF0F2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text(
+                                        'Amount Due',
+                                        style: TextStyle(
+                                          color: Color(0xFFEF4444),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        inv['amount']!,
+                                        style: const TextStyle(
+                                          color: Color(0xFFEF4444),
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: AppColors.textMuted),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 16),
+
                 const Divider(color: AppColors.border, height: 1),
-                const SizedBox(height: 16),
-                _buildDetailRow('Case Title', inv['case']!),
-                _buildDetailRow('Issue Date', inv['issue']!),
-                _buildDetailRow('Due Date', inv['due']!),
-                _buildDetailRow('Total Amount', inv['amount']!),
-                _buildDetailRow('Amount Paid', inv['paid']!),
-                _buildDetailRow('Status', inv['status']!),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Close', style: TextStyle(color: AppColors.textSecondary)),
-                    ),
-                    const SizedBox(width: 12),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Downloading invoice ${inv['no']}...'),
-                            backgroundColor: AppColors.primaryNavy,
+
+                // Modal Action Footer
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Wrap(
+                      alignment: WrapAlignment.end,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 12,
+                      runSpacing: 10,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Downloading PDF for ${inv['no']}...'),
+                                backgroundColor: AppColors.primaryNavy,
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.download_outlined, size: 16),
+                          label: const Text('Download PDF', style: TextStyle(fontWeight: FontWeight.w600)),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.primaryNavy,
+                            side: const BorderSide(color: AppColors.border),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
-                        );
-                      },
-                      icon: const Icon(Icons.download_rounded, size: 16),
-                      label: const Text('Download Invoice', style: TextStyle(fontWeight: FontWeight.bold)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryNavy,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Redirecting to JazzCash/EasyPaisa gateway for ${inv['no']}...'),
+                                backgroundColor: AppColors.princetonOrange,
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.credit_card_rounded, size: 16),
+                          label: const Text('Pay Now (JazzCash/EasyPaisa)', style: TextStyle(fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.princetonOrange,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -748,16 +942,145 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: AppTypography.bodyInter.copyWith(color: AppColors.textMuted, fontSize: 13)),
-          Text(value, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontWeight: FontWeight.bold, fontSize: 13)),
-        ],
-      ),
+  Widget _buildBilledToSection(Map<String, String> inv) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'BILLED TO',
+          style: AppTypography.labelSmall.copyWith(
+            color: AppColors.textMuted,
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.6,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Hamad Client',
+          style: AppTypography.titleMedium.copyWith(
+            color: AppColors.primaryNavy,
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'lioness9999999@gmail.com',
+          style: AppTypography.bodyInter.copyWith(
+            color: AppColors.textSecondary,
+            fontSize: 13,
+          ),
+        ),
+        const SizedBox(height: 8),
+        RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: 'Case: ',
+                style: AppTypography.bodyInter.copyWith(
+                  color: AppColors.textMuted,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextSpan(
+                text: inv['case']!,
+                style: AppTypography.bodyInterMedium.copyWith(
+                  color: AppColors.primaryNavy,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInvoiceDetailsSection(Map<String, String> inv) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'INVOICE DETAILS',
+          style: AppTypography.labelSmall.copyWith(
+            color: AppColors.textMuted,
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.6,
+          ),
+        ),
+        const SizedBox(height: 8),
+        _buildDetailPair('Invoice No:', inv['no']!),
+        const SizedBox(height: 4),
+        _buildDetailPair('Date of Issue:', inv['issue']!),
+        const SizedBox(height: 4),
+        _buildDetailPair('Due Date:', inv['due']!),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: _buildStatusBadge(inv['status']!),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDetailPair(String label, String value) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 95,
+          child: Text(
+            label,
+            style: AppTypography.bodyInter.copyWith(
+              color: AppColors.textMuted,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        Text(
+          value,
+          style: AppTypography.bodyInterMedium.copyWith(
+            color: AppColors.primaryNavy,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSummaryLine(
+    String label,
+    String value, {
+    bool isMuted = false,
+    bool isBold = false,
+    double fontSize = 13,
+    Color? valueColor,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: AppTypography.bodyInter.copyWith(
+            color: isMuted ? AppColors.textMuted : AppColors.primaryNavy,
+            fontSize: fontSize,
+            fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
+          ),
+        ),
+        Text(
+          value,
+          style: AppTypography.bodyInterMedium.copyWith(
+            color: valueColor ?? AppColors.primaryNavy,
+            fontSize: fontSize,
+            fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }

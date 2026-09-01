@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/responsive.dart';
 import 'super_admin_support_screen.dart';
 import 'super_admin_firms_screen.dart';
 import 'super_admin_dashboard_screen.dart';
+import 'super_admin_subscriptions_screen.dart';
+import 'super_admin_users_screen.dart';
+import 'super_admin_notifications_screen.dart';
+import 'super_admin_analytics_screen.dart';
+import 'super_admin_audit_logs_screen.dart';
+import 'super_admin_master_settings_screen.dart';
 import '../widgets/super_admin_sidebar.dart';
 import '../widgets/super_admin_bottom_app_bar.dart';
 
@@ -66,68 +70,15 @@ class SuperAdminMainLayoutState extends State<SuperAdminMainLayout> {
     switch (_sidebarIndex) {
       case 0: return const SuperAdminDashboardScreen();
       case 1: return const SuperAdminFirmsScreen();
+      case 2: return const SuperAdminSubscriptionsScreen();
       case 3: return const SuperAdminSupportScreen();
-      case 2: return _buildPlaceholder('Subscriptions & Billing', Icons.credit_card_outlined);
-      case 4: return _buildPlaceholder('Global Users', Icons.people_outline);
-      case 5: return _buildPlaceholder('Notifications', Icons.notifications_none_outlined);
-      case 6: return _buildPlaceholder('Analytics', Icons.bar_chart_outlined);
-      case 7: return _buildPlaceholder('Audit Logs', Icons.description_outlined);
-      case 8: return _buildPlaceholder('Master Settings', Icons.shield_outlined);
+      case 4: return const SuperAdminUsersScreen();
+      case 5: return const SuperAdminNotificationsScreen();
+      case 6: return const SuperAdminAnalyticsScreen();
+      case 7: return const SuperAdminAuditLogsScreen();
+      case 8: return const SuperAdminMasterSettingsScreen();
       default: return const SuperAdminDashboardScreen();
     }
-  }
-
-  Widget _buildPlaceholder(String title, IconData icon) {
-    return Scaffold(
-      backgroundColor: AppColors.pageBackground,
-      body: SafeArea(
-        top: false,
-        child: Column(
-          children: [
-            Container(
-              color: AppColors.sidebarNavy,
-              padding: const EdgeInsets.fromLTRB(12, 52, 16, 24),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.menu, color: Colors.white, size: 26),
-                    onPressed: () => SuperAdminMainLayout.scaffoldKey.currentState?.openDrawer(),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    title,
-                    style: AppTypography.header.copyWith(color: Colors.white, fontSize: 22),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(icon, size: 64, color: AppColors.textMuted.withOpacity(0.3)),
-                    const SizedBox(height: 16),
-                    Text(
-                      title,
-                      style: AppTypography.titleLarge.copyWith(
-                        color: AppColors.primaryNavy,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Coming Soon',
-                      style: AppTypography.bodyInter.copyWith(color: AppColors.textMuted),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override

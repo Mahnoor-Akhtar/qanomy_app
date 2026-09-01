@@ -5,97 +5,110 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/qanomy_card.dart';
 import 'super_admin_main_layout.dart';
-import 'super_admin_firm_details_screen.dart';
+import 'super_admin_user_details_screen.dart';
 
-class SuperAdminFirmsScreen extends StatefulWidget {
-  const SuperAdminFirmsScreen({super.key});
+class SuperAdminUsersScreen extends StatefulWidget {
+  const SuperAdminUsersScreen({super.key});
 
   @override
-  State<SuperAdminFirmsScreen> createState() => _SuperAdminFirmsScreenState();
+  State<SuperAdminUsersScreen> createState() => _SuperAdminUsersScreenState();
 }
 
-class _SuperAdminFirmsScreenState extends State<SuperAdminFirmsScreen> {
-  String _filterStatus = 'ALL';
+class _SuperAdminUsersScreenState extends State<SuperAdminUsersScreen> {
+  String _filterRole = 'ALL';
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
 
-  final List<Map<String, dynamic>> _firms = [
+  final List<Map<String, dynamic>> _users = [
     {
-      'name': 'Pwm',
-      'owner': 'Muhammad Awais Iqbal',
+      'name': 'Muhammad Awais Iqbal',
+      'firm': 'Pwm',
+      'role': 'LAWYER',
       'email': 'awaisiqbalalamgirian@gmail.com',
-      'plan': 'Free',
-      'users': 1,
-      'cases': 0,
-      'status': 'ACTIVE',
-      'city': '—',
+      'phone': '03086283763',
       'joined': '29/08/2026',
+      'status': 'Active',
     },
     {
-      'name': 'Awan Law Chamber',
-      'owner': 'Zubair Ahmed',
+      'name': 'Zubair Ahmed',
+      'firm': 'Awan Law Chamber',
+      'role': 'LAWYER',
       'email': 'zbhutta5@gmail.com',
-      'plan': 'Free',
-      'users': 1,
-      'cases': 0,
-      'status': 'ACTIVE',
-      'city': '—',
+      'phone': '03007723984',
       'joined': '29/08/2026',
+      'status': 'Active',
     },
     {
-      'name': 'Hgg',
-      'owner': 'Haroon Rasheed',
+      'name': 'Haroon Rasheed',
+      'firm': 'Hgg',
+      'role': 'LAWYER',
       'email': 'bsha0517@gmail.com',
-      'plan': 'Free',
-      'users': 1,
-      'cases': 0,
-      'status': 'ACTIVE',
-      'city': '—',
+      'phone': '03303065888',
       'joined': '19/08/2026',
+      'status': 'Active',
     },
     {
-      'name': 'NUMERIC COMMUNICATIONS',
-      'owner': 'Waleed Awan',
+      'name': 'Waleed Awan',
+      'firm': 'NUMERIC COMMUNICATIONS',
+      'role': 'LAWYER',
       'email': 'numericcommunication@gmail.com',
-      'plan': 'Free',
-      'users': 2,
-      'cases': 0,
-      'status': 'ACTIVE',
-      'city': '—',
+      'phone': '03218401979',
       'joined': '17/08/2026',
+      'status': 'Active',
     },
     {
-      'name': 'Khan\'s Firm',
-      'owner': 'Ahsan Khan',
+      'name': 'Ahsan Khan',
+      'firm': 'Khan\'s Firm',
+      'role': 'LAWYER',
       'email': 'hariskhan8498@gmail.com',
-      'plan': 'Free',
-      'users': 1,
-      'cases': 0,
-      'status': 'ACTIVE',
-      'city': '—',
+      'phone': '03433297773',
       'joined': '14/08/2026',
+      'status': 'Active',
     },
     {
-      'name': 'Asi',
-      'owner': 'Ejaz',
+      'name': 'Fatima',
+      'firm': 'Khan\'s Firm',
+      'role': 'LAWYER',
+      'email': 'noorlioness999@gmail.com',
+      'phone': '03076362440',
+      'joined': '13/08/2026',
+      'status': 'Active',
+    },
+    {
+      'name': 'Asim',
+      'firm': 'Khan\'s Firm',
+      'role': 'CLERK',
+      'email': 'qanomy8@gmail.com',
+      'phone': '03076962440',
+      'joined': '10/08/2026',
+      'status': 'Active',
+    },
+    {
+      'name': 'Ejaz',
+      'firm': 'Khan\'s Firm',
+      'role': 'LAWYER',
+      'email': 'ayesha.ansari12098@gmail.com',
+      'phone': '03078362440',
+      'joined': '10/08/2026',
+      'status': 'Active',
+    },
+    {
+      'name': 'Ejaz',
+      'firm': 'Asi',
+      'role': 'LAWYER',
       'email': 'ejazi@beyondnorth.net',
-      'plan': 'Free',
-      'users': 1,
-      'cases': 0,
-      'status': 'ACTIVE',
-      'city': '—',
+      'phone': '03333282832',
       'joined': '07/08/2026',
+      'status': 'Active',
     },
     {
-      'name': 'Khan\'s Firm',
-      'owner': 'Haris khan',
+      'name': 'Haris khan',
+      'firm': 'Khan\'s Firm',
+      'role': 'LAWYER',
       'email': 'mahnoorakhtar002@gmail.com',
-      'plan': 'Free',
-      'users': 7,
-      'cases': 7,
-      'status': 'ACTIVE',
-      'city': '—',
+      'phone': '03051180621',
       'joined': '07/08/2026',
+      'status': 'Active',
     },
   ];
 
@@ -109,14 +122,15 @@ class _SuperAdminFirmsScreenState extends State<SuperAdminFirmsScreen> {
   Widget build(BuildContext context) {
     final isMobile = Responsive.isMobile(context);
 
-    final filteredFirms = _firms.where((firm) {
-      final matchesStatus = _filterStatus == 'ALL' || firm['status'] == _filterStatus;
+    final filteredUsers = _users.where((user) {
+      final matchesRole = _filterRole == 'ALL' || user['role'] == _filterRole;
       final q = _searchQuery.toLowerCase();
       final matchesQuery = q.isEmpty ||
-          (firm['name'] as String).toLowerCase().contains(q) ||
-          (firm['owner'] as String).toLowerCase().contains(q) ||
-          (firm['email'] as String).toLowerCase().contains(q);
-      return matchesStatus && matchesQuery;
+          (user['name'] as String).toLowerCase().contains(q) ||
+          (user['firm'] as String).toLowerCase().contains(q) ||
+          (user['email'] as String).toLowerCase().contains(q) ||
+          (user['phone'] as String).toLowerCase().contains(q);
+      return matchesRole && matchesQuery;
     }).toList();
 
     return Scaffold(
@@ -125,21 +139,22 @@ class _SuperAdminFirmsScreenState extends State<SuperAdminFirmsScreen> {
         top: false,
         child: Column(
           children: [
-            _buildHeader(context, isMobile, filteredFirms.length),
+            _buildHeader(context, isMobile),
+            _buildMetricsOverview(isMobile),
             _buildSearchAndFilterBar(isMobile),
             Expanded(
-              child: filteredFirms.isEmpty
+              child: filteredUsers.isEmpty
                   ? Center(
                       child: Text(
-                        'No registered firms found',
+                        'No global users found',
                         style: AppTypography.titleMedium.copyWith(color: AppColors.textMuted),
                       ),
                     )
                   : ListView.separated(
                       padding: EdgeInsets.all(isMobile ? AppSpacing.s16 : AppSpacing.s24),
-                      itemCount: filteredFirms.length,
+                      itemCount: filteredUsers.length,
                       separatorBuilder: (context, index) => const SizedBox(height: 12),
-                      itemBuilder: (context, index) => _buildCollapsibleFirmCard(filteredFirms[index], isMobile),
+                      itemBuilder: (context, index) => _buildCollapsibleUserCard(filteredUsers[index], isMobile),
                     ),
             ),
           ],
@@ -148,7 +163,7 @@ class _SuperAdminFirmsScreenState extends State<SuperAdminFirmsScreen> {
     );
   }
 
-  Widget _buildHeader(BuildContext context, bool isMobile, int totalCount) {
+  Widget _buildHeader(BuildContext context, bool isMobile) {
     return Container(
       color: AppColors.sidebarNavy,
       padding: const EdgeInsets.fromLTRB(16, 52, 20, 24),
@@ -162,7 +177,7 @@ class _SuperAdminFirmsScreenState extends State<SuperAdminFirmsScreen> {
           const SizedBox(width: 4),
           Expanded(
             child: Text(
-              'All Law Firms ($totalCount)',
+              'Global Users',
               style: AppTypography.header.copyWith(
                 color: Colors.white,
                 fontSize: isMobile ? 22 : 26,
@@ -175,14 +190,114 @@ class _SuperAdminFirmsScreenState extends State<SuperAdminFirmsScreen> {
     );
   }
 
+  Widget _buildMetricsOverview(bool isMobile) {
+    if (isMobile) {
+      return Container(
+        color: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              SizedBox(width: 170, child: _buildMetricTile('Total Users', '10', 'Across 6 firms', const Color(0xFF0284C7), const Color(0xFFF0F9FF))),
+              const SizedBox(width: 12),
+              SizedBox(width: 160, child: _buildMetricTile('Active Users', '10', '100.0%', const Color(0xFF10B981), const Color(0xFFECFDF5))),
+              const SizedBox(width: 12),
+              SizedBox(width: 160, child: _buildMetricTile('Blocked Users', '0', '0.0%', const Color(0xFFE53935), const Color(0xFFFFEBEE))),
+            ],
+          ),
+        ),
+      );
+    }
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      child: Row(
+        children: [
+          Expanded(child: _buildMetricTile('Total Users', '10', 'Across 6 firms', const Color(0xFF0284C7), const Color(0xFFF0F9FF))),
+          const SizedBox(width: 12),
+          Expanded(child: _buildMetricTile('Active Users', '10', '100.0%', const Color(0xFF10B981), const Color(0xFFECFDF5))),
+          const SizedBox(width: 12),
+          Expanded(child: _buildMetricTile('Blocked Users', '0', '0.0%', const Color(0xFFE53935), const Color(0xFFFFEBEE))),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetricTile(String label, String val, String sub, Color color, Color bg) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: 0.35), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            style: AppTypography.labelSmall.copyWith(
+              color: const Color(0xFF64748B),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 6),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                val,
+                style: AppTypography.header.copyWith(
+                  color: AppColors.primaryNavy,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 2,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  sub,
+                  style: AppTypography.labelSmall.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSearchAndFilterBar(bool isMobile) {
-    const filters = ['ALL', 'ACTIVE', 'SUSPENDED', 'TRIAL'];
+    const filters = ['ALL', 'LAWYER', 'CLERK'];
 
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: Column(
         children: [
+          const Divider(height: 1, color: AppColors.border),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
@@ -198,7 +313,7 @@ class _SuperAdminFirmsScreenState extends State<SuperAdminFirmsScreen> {
                     onChanged: (val) => setState(() => _searchQuery = val),
                     style: AppTypography.bodyInter.copyWith(fontSize: 13),
                     decoration: InputDecoration(
-                      hintText: 'Search firm name, owner, email...',
+                      hintText: 'Search by name, email, phone, CNIC or firm...',
                       hintStyle: AppTypography.bodyInter.copyWith(color: AppColors.textMuted, fontSize: 13),
                       prefixIcon: const Icon(Icons.search, size: 18, color: AppColors.textMuted),
                       suffixIcon: _searchQuery.isNotEmpty
@@ -232,12 +347,12 @@ class _SuperAdminFirmsScreenState extends State<SuperAdminFirmsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Row(
             children: filters.map((f) {
-              final isSelected = _filterStatus == f;
+              final isSelected = _filterRole == f;
               return GestureDetector(
-                onTap: () => setState(() => _filterStatus = f),
+                onTap: () => setState(() => _filterRole = f),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   margin: const EdgeInsets.only(right: 8),
@@ -263,29 +378,19 @@ class _SuperAdminFirmsScreenState extends State<SuperAdminFirmsScreen> {
     );
   }
 
-  Widget _buildCollapsibleFirmCard(Map<String, dynamic> f, bool isMobile) {
-    final email = f['email'] as String;
-    final name = f['name'] as String;
-    final plan = f['plan'] as String;
-    final status = f['status'] as String;
-
-    Color statusColor = const Color(0xFF00A980);
-    Color statusBgColor = const Color(0xFFE8F5E9);
-
-    if (status == 'SUSPENDED') {
-      statusColor = const Color(0xFFE53935);
-      statusBgColor = const Color(0xFFFFEBEE);
-    } else if (status == 'TRIAL') {
-      statusColor = const Color(0xFFF97316);
-      statusBgColor = const Color(0xFFFFF3E0);
-    }
+  Widget _buildCollapsibleUserCard(Map<String, dynamic> user, bool isMobile) {
+    final name = user['name'] as String;
+    final firm = user['firm'] as String;
+    final role = user['role'] as String;
+    final email = user['email'] as String;
+    final isClerk = role == 'CLERK';
 
     return QanomyCard(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => SuperAdminFirmDetailsScreen(firm: f),
+            builder: (_) => SuperAdminUserDetailsScreen(user: user),
           ),
         );
       },
@@ -294,11 +399,11 @@ class _SuperAdminFirmsScreenState extends State<SuperAdminFirmsScreen> {
         children: [
           CircleAvatar(
             radius: 20,
-            backgroundColor: const Color(0xFFFFF0E6),
+            backgroundColor: isClerk ? const Color(0xFFFFF7ED) : const Color(0xFFEEF2FF),
             child: Text(
-              name.isNotEmpty ? name[0].toUpperCase() : 'F',
+              name.isNotEmpty ? name[0].toUpperCase() : 'U',
               style: AppTypography.header.copyWith(
-                color: AppColors.princetonOrange,
+                color: isClerk ? AppColors.princetonOrange : const Color(0xFF6366F1),
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -326,13 +431,13 @@ class _SuperAdminFirmsScreenState extends State<SuperAdminFirmsScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: statusBgColor,
+                        color: isClerk ? const Color(0xFFFFF7ED) : const Color(0xFFEEF2FF),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        status,
+                        role,
                         style: AppTypography.labelSmall.copyWith(
-                          color: statusColor,
+                          color: isClerk ? AppColors.princetonOrange : const Color(0xFF6366F1),
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),
@@ -342,7 +447,7 @@ class _SuperAdminFirmsScreenState extends State<SuperAdminFirmsScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Plan: $plan • $email',
+                  'Firm: $firm • $email',
                   style: AppTypography.bodyInter.copyWith(
                     color: AppColors.textMuted,
                     fontSize: 12,
