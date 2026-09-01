@@ -18,12 +18,16 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   
-  // Toggle between Sign In and Sign Up screens
+  // Toggle between Sign In, Sign Up, and Forgot Password screens
   bool _isSignUp = false;
+  bool _isForgotPassword = false;
 
   // Sign In Controllers
   final _loginEmailController = TextEditingController(text: 'mahnoor@gmail.com');
   final _loginPasswordController = TextEditingController(text: 'Mahnoor123');
+
+  // Forgot Password Controller
+  final _forgotPasswordEmailController = TextEditingController();
 
   // Sign Up Controllers
   final _signUpNameController = TextEditingController();
@@ -42,6 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _loginEmailController.dispose();
     _loginPasswordController.dispose();
+    _forgotPasswordEmailController.dispose();
     _signUpNameController.dispose();
     _signUpFirmController.dispose();
     _signUpEmailController.dispose();
@@ -271,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen> {
               constraints: BoxConstraints(
                 maxWidth: _showEmailConfirmation 
                     ? 460 
-                    : (_isSignUp ? 500 : 420),
+                    : (_isForgotPassword ? 440 : (_isSignUp ? 500 : 420)),
               ),
               child: Form(
                 key: _formKey,
@@ -291,7 +296,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                   child: _showEmailConfirmation
                       ? _buildEmailConfirmationView()
-                      : (_isSignUp ? _buildSignUpView() : _buildSignInView()),
+                      : (_isForgotPassword
+                          ? _buildForgotPasswordView()
+                          : (_isSignUp ? _buildSignUpView() : _buildSignInView())),
                 ),
               ),
             ),
@@ -316,7 +323,7 @@ class _LoginScreenState extends State<LoginScreen> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.skyBlue.withOpacity(0.15),
+                  color: AppColors.skyBlue.withValues(alpha: 0.15),
                   blurRadius: 16,
                   spreadRadius: 2,
                 )
@@ -442,7 +449,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
             // Forgot Password
             TextButton(
-              onPressed: () => _showMockRedirect('https://qanomy.com/forgot-password'),
+              onPressed: () {
+                setState(() {
+                  _isForgotPassword = true;
+                  _isSignUp = false;
+                });
+              },
               style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
               child: Text(
                 'Forgot password?',
@@ -508,7 +520,7 @@ class _LoginScreenState extends State<LoginScreen> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.skyBlue.withOpacity(0.15),
+                  color: AppColors.skyBlue.withValues(alpha: 0.15),
                   blurRadius: 16,
                   spreadRadius: 2,
                 )
@@ -783,7 +795,7 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             Expanded(
               child: Divider(
-                color: color.withOpacity(0.4),
+                color: color.withValues(alpha: 0.4),
                 thickness: 1.0,
               ),
             ),
@@ -800,7 +812,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             Expanded(
               child: Divider(
-                color: color.withOpacity(0.4),
+                color: color.withValues(alpha: 0.4),
                 thickness: 1.0,
               ),
             ),
@@ -881,7 +893,7 @@ class _LoginScreenState extends State<LoginScreen> {
             prefixIconConstraints: const BoxConstraints(minWidth: 40),
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: const Color(0xFF0F223A).withOpacity(0.5),
+            fillColor: const Color(0xFF0F223A).withValues(alpha: 0.5),
             contentPadding: const EdgeInsets.symmetric(vertical: 18),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -924,7 +936,7 @@ class _LoginScreenState extends State<LoginScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFFFB8500),
           foregroundColor: Colors.white,
-          disabledBackgroundColor: const Color(0xFFFB8500).withOpacity(0.5),
+          disabledBackgroundColor: const Color(0xFFFB8500).withValues(alpha: 0.5),
           disabledForegroundColor: Colors.white70,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
@@ -1077,4 +1089,238 @@ class _LoginScreenState extends State<LoginScreen> {
       ],
     );
   }
+
+  // --- FORGOT / RESET PASSWORD VIEW (Matching User Screenshot) ---
+  Widget _buildForgotPasswordView() {
+    return Container(
+      key: const ValueKey('ForgotPasswordView'),
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 36),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F1B2B), // Dark navy container
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFF1E2E42), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.35),
+            blurRadius: 30,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 8),
+          // Scales of Justice Icon
+          Center(
+            child: Icon(
+              Icons.balance,
+              color: const Color(0xFFFB8500),
+              size: 46,
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Title Header: Reset your password.
+          Center(
+            child: RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Reset your password',
+                    style: AppTypography.header.copyWith(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  TextSpan(
+                    text: '.',
+                    style: AppTypography.header.copyWith(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFFFB8500),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // Subtitle: WE'LL EMAIL YOU A RESET LINK
+          Center(
+            child: Text(
+              "WE'LL EMAIL YOU A RESET LINK",
+              style: AppTypography.bodyInterSemiBold.copyWith(
+                fontSize: 11,
+                color: const Color(0xFF8296A4),
+                letterSpacing: 2.0,
+              ),
+            ),
+          ),
+          const SizedBox(height: 36),
+
+          // EMAIL Label
+          _buildInputLabel('EMAIL'),
+          const SizedBox(height: 8),
+
+          // Email Input Field
+          TextFormField(
+            controller: _forgotPasswordEmailController,
+            style: AppTypography.bodyInterMedium.copyWith(color: Colors.white, fontSize: 15),
+            keyboardType: TextInputType.emailAddress,
+            decoration: InputDecoration(
+              hintText: 'you@firm.com',
+              hintStyle: AppTypography.bodyInter.copyWith(color: const Color(0xFF5D7290), fontSize: 14),
+              prefixIcon: const Icon(Icons.mail_outline_rounded, color: Color(0xFFFB8500), size: 20),
+              filled: true,
+              fillColor: const Color(0xFF09121D),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: const BorderSide(color: Color(0xFF1E2E42), width: 1),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: const BorderSide(color: Color(0xFFFB8500), width: 1.5),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: const BorderSide(color: Colors.redAccent, width: 1),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+              ),
+            ),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Please enter your email';
+              }
+              if (!value.contains('@')) {
+                return 'Please enter a valid email address';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 28),
+
+          // Send reset link button with right arrow
+          SizedBox(
+            height: 52,
+            child: ElevatedButton(
+              onPressed: _handleSendResetLink,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFB8500),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                elevation: 0,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Text(
+                    'Send reset link',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Icon(Icons.arrow_forward_rounded, size: 18, color: Colors.white),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 28),
+
+          // Footer Row: Remembered it? Sign in
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Remembered it? ',
+                style: AppTypography.bodyInterMedium.copyWith(
+                  color: const Color(0xFF8296A4),
+                  fontSize: 13,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _isForgotPassword = false;
+                    _isSignUp = false;
+                  });
+                },
+                child: Text(
+                  'Sign in',
+                  style: AppTypography.bodyInterSemiBold.copyWith(
+                    color: const Color(0xFFFB8500),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+
+  void _handleSendResetLink() {
+    if (_forgotPasswordEmailController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: const [
+              Icon(Icons.warning_amber_rounded, color: Colors.white),
+              SizedBox(width: 12),
+              Text('Please enter your email address to receive reset link.', style: TextStyle(color: Colors.white)),
+            ],
+          ),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.inputs),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle_outline, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Password reset link sent to ${_forgotPasswordEmailController.text.trim()}!',
+                style: AppTypography.bodyInterMedium.copyWith(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: AppColors.primaryNavy,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.inputs),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+
+    setState(() {
+      _isForgotPassword = false;
+    });
+  }
 }
+

@@ -145,10 +145,13 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
     final isTablet = Responsive.isTablet(context);
 
     int crossAxisCount = 4;
+    double aspectRatio = 2.4;
     if (isMobile) {
       crossAxisCount = 2;
+      aspectRatio = 1.6;
     } else if (isTablet) {
       crossAxisCount = 2;
+      aspectRatio = 2.2;
     }
 
     return GridView.count(
@@ -157,7 +160,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
       physics: const NeverScrollableScrollPhysics(),
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
-      childAspectRatio: isMobile ? 1.4 : (isTablet ? 2.0 : 2.5),
+      childAspectRatio: aspectRatio,
       children: [
         _buildLawyerStyleStatCard(
           title: 'Total Invoices',
@@ -204,7 +207,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
     required Color trendColor,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -224,17 +227,20 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title.toUpperCase(),
-                style: AppTypography.labelSmall.copyWith(
-                  color: AppColors.textMuted,
-                  fontSize: 10,
-                  letterSpacing: 0.8,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  title.toUpperCase(),
+                  style: AppTypography.labelSmall.copyWith(
+                    color: AppColors.textMuted,
+                    fontSize: 10,
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: bgColor,
                   shape: BoxShape.circle,
@@ -243,16 +249,18 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
               ),
             ],
           ),
-          const Spacer(),
-          Text(
-            value,
-            style: AppTypography.titleMedium.copyWith(
-              color: AppColors.primaryNavy,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: AppTypography.titleMedium.copyWith(
+                color: AppColors.primaryNavy,
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-          const SizedBox(height: 4),
           Row(
             children: [
               Icon(Icons.trending_up, size: 12, color: trendColor),
@@ -271,6 +279,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
   // Main Card Wrapper Containing Search Bar & Responsive Table
   Widget _buildMainTableCard(BuildContext context) {
     final filtered = _filteredInvoices;
+    final isMobile = Responsive.isMobile(context);
 
     return Container(
       decoration: BoxDecoration(
@@ -291,10 +300,13 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
           // Filter Bar (Search Field & Status Dropdown)
           Padding(
             padding: const EdgeInsets.all(16),
-            child: Row(
+            child: Flex(
+              direction: isMobile ? Axis.vertical : Axis.horizontal,
+              crossAxisAlignment: isMobile ? CrossAxisAlignment.stretch : CrossAxisAlignment.center,
               children: [
                 // Search Input Field
                 Expanded(
+                  flex: isMobile ? 0 : 1,
                   child: Container(
                     height: 44,
                     decoration: BoxDecoration(
@@ -336,7 +348,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: isMobile ? 0 : 16, height: isMobile ? 12 : 0),
 
                 // Status Dropdown Filter Button
                 Container(
