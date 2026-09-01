@@ -164,9 +164,56 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = widget.initialMember != null;
+
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
       appBar: _buildAppBar(context),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(AppSpacing.s16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(top: BorderSide(color: AppColors.border.withOpacity(0.5))),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              OutlinedButton(
+                onPressed: () => Navigator.pop(context),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  side: BorderSide(color: AppColors.border.withOpacity(0.5)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: Text('Cancel', style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy)),
+              ),
+              const SizedBox(width: AppSpacing.s16),
+              ElevatedButton.icon(
+                onPressed: _saveTeamMember,
+                icon: const Icon(Icons.save_outlined, size: 18, color: Colors.white),
+                label: Text(
+                  isEditing ? 'Update Member' : 'Save Member',
+                  style: AppTypography.bodyInterMedium.copyWith(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00A980),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -191,27 +238,9 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
       iconTheme: const IconThemeData(color: Colors.white),
       title: Text(
         isEditing ? 'Edit Team Member' : 'Add New Member',
-        style: AppTypography.header.copyWith(color: Colors.white, fontSize: 18),
+        style: AppTypography.header.copyWith(color: Colors.white, fontSize: 20),
         overflow: TextOverflow.ellipsis,
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel', style: AppTypography.bodyInterMedium.copyWith(color: Colors.white70)),
-        ),
-        const SizedBox(width: 8),
-        ElevatedButton(
-          onPressed: _saveTeamMember,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF00A980),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            elevation: 0,
-          ),
-          child: Text('Save', style: AppTypography.bodyInterMedium.copyWith(color: Colors.white)),
-        ),
-        const SizedBox(width: 16),
-      ],
     );
   }
 
