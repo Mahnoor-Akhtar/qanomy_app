@@ -14,6 +14,7 @@ class ClientInvoicesScreen extends StatefulWidget {
 
 class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
   String _selectedStatusFilter = 'All Status';
+  final TextEditingController _searchController = TextEditingController();
 
   final List<Map<String, String>> _invoices = [
     {
@@ -28,6 +29,24 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
   ];
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<Map<String, String>> get _filteredInvoices {
+    return _invoices.where((inv) {
+      final matchesStatus = _selectedStatusFilter == 'All Status' || inv['status'] == _selectedStatusFilter;
+      final query = _searchController.text.toLowerCase().trim();
+      final matchesSearch = query.isEmpty ||
+          inv['no']!.toLowerCase().contains(query) ||
+          inv['case']!.toLowerCase().contains(query) ||
+          inv['amount']!.toLowerCase().contains(query);
+      return matchesStatus && matchesSearch;
+    }).toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bool isMobile = Responsive.isMobile(context);
 
@@ -37,7 +56,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
         top: false,
         child: Column(
           children: [
-            // Top App Bar
+            // Top App Bar Header (Matching Lawyer Portal dark navy layout)
             Container(
               color: AppColors.sidebarNavy,
               padding: EdgeInsets.fromLTRB(
@@ -60,12 +79,29 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
                       children: [
                         Text(
                           'Invoices & Payments',
-                          style: AppTypography.header.copyWith(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                          style: AppTypography.header.copyWith(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 2),
-                        Text(
-                          'Dashboard • Invoices',
-                          style: AppTypography.captionInter.copyWith(color: Colors.white70, fontSize: 12),
+                        Row(
+                          children: [
+                            Text(
+                              'Dashboard',
+                              style: AppTypography.captionInter.copyWith(color: Colors.white70, fontSize: 12),
+                            ),
+                            const Text(' • ', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                            Text(
+                              'Invoices',
+                              style: AppTypography.captionInter.copyWith(
+                                color: AppColors.princetonOrange,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -74,23 +110,23 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
               ),
             ),
 
-            // Scrollable Body
+            // Main Body Content
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(AppSpacing.s24),
                 child: Align(
                   alignment: Alignment.topCenter,
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1300),
+                    constraints: const BoxConstraints(maxWidth: 1400),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // 1. Top Stat Cards Row (Exact data from user screenshot)
-                        _buildStatCardsRow(context),
+                        // 1. Stat Cards Section (Matching Lawyer Section Styling)
+                        _buildStatsCardsGrid(context),
                         const SizedBox(height: AppSpacing.s24),
 
-                        // 2. Table Section Card (Search, Filter, Table Headers, Row, Footer)
-                        _buildInvoicesTableCard(context),
+                        // 2. Main Data Table Card (Filter Bar + Table Headers + Rows + Footer)
+                        _buildMainTableCard(context),
                       ],
                     ),
                   ),
@@ -103,149 +139,155 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
     );
   }
 
-  // Top 4 Stat Cards matching user screenshot
-  Widget _buildStatCardsRow(BuildContext context) {
+  // Top 4 Stat Cards Matching Lawyer Invoices Screen Format
+  Widget _buildStatsCardsGrid(BuildContext context) {
     final isMobile = Responsive.isMobile(context);
     final isTablet = Responsive.isTablet(context);
 
     int crossAxisCount = 4;
-    if (isMobile) crossAxisCount = 1;
+    if (isMobile) crossAxisCount = 2;
     else if (isTablet) crossAxisCount = 2;
 
     return GridView.count(
       crossAxisCount: crossAxisCount,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      childAspectRatio: isMobile ? 2.6 : 2.2,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: isMobile ? 1.4 : (isTablet ? 2.0 : 2.5),
       children: [
-        _buildStatCard(
+        _buildLawyerStyleStatCard(
           title: 'Total Invoices',
-          value: '1',
+          value: '${_invoices.length}',
           subtitle: 'All Time',
-          iconWidget: const Icon(Icons.description_outlined, color: AppColors.princetonOrange, size: 20),
+          iconWidget: const Icon(Icons.description_outlined, color: Color(0xFFF97316), size: 18),
           bgColor: const Color(0xFFFFF0E6),
+          trendColor: const Color(0xFFF97316),
         ),
-        _buildStatCard(
+        _buildLawyerStyleStatCard(
           title: 'Total Billed',
           value: 'PKR 150,000',
           subtitle: 'All Time',
           iconWidget: const Text('Rs', style: TextStyle(color: Color(0xFF2563EB), fontWeight: FontWeight.bold, fontSize: 13)),
           bgColor: const Color(0xFFEFF6FF),
+          trendColor: const Color(0xFF2563EB),
         ),
-        _buildStatCard(
+        _buildLawyerStyleStatCard(
           title: 'Paid Amount',
           value: 'PKR 0',
           subtitle: 'All Time',
-          iconWidget: const Icon(Icons.credit_card_outlined, color: Color(0xFF10B981), size: 20),
+          iconWidget: const Icon(Icons.account_balance_wallet_outlined, color: Color(0xFF10B981), size: 18),
           bgColor: const Color(0xFFECFDF5),
+          trendColor: const Color(0xFF10B981),
         ),
-        _buildStatCard(
+        _buildLawyerStyleStatCard(
           title: 'Outstanding',
           value: 'PKR 150,000',
           subtitle: 'All Time',
-          iconWidget: const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 20),
+          iconWidget: const Icon(Icons.error_outline_rounded, color: Color(0xFFEF4444), size: 18),
           bgColor: const Color(0xFFFEF2F2),
+          trendColor: const Color(0xFFEF4444),
         ),
       ],
     );
   }
 
-  Widget _buildStatCard({
+  Widget _buildLawyerStyleStatCard({
     required String title,
     required String value,
     required String subtitle,
     required Widget iconWidget,
     required Color bgColor,
+    required Color trendColor,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.4)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: bgColor,
-              shape: BoxShape.circle,
-            ),
-            child: Center(child: iconWidget),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: AppTypography.captionInter.copyWith(
-                    color: AppColors.textMuted,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: AppTypography.header.copyWith(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primaryNavy,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: AppTypography.captionInter.copyWith(
-                    color: AppColors.textMuted,
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Table Section matching lawyer portal formatting
-  Widget _buildInvoicesTableCard(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Search & Filter Header Bar
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title.toUpperCase(),
+                style: AppTypography.labelSmall.copyWith(
+                  color: AppColors.textMuted,
+                  fontSize: 10,
+                  letterSpacing: 0.8,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  shape: BoxShape.circle,
+                ),
+                child: iconWidget,
+              ),
+            ],
+          ),
+          const Spacer(),
+          Text(
+            value,
+            style: AppTypography.titleMedium.copyWith(
+              color: AppColors.primaryNavy,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Icon(Icons.trending_up, size: 12, color: trendColor),
+              const SizedBox(width: 4),
+              Text(
+                subtitle,
+                style: AppTypography.labelSmall.copyWith(color: trendColor, fontSize: 11),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Main Card Wrapper Containing Search Bar & Responsive Table
+  Widget _buildMainTableCard(BuildContext context) {
+    final filtered = _filteredInvoices;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.4)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Filter Bar (Search Field & Status Dropdown)
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16),
             child: Row(
               children: [
                 // Search Input Field
@@ -254,16 +296,22 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
                     height: 44,
                     decoration: BoxDecoration(
                       color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.border),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
                     ),
                     child: Row(
                       children: [
-                        const SizedBox(width: 12),
-                        const Icon(Icons.search, color: AppColors.textMuted, size: 20),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 14),
+                        const Icon(Icons.search, color: AppColors.textMuted, size: 18),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: TextField(
+                            controller: _searchController,
+                            onChanged: (_) => setState(() {}),
+                            style: AppTypography.bodyInter.copyWith(
+                              fontSize: 13,
+                              color: AppColors.primaryNavy,
+                            ),
                             decoration: InputDecoration(
                               hintText: 'Search by invoice no., case, amount...',
                               hintStyle: AppTypography.bodyInter.copyWith(
@@ -272,23 +320,29 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
                               ),
                               border: InputBorder.none,
                               isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(vertical: 12),
                             ),
-                            style: AppTypography.bodyInter.copyWith(fontSize: 13, color: AppColors.primaryNavy),
                           ),
                         ),
+                        if (_searchController.text.isNotEmpty)
+                          IconButton(
+                            icon: const Icon(Icons.clear, size: 16, color: AppColors.textMuted),
+                            onPressed: () => setState(() => _searchController.clear()),
+                          ),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(width: 16),
 
-                // Status Filter Dropdown
+                // Status Dropdown Filter Button
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  height: 44,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
@@ -303,7 +357,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
                       onChanged: (val) {
                         if (val != null) setState(() => _selectedStatusFilter = val);
                       },
-                      items: ['All Status', 'Paid', 'Draft', 'Pending']
+                      items: ['All Status', 'Draft', 'Paid', 'Unpaid', 'Overdue']
                           .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                           .toList(),
                     ),
@@ -314,17 +368,17 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
           ),
           const Divider(color: AppColors.border, height: 1),
 
-          // Scrollable Data Table
+          // Scrollable Data Table matching Lawyer Invoices section
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 1000),
+              constraints: const BoxConstraints(minWidth: 1050),
               child: Column(
                 children: [
                   // Table Column Headers
                   Container(
                     color: const Color(0xFFF9FAFB),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                     child: Row(
                       children: [
                         _buildTableHeader('#', flex: 1),
@@ -341,143 +395,149 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
                   ),
                   const Divider(color: AppColors.border, height: 1),
 
-                  // Data Rows
-                  ..._invoices.asMap().entries.map((entry) {
-                    final index = entry.key + 1;
-                    final inv = entry.value;
-
-                    return Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                          child: Row(
-                            children: [
-                              // # Index
-                              Expanded(
-                                flex: 1,
-                                child: Text(
-                                  '$index',
-                                  style: AppTypography.bodyInter.copyWith(color: AppColors.textMuted, fontSize: 13),
-                                ),
-                              ),
-                              // Invoice No
-                              Expanded(
-                                flex: 3,
-                                child: Text(
-                                  inv['no']!,
-                                  style: AppTypography.bodyInterMedium.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.primaryNavy,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ),
-                              // Case Name
-                              Expanded(
-                                flex: 3,
-                                child: Text(
-                                  inv['case']!,
-                                  style: AppTypography.bodyInterMedium.copyWith(
-                                    color: AppColors.primaryNavy,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ),
-                              // Issue Date
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  inv['issue']!,
-                                  style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary, fontSize: 12),
-                                ),
-                              ),
-                              // Due Date
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  inv['due']!,
-                                  style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary, fontSize: 12),
-                                ),
-                              ),
-                              // Amount
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  inv['amount']!,
-                                  style: AppTypography.bodyInterMedium.copyWith(
-                                    color: AppColors.primaryNavy,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ),
-                              // Paid
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  inv['paid']!,
-                                  style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary, fontSize: 13),
-                                ),
-                              ),
-                              // Status Badge Tag (Outline rounded tag as per screenshot)
-                              Expanded(
-                                flex: 2,
-                                child: Center(
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(6),
-                                      border: Border.all(color: AppColors.border),
-                                    ),
-                                    child: Text(
-                                      inv['status']!,
-                                      style: AppTypography.captionInter.copyWith(
-                                        color: AppColors.textSecondary,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              // Actions Buttons
-                              Expanded(
-                                flex: 2,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.remove_red_eye_outlined, color: AppColors.textMuted, size: 18),
-                                      onPressed: () {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text('Viewing ${inv['no']}...')),
-                                        );
-                                      },
-                                      constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                                      padding: EdgeInsets.zero,
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.download_rounded, color: AppColors.textMuted, size: 18),
-                                      onPressed: () {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text('Downloading ${inv['no']}...')),
-                                        );
-                                      },
-                                      constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                                      padding: EdgeInsets.zero,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                  // Data Rows or Empty State
+                  if (filtered.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.all(40),
+                      alignment: Alignment.center,
+                      child: Column(
+                        children: [
+                          const Icon(Icons.receipt_long_outlined, size: 48, color: AppColors.textMuted),
+                          const SizedBox(height: 12),
+                          Text(
+                            'No invoices found matching your criteria.',
+                            style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary),
                           ),
-                        ),
-                        const Divider(color: AppColors.border, height: 1),
-                      ],
-                    );
-                  }),
+                        ],
+                      ),
+                    )
+                  else
+                    ...filtered.asMap().entries.map((entry) {
+                      final index = entry.key + 1;
+                      final inv = entry.value;
+
+                      return Column(
+                        children: [
+                          Container(
+                            color: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                            child: Row(
+                              children: [
+                                // # Index
+                                Expanded(
+                                  flex: 1,
+                                  child: Text(
+                                    '$index',
+                                    style: AppTypography.bodyInter.copyWith(color: AppColors.textMuted, fontSize: 13),
+                                  ),
+                                ),
+                                // Invoice No.
+                                Expanded(
+                                  flex: 3,
+                                  child: Text(
+                                    inv['no']!,
+                                    style: AppTypography.bodyInterMedium.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.primaryNavy,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                                // Case Name
+                                Expanded(
+                                  flex: 3,
+                                  child: Text(
+                                    inv['case']!,
+                                    style: AppTypography.bodyInterMedium.copyWith(
+                                      color: AppColors.primaryNavy,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                                // Issue Date
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    inv['issue']!,
+                                    style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary, fontSize: 13),
+                                  ),
+                                ),
+                                // Due Date
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    inv['due']!,
+                                    style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary, fontSize: 13),
+                                  ),
+                                ),
+                                // Amount
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    inv['amount']!,
+                                    style: AppTypography.bodyInterMedium.copyWith(
+                                      color: AppColors.primaryNavy,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                                // Paid
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    inv['paid']!,
+                                    style: AppTypography.bodyInter.copyWith(color: AppColors.textSecondary, fontSize: 13),
+                                  ),
+                                ),
+                                // Status Pill Badge (Matching Lawyer Portal Tag Style)
+                                Expanded(
+                                  flex: 2,
+                                  child: Center(
+                                    child: _buildStatusBadge(inv['status']!),
+                                  ),
+                                ),
+                                // Actions Buttons
+                                Expanded(
+                                  flex: 2,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.remove_red_eye_outlined, color: AppColors.textMuted, size: 18),
+                                        onPressed: () {
+                                          _showInvoiceDetailModal(context, inv);
+                                        },
+                                        tooltip: 'View Invoice',
+                                        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                                        padding: EdgeInsets.zero,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      IconButton(
+                                        icon: const Icon(Icons.download_outlined, color: AppColors.textMuted, size: 18),
+                                        onPressed: () {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text('Downloading PDF for ${inv['no']}...'),
+                                              backgroundColor: AppColors.primaryNavy,
+                                            ),
+                                          );
+                                        },
+                                        tooltip: 'Download PDF',
+                                        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                                        padding: EdgeInsets.zero,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Divider(color: AppColors.border, height: 1),
+                        ],
+                      );
+                    }),
                 ],
               ),
             ),
@@ -485,9 +545,9 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
 
           // Footer Row
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Text(
-              'Showing ${_invoices.length} invoices',
+              'Showing ${filtered.length} invoices',
               style: AppTypography.captionInter.copyWith(
                 color: AppColors.textMuted,
                 fontSize: 12,
@@ -509,8 +569,143 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
           color: AppColors.textMuted,
           fontWeight: FontWeight.bold,
           fontSize: 11,
-          letterSpacing: 0.5,
+          letterSpacing: 0.6,
         ),
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(String status) {
+    Color borderColor = AppColors.border;
+    Color textColor = AppColors.textSecondary;
+    Color bgColor = Colors.white;
+
+    if (status == 'Paid') {
+      bgColor = const Color(0xFFECFDF5);
+      textColor = const Color(0xFF10B981);
+      borderColor = const Color(0xFFA7F3D0);
+    } else if (status == 'Draft') {
+      bgColor = Colors.white;
+      textColor = AppColors.textSecondary;
+      borderColor = AppColors.border;
+    } else if (status == 'Unpaid' || status == 'Overdue') {
+      bgColor = const Color(0xFFFEF2F2);
+      textColor = const Color(0xFFEF4444);
+      borderColor = const Color(0xFFFCA5A5);
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: borderColor),
+      ),
+      child: Text(
+        status,
+        style: AppTypography.captionInter.copyWith(
+          color: textColor,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  void _showInvoiceDetailModal(BuildContext context, Map<String, String> inv) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Container(
+            width: 480,
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.princetonOrange.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(Icons.receipt_long, color: AppColors.princetonOrange, size: 22),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          inv['no']!,
+                          style: AppTypography.header.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: AppColors.textMuted),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Divider(color: AppColors.border, height: 1),
+                const SizedBox(height: 16),
+                _buildDetailRow('Case Title', inv['case']!),
+                _buildDetailRow('Issue Date', inv['issue']!),
+                _buildDetailRow('Due Date', inv['due']!),
+                _buildDetailRow('Total Amount', inv['amount']!),
+                _buildDetailRow('Amount Paid', inv['paid']!),
+                _buildDetailRow('Status', inv['status']!),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Close', style: TextStyle(color: AppColors.textSecondary)),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Downloading invoice ${inv['no']}...'),
+                            backgroundColor: AppColors.primaryNavy,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.download_rounded, size: 16),
+                      label: const Text('Download Invoice', style: TextStyle(fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryNavy,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: AppTypography.bodyInter.copyWith(color: AppColors.textMuted, fontSize: 13)),
+          Text(value, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontWeight: FontWeight.bold, fontSize: 13)),
+        ],
       ),
     );
   }
