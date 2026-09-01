@@ -17,6 +17,7 @@ class DashboardScreen extends StatelessWidget {
     return ColoredBox(
       color: AppColors.navBackground,
       child: SafeArea(
+        top: false,
         child: Stack(
           children: [
             // Entire page is scrollable so header doesn't get hidden under content

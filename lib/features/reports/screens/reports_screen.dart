@@ -48,18 +48,75 @@ class _ReportsScreenState extends State<ReportsScreen>
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
       appBar: QanomyAppBar(
-        title: 'Reports & Analytics',
-        actions: [
-          _AppBarIconButton(icon: Icons.refresh_rounded, onTap: () {}),
-          QanomyAppBarButton(label: 'Filters', icon: Icons.filter_list_rounded, onPressed: () {}),
-          QanomyAppBarButton(label: 'Export', icon: Icons.download_rounded, onPressed: () {}),
-          QanomyAppBarButton(
-            label: 'Custom Report',
-            icon: Icons.bar_chart_rounded,
-            onPressed: () {},
-            color: const Color(0xFF10B981),
-          ),
-        ],
+        title: isMobile ? 'Reports' : 'Reports & Analytics',
+        actions: isMobile
+            ? [
+                PopupMenuButton<String>(
+                  onSelected: (value) {},
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'refresh',
+                      child: Row(
+                        children: [
+                          Icon(Icons.refresh_rounded, color: AppColors.primaryNavy),
+                          const SizedBox(width: 8),
+                          Text('Refresh', style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy)),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'filters',
+                      child: Row(
+                        children: [
+                          Icon(Icons.filter_list_rounded, color: AppColors.primaryNavy),
+                          const SizedBox(width: 8),
+                          Text('Filters', style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy)),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'export',
+                      child: Row(
+                        children: [
+                          Icon(Icons.download_rounded, color: AppColors.primaryNavy),
+                          const SizedBox(width: 8),
+                          Text('Export', style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy)),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'custom',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.bar_chart_rounded, color: Color(0xFF10B981)),
+                          const SizedBox(width: 8),
+                          Text('Custom Report', style: AppTypography.bodyInterMedium.copyWith(color: const Color(0xFF10B981))),
+                        ],
+                      ),
+                    ),
+                  ],
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+                    ),
+                    child: const Icon(Icons.more_vert_rounded, color: Colors.white, size: 18),
+                  ),
+                ),
+              ]
+            : [
+                _AppBarIconButton(icon: Icons.refresh_rounded, onTap: () {}),
+                QanomyAppBarButton(label: 'Filters', icon: Icons.filter_list_rounded, onPressed: () {}),
+                QanomyAppBarButton(label: 'Export', icon: Icons.download_rounded, onPressed: () {}),
+                QanomyAppBarButton(
+                  label: 'Custom Report',
+                  icon: Icons.bar_chart_rounded,
+                  onPressed: () {},
+                  color: const Color(0xFF10B981),
+                ),
+              ],
       ),
       body: Column(
         children: [

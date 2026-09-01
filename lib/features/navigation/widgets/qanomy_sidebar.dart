@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../auth/screens/login_screen.dart';
 
 class QanomySidebar extends StatelessWidget {
   final int selectedIndex;
@@ -116,44 +117,7 @@ class QanomySidebar extends StatelessWidget {
           ),
 
           // Profile Area
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.s24),
-            decoration: const BoxDecoration(
-              border: Border(
-                top: BorderSide(color: AppColors.iconInactive, width: 1),
-              ),
-            ),
-            child: Row(
-              children: [
-                const CircleAvatar(
-                  radius: 20,
-                  backgroundColor: AppColors.primaryNavy,
-                  backgroundImage: AssetImage('assets/images/default_avatar.png'),
-                ),
-                const SizedBox(width: AppSpacing.s12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Haris Khan',
-                        style: AppTypography.bodyInterMedium.copyWith(color: Colors.white),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        'Admin',
-                        style: AppTypography.bodyInter.copyWith(
-                          color: AppColors.navHighlight.withOpacity(0.6),
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(Icons.expand_more, color: Colors.white, size: 16),
-              ],
-            ),
-          ),
+          _ProfileArea(),
         ],
       ),
     );
@@ -268,6 +232,108 @@ class _SidebarItem extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ProfileArea extends StatelessWidget {
+  const _ProfileArea();
+
+  void _showLogoutMenu(BuildContext context) async {
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final RenderBox overlay = Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
+    final Offset offset = button.localToGlobal(Offset.zero, ancestor: overlay);
+    final Size size = button.size;
+
+    final selected = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy - 80,
+        overlay.size.width - offset.dx - size.width,
+        overlay.size.height - offset.dy,
+      ),
+      items: [
+        PopupMenuItem<String>(
+          value: 'logout',
+          child: Row(
+            children: [
+              const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 18),
+              const SizedBox(width: 10),
+              Text(
+                'Logout',
+                style: AppTypography.bodyInterMedium.copyWith(color: Colors.redAccent),
+              ),
+            ],
+          ),
+        ),
+      ],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: Colors.white,
+      elevation: 8,
+    );
+
+    if (selected == 'logout' && context.mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+        ),
+        (route) => false,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Builder(
+      builder: (buttonContext) {
+        return GestureDetector(
+          onTap: () => _showLogoutMenu(buttonContext),
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.s24),
+            decoration: const BoxDecoration(
+              border: Border(
+                top: BorderSide(color: AppColors.iconInactive, width: 1),
+              ),
+            ),
+            child: Row(
+              children: [
+                const CircleAvatar(
+                  radius: 20,
+                  backgroundColor: AppColors.primaryNavy,
+                  backgroundImage: AssetImage('assets/images/default_avatar.png'),
+                ),
+                const SizedBox(width: AppSpacing.s12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Haris Khan',
+                        style: AppTypography.bodyInterMedium.copyWith(color: Colors.white),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        'Admin',
+                        style: AppTypography.bodyInter.copyWith(
+                          color: AppColors.navHighlight.withOpacity(0.6),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.expand_more, color: Colors.white, size: 16),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

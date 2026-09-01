@@ -171,14 +171,15 @@ class ClientDetailsScreen extends StatelessWidget {
               borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
             ),
             child: isMobile
-                ? Wrap(
-                    spacing: AppSpacing.s24,
-                    runSpacing: AppSpacing.s24,
+                ? Column(
                     children: [
-                      SizedBox(width: 140, child: _buildTopInfoItem(Icons.credit_card_outlined, 'CNIC', cnic)),
-                      SizedBox(width: 140, child: _buildTopInfoItem(Icons.phone_outlined, 'WHATSAPP', phone)),
-                      SizedBox(width: 140, child: _buildTopInfoItem(Icons.email_outlined, 'EMAIL', email)),
-                      SizedBox(width: 140, child: _buildTopInfoItem(Icons.location_city_outlined, 'CITY', 'Lahore')),
+                      _buildTopInfoItem(Icons.credit_card_outlined, 'CNIC', cnic),
+                      const SizedBox(height: AppSpacing.s16),
+                      _buildTopInfoItem(Icons.phone_outlined, 'WHATSAPP', phone),
+                      const SizedBox(height: AppSpacing.s16),
+                      _buildTopInfoItem(Icons.email_outlined, 'EMAIL', email),
+                      const SizedBox(height: AppSpacing.s16),
+                      _buildTopInfoItem(Icons.location_city_outlined, 'CITY', 'Lahore'),
                     ],
                   )
                 : Row(

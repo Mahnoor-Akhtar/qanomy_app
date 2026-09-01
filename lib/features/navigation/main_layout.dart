@@ -15,7 +15,6 @@ import '../support/screens/support_screen.dart';
 import '../reports/screens/reports_screen.dart';
 import '../documents/screens/documents_screen.dart';
 import '../settings/screens/settings_screen.dart';
-import 'screens/more_menu_screen.dart';
 import 'widgets/custom_bottom_app_bar.dart';
 import 'widgets/qanomy_sidebar.dart';
 
@@ -95,7 +94,7 @@ class MainLayoutState extends State<MainLayout> {
       case 1: return 1; // Cases
       case 2: return 0; // Dashboard (Home)
       case 3: return 2; // Hearings & Calendar
-      case 4: return 6; // Teams
+      case 4: return 6; // Team
       default: return 0;
     }
   }
@@ -106,7 +105,7 @@ class MainLayoutState extends State<MainLayout> {
       case 1: return 1; // Cases
       case 3: return 0; // Clients
       case 2: return 3; // Hearings
-      case 6: return 4; // Teams
+      case 6: return 4; // Team
       default: return -1;
     }
   }

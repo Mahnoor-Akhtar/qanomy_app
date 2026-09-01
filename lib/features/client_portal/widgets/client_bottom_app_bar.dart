@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 
-class CustomBottomAppBar extends StatelessWidget {
+class ClientBottomAppBar extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onItemSelected;
 
-  const CustomBottomAppBar({
+  const ClientBottomAppBar({
     super.key,
     required this.selectedIndex,
     required this.onItemSelected,
@@ -24,23 +24,22 @@ class CustomBottomAppBar extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(0.06),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),
         ],
       ),
-      // SafeArea ensures it sits above the home indicator on iOS
       child: SafeArea(
         top: false,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildNavItem(0, 'Clients', Icons.people, Icons.people_outline),
-            _buildNavItem(1, 'Cases', Icons.work, Icons.work_outline),
-            _buildNavItem(2, 'Home', Icons.home_filled, Icons.home_outlined),
-            _buildNavItem(3, 'Hearings', Icons.gavel, Icons.gavel),
-            _buildNavItem(4, 'Team', Icons.group, Icons.group_outlined),
+            _buildNavItem(0, 'My Cases', Icons.work, Icons.work_outline),
+            _buildNavItem(1, 'Hearings', Icons.gavel, Icons.gavel_outlined),
+            _buildNavItem(2, 'Dashboard', Icons.home_filled, Icons.home_outlined),
+            _buildNavItem(3, 'Documents', Icons.article, Icons.article_outlined),
+            _buildNavItem(4, 'Profile', Icons.person, Icons.person_outline),
           ],
         ),
       ),
@@ -97,6 +96,7 @@ class CustomBottomAppBar extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                           fontSize: 10,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -121,6 +121,7 @@ class CustomBottomAppBar extends StatelessWidget {
                       fontWeight: FontWeight.w400,
                       fontSize: 10,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),

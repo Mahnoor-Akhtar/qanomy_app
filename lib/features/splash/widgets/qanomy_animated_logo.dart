@@ -3,12 +3,13 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/theme/app_colors.dart';
 
 class QanomyAnimatedLogo extends StatelessWidget {
-  const QanomyAnimatedLogo({super.key});
+  final double? customSize;
+
+  const QanomyAnimatedLogo({super.key, this.customSize});
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.sizeOf(context).width;
-    final double size = (screenWidth * 0.35).clamp(100.0, 180.0); 
+    final double size = customSize ?? (MediaQuery.sizeOf(context).width * 0.35).clamp(100.0, 180.0);
     final double halfSize = size / 2;
 
     return SizedBox(

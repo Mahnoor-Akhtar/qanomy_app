@@ -606,123 +606,134 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
   @override
   Widget build(BuildContext context) {
     final isMobile = Responsive.isMobile(context);
+    final double screenHeight = MediaQuery.sizeOf(context).height;
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 24,
       backgroundColor: Colors.white,
+      insetPadding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 40, vertical: 24),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 800),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+        constraints: BoxConstraints(
+          maxWidth: 800,
+          maxHeight: screenHeight * 0.85,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Static Dialog Header
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Upload Document',
-                        style: AppTypography.titleMedium.copyWith(
-                          color: AppColors.primaryNavy,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.close, color: AppColors.textSecondary),
-                      ),
-                    ],
-                  ),
-                  const Divider(height: 24),
-
-                  if (isMobile)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildUploadDropzone(),
-                        const SizedBox(height: 24),
-                        _buildFormFields(),
-                      ],
-                    )
-                  else
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(flex: 4, child: _buildUploadDropzone()),
-                        const SizedBox(width: 24),
-                        Expanded(flex: 5, child: _buildFormFields()),
-                      ],
+                  Text(
+                    'Upload Document',
+                    style: AppTypography.titleMedium.copyWith(
+                      color: AppColors.primaryNavy,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
-                  const SizedBox(height: 24),
-                  const Divider(height: 1),
-                  const SizedBox(height: 24),
-                  
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: AppColors.border.withOpacity(0.5)),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                        ),
-                        child: Text(
-                          'Cancel',
-                          style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            final fileName = _pickedFileName ?? _nameController.text;
-                            if (fileName.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Please select or name a file first')),
-                              );
-                              return;
-                            }
-                            
-                            final newDoc = {
-                              'case': _selectedCase,
-                              'folder': _selectedType == 'Evidence / Document' ? 'All' : _selectedType,
-                              'name': fileName,
-                              'type': _selectedType,
-                              'uploadedBy': 'Haris khan',
-                              'date': '13-Aug-2026, 03:20 pm',
-                              'size': _pickedFileSize ?? '1.6 MB',
-                            };
-                            widget.onUpload(newDoc);
-                            Navigator.pop(context);
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00A980),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                          elevation: 0,
-                        ),
-                        child: Text(
-                          'Upload',
-                          style: AppTypography.bodyInterMedium.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close, color: AppColors.textSecondary),
                   ),
                 ],
               ),
             ),
-          ),
+            const Divider(height: 1),
+
+            // Scrollable Dialog Body
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Form(
+                  key: _formKey,
+                  child: isMobile
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _buildUploadDropzone(),
+                            const SizedBox(height: 24),
+                            _buildFormFields(),
+                          ],
+                        )
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(flex: 4, child: _buildUploadDropzone()),
+                            const SizedBox(width: 24),
+                            Expanded(flex: 5, child: _buildFormFields()),
+                          ],
+                        ),
+                ),
+              ),
+            ),
+            const Divider(height: 1),
+
+            // Static Dialog Footer
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: AppColors.border.withOpacity(0.5)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    ),
+                    child: Text(
+                      'Cancel',
+                      style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        final fileName = _pickedFileName ?? _nameController.text;
+                        if (fileName.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Please select or name a file first')),
+                          );
+                          return;
+                        }
+                        
+                        final newDoc = {
+                          'case': _selectedCase,
+                          'folder': _selectedType == 'Evidence / Document' ? 'All' : _selectedType,
+                          'name': fileName,
+                          'type': _selectedType,
+                          'uploadedBy': 'Haris khan',
+                          'date': '13-Aug-2026, 03:20 pm',
+                          'size': _pickedFileSize ?? '1.6 MB',
+                        };
+                        widget.onUpload(newDoc);
+                        Navigator.pop(context);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF00A980),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      'Upload',
+                      style: AppTypography.bodyInterMedium.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -250,6 +250,7 @@ class _CaseHistoryCardState extends State<CaseHistoryCard> {
                         ],
                       ),
                     ),
+                    const SizedBox(width: 16),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
