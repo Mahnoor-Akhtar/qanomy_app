@@ -51,4 +51,12 @@ class TeamService extends ValueNotifier<List<TeamMemberModel>> {
   void addMember(TeamMemberModel member) {
     value = [member, ...value];
   }
+
+  void updateMember(TeamMemberModel updatedMember) {
+    value = value.map((m) => m.id == updatedMember.id ? updatedMember : m).toList();
+  }
+
+  void deleteMember(String id) {
+    value = value.where((m) => m.id != id).toList();
+  }
 }

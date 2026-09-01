@@ -33,7 +33,9 @@ class TeamPhoneInputFormatter extends TextInputFormatter {
 }
 
 class AddTeamMemberScreen extends StatefulWidget {
-  const AddTeamMemberScreen({super.key});
+  final TeamMemberModel? initialMember;
+
+  const AddTeamMemberScreen({super.key, this.initialMember});
 
   @override
   State<AddTeamMemberScreen> createState() => _AddTeamMemberScreenState();
@@ -78,6 +80,24 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
   bool _obscureConfirmPassword = true;
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.initialMember != null) {
+      final m = widget.initialMember!;
+      _nameController.text = m.name;
+      _emailController.text = m.email;
+      _phoneController.text = m.phone.startsWith('0') ? m.phone.substring(1) : m.phone;
+      _designationController.text = m.designation;
+      
+      final matchedRole = _roles.firstWhere(
+        (r) => r.toLowerCase() == m.role.toLowerCase(),
+        orElse: () => 'Lawyer',
+      );
+      _selectedRole = matchedRole;
+    }
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
@@ -101,38 +121,44 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
         return;
       }
 
+      final isEditing = widget.initialMember != null;
       final rawName = _nameController.text.trim();
       final initial = rawName.isNotEmpty ? rawName[0].toUpperCase() : 'M';
       final roleUpper = _selectedRole.toUpperCase();
 
       final now = DateTime.now();
-      final formattedDate =
+      final formattedDate = widget.initialMember?.joined ??
           '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
 
-      final newMember = TeamMemberModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString().substring(7),
+      final member = TeamMemberModel(
+        id: isEditing ? widget.initialMember!.id : DateTime.now().millisecondsSinceEpoch.toString().substring(7),
         initial: initial,
         name: rawName,
         role: roleUpper,
         email: _emailController.text.trim(),
-        phone: '0${_phoneController.text.trim().replaceAll('-', '')}',
+        phone: _phoneController.text.trim().startsWith('0')
+            ? _phoneController.text.trim()
+            : '0${_phoneController.text.trim().replaceAll('-', '')}',
         designation: _designationController.text.trim(),
-        status: 'ACTIVE',
+        status: widget.initialMember?.status ?? 'ACTIVE',
         joined: formattedDate,
-        permissions: Map.from(_permissions),
       );
 
-      TeamService.instance.addMember(newMember);
+      if (isEditing) {
+        TeamService.instance.updateMember(member);
+      } else {
+        TeamService.instance.addMember(member);
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Team member "${newMember.name}" added successfully!'),
+          content: Text('Team member "${member.name}" ${isEditing ? "updated" : "added"} successfully!'),
           backgroundColor: const Color(0xFF00A980),
           duration: const Duration(seconds: 2),
         ),
       );
 
-      Navigator.pop(context, newMember);
+      Navigator.pop(context, member);
     }
   }
 
@@ -157,11 +183,13 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
+    final isEditing = widget.initialMember != null;
+
     return AppBar(
       backgroundColor: AppColors.sidebarNavy,
       elevation: 0,
       iconTheme: const IconThemeData(color: Colors.white),
-      title: Text('Add New Member', style: AppTypography.header.copyWith(color: Colors.white, fontSize: 24)),
+      title: Text(isEditing ? 'Edit Team Member' : 'Add New Member', style: AppTypography.header.copyWith(color: Colors.white, fontSize: 24)),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),

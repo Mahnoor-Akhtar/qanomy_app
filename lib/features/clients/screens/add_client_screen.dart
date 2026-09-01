@@ -59,7 +59,9 @@ class PhoneInputFormatter extends TextInputFormatter {
 }
 
 class AddClientScreen extends StatefulWidget {
-  const AddClientScreen({super.key});
+  final ClientModel? initialClient;
+
+  const AddClientScreen({super.key, this.initialClient});
 
   @override
   State<AddClientScreen> createState() => _AddClientScreenState();
@@ -88,6 +90,28 @@ class _AddClientScreenState extends State<AddClientScreen> {
   final List<String> _statusOptions = ['Active', 'Inactive'];
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.initialClient != null) {
+      final c = widget.initialClient!;
+      _companyNameController.text = c.companyName;
+      _clientNameController.text = c.name;
+      _ntnController.text = c.ntn;
+      _cnicController.text = c.cnic;
+      _occupationController.text = c.occupation;
+      _phoneController.text = c.phone;
+      _referredByController.text = c.referredBy;
+      _emailController.text = c.email;
+      _cityController.text = c.city.isEmpty ? 'Lahore' : c.city;
+      _addressController.text = c.address;
+      _notesController.text = c.notes;
+      _selectedClientType = c.type.isEmpty ? 'Individual' : c.type;
+      _selectedStatus = c.status.isEmpty ? 'Active' : c.status;
+      _enablePortalAccess = c.portalAccess;
+    }
+  }
+
+  @override
   void dispose() {
     _companyNameController.dispose();
     _clientNameController.dispose();
@@ -105,8 +129,10 @@ class _AddClientScreenState extends State<AddClientScreen> {
 
   void _saveClient() {
     if (_formKey.currentState!.validate()) {
-      final newClient = ClientModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString().substring(7),
+      final isEditing = widget.initialClient != null;
+
+      final client = ClientModel(
+        id: isEditing ? widget.initialClient!.id : DateTime.now().millisecondsSinceEpoch.toString().substring(7),
         name: _clientNameController.text.trim(),
         type: _selectedClientType,
         companyName: _companyNameController.text.trim(),
@@ -123,22 +149,28 @@ class _AddClientScreenState extends State<AddClientScreen> {
         portalAccess: _enablePortalAccess,
       );
 
-      ClientService.instance.addClient(newClient);
+      if (isEditing) {
+        ClientService.instance.updateClient(client);
+      } else {
+        ClientService.instance.addClient(client);
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Client "${newClient.name}" added successfully!'),
+          content: Text('Client "${client.name}" ${isEditing ? "updated" : "added"} successfully!'),
           backgroundColor: const Color(0xFF00A980),
           duration: const Duration(seconds: 2),
         ),
       );
 
-      Navigator.pop(context, newClient);
+      Navigator.pop(context, client);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = widget.initialClient != null;
+
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
       appBar: AppBar(
@@ -148,7 +180,7 @@ class _AddClientScreenState extends State<AddClientScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
         titleSpacing: AppSpacing.s12,
         title: Text(
-          'Add New Client',
+          isEditing ? 'Edit Client' : 'Add New Client',
           style: AppTypography.header.copyWith(
             color: Colors.white,
             fontSize: 28,

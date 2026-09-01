@@ -41,4 +41,12 @@ class ClientService extends ValueNotifier<List<ClientModel>> {
   void addClient(ClientModel client) {
     value = [client, ...value];
   }
+
+  void updateClient(ClientModel updatedClient) {
+    value = value.map((c) => c.id == updatedClient.id ? updatedClient : c).toList();
+  }
+
+  void deleteClient(String id) {
+    value = value.where((c) => c.id != id).toList();
+  }
 }

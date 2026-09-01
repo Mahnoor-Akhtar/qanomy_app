@@ -9,6 +9,8 @@ import '../services/team_service.dart';
 import 'team_member_details_screen.dart';
 import 'add_team_member_screen.dart';
 
+enum TeamActionMode { none, edit, delete }
+
 class TeamMembersScreen extends StatefulWidget {
   const TeamMembersScreen({super.key});
 
@@ -16,21 +18,119 @@ class TeamMembersScreen extends StatefulWidget {
   State<TeamMembersScreen> createState() => _TeamMembersScreenState();
 }
 
-class _TeamMembersScreenState extends State<TeamMembersScreen> {
+class _TeamMembersScreenState extends State<TeamMembersScreen> with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
+  late AnimationController _animationController;
+  late Animation<double> _expandAnimation;
+  TeamActionMode _actionMode = TeamActionMode.none;
+
   String _selectedRoleFilter = 'All Roles';
   String _selectedStatusFilter = 'All Status';
 
   @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      value: 0.0,
+      duration: const Duration(milliseconds: 250),
+      vsync: this,
+    );
+    _expandAnimation = CurvedAnimation(
+      curve: Curves.fastOutSlowIn,
+      reverseCurve: Curves.easeOutQuad,
+      parent: _animationController,
+    );
+  }
+
+  @override
   void dispose() {
+    _animationController.dispose();
     _searchController.dispose();
     super.dispose();
   }
 
+  void _toggleFabMenu() {
+    if (_animationController.isCompleted) {
+      _animationController.reverse();
+    } else {
+      _animationController.forward();
+    }
+  }
+
+  void _closeFabMenu() {
+    if (_animationController.isCompleted || _animationController.isAnimating) {
+      _animationController.reverse();
+    }
+  }
+
   void _openAddMemberScreen() async {
+    _closeFabMenu();
+    setState(() {
+      _actionMode = TeamActionMode.none;
+    });
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const AddTeamMemberScreen()),
+    );
+  }
+
+  void _navigateToEditScreen(TeamMemberModel member) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => AddTeamMemberScreen(initialMember: member)),
+    );
+  }
+
+  void _toggleEditMode() {
+    _closeFabMenu();
+    setState(() {
+      if (_actionMode == TeamActionMode.edit) {
+        _actionMode = TeamActionMode.none;
+      } else {
+        _actionMode = TeamActionMode.edit;
+      }
+    });
+  }
+
+  void _toggleDeleteMode() {
+    _closeFabMenu();
+    setState(() {
+      if (_actionMode == TeamActionMode.delete) {
+        _actionMode = TeamActionMode.none;
+      } else {
+        _actionMode = TeamActionMode.delete;
+      }
+    });
+  }
+
+  void _confirmDeleteMember(TeamMemberModel member) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Confirm Delete'),
+        content: Text('Are you sure you want to delete team member "${member.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () {
+              TeamService.instance.deleteMember(member.id);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Team member "${member.name}" deleted'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
     );
   }
 
@@ -59,13 +159,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
       appBar: const QanomyAppBar(
         title: 'Team Members',
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: null,
-        onPressed: _openAddMemberScreen,
-        backgroundColor: const Color(0xFFFF8A00),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: const Icon(Icons.add, color: Colors.white, size: 28),
-      ),
+      floatingActionButton: _buildExpandableFab(),
       body: ValueListenableBuilder<List<TeamMemberModel>>(
         valueListenable: TeamService.instance,
         builder: (context, allMembers, _) {
@@ -92,11 +186,179 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
                   inactive: inactiveCount,
                 ),
                 const SizedBox(height: AppSpacing.s24),
+                if (_actionMode != TeamActionMode.none) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: _actionMode == TeamActionMode.edit
+                          ? const Color(0xFFFF8A00).withOpacity(0.12)
+                          : Colors.red.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: _actionMode == TeamActionMode.edit ? const Color(0xFFFF8A00) : Colors.red,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          _actionMode == TeamActionMode.edit ? Icons.edit_outlined : Icons.delete_outline,
+                          color: _actionMode == TeamActionMode.edit ? const Color(0xFFFF8A00) : Colors.red,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            _actionMode == TeamActionMode.edit
+                                ? 'Edit Mode Active — tap pencil on any team member'
+                                : 'Delete Mode Active — tap trash on any team member',
+                            style: AppTypography.bodyInterMedium.copyWith(
+                              fontSize: 13,
+                              color: _actionMode == TeamActionMode.edit ? const Color(0xFFFF8A00) : Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () => setState(() => _actionMode = TeamActionMode.none),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: _actionMode == TeamActionMode.edit ? const Color(0xFFFF8A00) : Colors.red,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Text(
+                              'Done',
+                              style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.s16),
+                ],
                 _buildMainContainer(context, filteredMembers),
               ],
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildExpandableFab() {
+    return AnimatedBuilder(
+      animation: _animationController,
+      builder: (context, child) {
+        final double progress = _expandAnimation.value;
+
+        return SizedBox(
+          width: 160,
+          height: 160,
+          child: Stack(
+            alignment: Alignment.bottomRight,
+            children: [
+              if (progress > 0.01) ...[
+                // 1. Add Team Member (Directly Above main button)
+                Positioned(
+                  bottom: 60 * progress,
+                  right: 0,
+                  child: Opacity(
+                    opacity: progress,
+                    child: Transform.scale(
+                      scale: progress,
+                      child: _buildActionIconButton(
+                        label: 'Add Member',
+                        icon: Icons.add,
+                        onPressed: _openAddMemberScreen,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // 2. Edit Member (Top-Left Diagonal)
+                Positioned(
+                  bottom: 50 * progress,
+                  right: 50 * progress,
+                  child: Opacity(
+                    opacity: progress,
+                    child: Transform.scale(
+                      scale: progress,
+                      child: _buildActionIconButton(
+                        label: 'Edit Member',
+                        icon: Icons.edit_outlined,
+                        onPressed: _toggleEditMode,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // 3. Delete Member (Directly Left)
+                Positioned(
+                  bottom: 0,
+                  right: 60 * progress,
+                  child: Opacity(
+                    opacity: progress,
+                    child: Transform.scale(
+                      scale: progress,
+                      child: _buildActionIconButton(
+                        label: 'Delete Member',
+                        icon: Icons.delete_outline,
+                        onPressed: _toggleDeleteMode,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+
+              // Main Trigger Button (Bottom-Right corner)
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: FloatingActionButton(
+                    heroTag: 'main_team_fab',
+                    onPressed: _toggleFabMenu,
+                    backgroundColor: const Color(0xFFFF8A00),
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    child: AnimatedRotation(
+                      turns: progress * 0.25,
+                      duration: Duration.zero,
+                      child: Icon(
+                        progress > 0.5 ? Icons.close : Icons.menu,
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildActionIconButton({
+    required String label,
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return SizedBox(
+      width: 48,
+      height: 48,
+      child: FloatingActionButton(
+        heroTag: label,
+        onPressed: onPressed,
+        tooltip: label,
+        backgroundColor: const Color(0xFFFF8A00),
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        child: Icon(icon, color: Colors.white, size: 20),
       ),
     );
   }
@@ -346,6 +608,44 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
                     ],
                   ),
                 ),
+                if (_actionMode == TeamActionMode.edit) ...[
+                  InkWell(
+                    onTap: () => _navigateToEditScreen(member),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFF8A00).withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.edit_outlined,
+                        color: Color(0xFFFF8A00),
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                if (_actionMode == TeamActionMode.delete) ...[
+                  InkWell(
+                    onTap: () => _confirmDeleteMember(member),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.delete_outline,
+                        color: Colors.red,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
