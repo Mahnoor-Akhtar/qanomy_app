@@ -189,7 +189,11 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
       backgroundColor: AppColors.sidebarNavy,
       elevation: 0,
       iconTheme: const IconThemeData(color: Colors.white),
-      title: Text(isEditing ? 'Edit Team Member' : 'Add New Member', style: AppTypography.header.copyWith(color: Colors.white, fontSize: 24)),
+      title: Text(
+        isEditing ? 'Edit Team Member' : 'Add New Member',
+        style: AppTypography.header.copyWith(color: Colors.white, fontSize: 18),
+        overflow: TextOverflow.ellipsis,
+      ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
@@ -524,35 +528,44 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
   }
 
   Widget _buildPermissionsGrid(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(child: _buildPermissionCategory('Dashboard', ['View Dashboard'])),
-            Expanded(child: _buildPermissionCategory('Documents', ['View Documents', 'Upload Documents', 'Delete Documents'])),
-            Expanded(child: _buildPermissionCategory('Team & Reports', ['View Team', 'View Reports'])),
-          ],
-        ),
-        const SizedBox(height: 24),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(child: _buildPermissionCategory('Cases', ['View Cases', 'Add / Edit Cases', 'Delete Cases'])),
-            Expanded(child: _buildPermissionCategory('Clients', ['View Clients', 'Add / Edit Clients', 'Delete Clients'])),
-            Expanded(child: _buildPermissionCategory('Notifications & Settings', ['View Notifications', 'View Settings'])),
-          ],
-        ),
-        const SizedBox(height: 24),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(child: _buildPermissionCategory('Hearings', ['View Hearings', 'Add / Edit Hearings', 'Mark Hearing Done'])),
-            Expanded(child: _buildPermissionCategory('Billing & Invoices', ['View Invoices', 'Create Invoices'])),
-            const Expanded(child: SizedBox()),
-          ],
-        ),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobile = constraints.maxWidth < 600;
+
+        final categories = [
+          _buildPermissionCategory('Dashboard', ['View Dashboard']),
+          _buildPermissionCategory('Cases', ['View Cases', 'Add / Edit Cases', 'Delete Cases']),
+          _buildPermissionCategory('Hearings', ['View Hearings', 'Add / Edit Hearings', 'Mark Hearing Done']),
+          _buildPermissionCategory('Documents', ['View Documents', 'Upload Documents', 'Delete Documents']),
+          _buildPermissionCategory('Clients', ['View Clients', 'Add / Edit Clients', 'Delete Clients']),
+          _buildPermissionCategory('Billing & Invoices', ['View Invoices', 'Create Invoices']),
+          _buildPermissionCategory('Team & Reports', ['View Team', 'View Reports']),
+          _buildPermissionCategory('Notifications & Settings', ['View Notifications', 'View Settings']),
+        ];
+
+        if (isMobile) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: categories
+                .map((cat) => Padding(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: cat,
+                    ))
+                .toList(),
+          );
+        }
+
+        return Wrap(
+          spacing: 24,
+          runSpacing: 24,
+          children: categories
+              .map((cat) => SizedBox(
+                    width: (constraints.maxWidth - 48) / 3,
+                    child: cat,
+                  ))
+              .toList(),
+        );
+      },
     );
   }
 
@@ -596,11 +609,13 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
                   : null,
             ),
             const SizedBox(width: 12),
-            Text(
-              label,
-              style: AppTypography.bodyInterMedium.copyWith(
-                color: isChecked ? AppColors.primaryNavy : AppColors.textSecondary,
-                fontSize: 14,
+            Expanded(
+              child: Text(
+                label,
+                style: AppTypography.bodyInterMedium.copyWith(
+                  color: isChecked ? AppColors.primaryNavy : AppColors.textSecondary,
+                  fontSize: 14,
+                ),
               ),
             ),
           ],
