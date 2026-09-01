@@ -2,15 +2,60 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/qanomy_app_bar.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../navigation/main_layout.dart';
+import '../models/client_model.dart';
+import '../services/client_service.dart';
 import 'add_client_screen.dart';
 import 'client_details_screen.dart';
-class ClientsScreen extends StatelessWidget {
 
+class ClientsScreen extends StatefulWidget {
   const ClientsScreen({super.key});
+
+  @override
+  State<ClientsScreen> createState() => _ClientsScreenState();
+}
+
+class _ClientsScreenState extends State<ClientsScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _selectedStatusFilter = 'All Status';
+  String _selectedTypeFilter = 'All Client Types';
+  String _selectedCityFilter = 'All Cities';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<ClientModel> _filterClients(List<ClientModel> clients) {
+    final query = _searchController.text.toLowerCase().trim();
+    return clients.where((client) {
+      final matchesSearch = query.isEmpty ||
+          client.name.toLowerCase().contains(query) ||
+          client.cnic.toLowerCase().contains(query) ||
+          client.phone.toLowerCase().contains(query) ||
+          client.email.toLowerCase().contains(query);
+
+      final matchesStatus = _selectedStatusFilter == 'All Status' ||
+          client.status.toLowerCase() == _selectedStatusFilter.toLowerCase();
+
+      final matchesType = _selectedTypeFilter == 'All Client Types' ||
+          client.type.toLowerCase() == _selectedTypeFilter.toLowerCase();
+
+      final matchesCity = _selectedCityFilter == 'All Cities' ||
+          client.city.toLowerCase() == _selectedCityFilter.toLowerCase();
+
+      return matchesSearch && matchesStatus && matchesType && matchesCity;
+    }).toList();
+  }
+
+  void _openAddClientScreen() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddClientScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,19 +66,14 @@ class ClientsScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: null,
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddClientScreen()),
-          );
-        },
+        onPressed: _openAddClientScreen,
         backgroundColor: const Color(0xFFFF8A00),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
       body: Column(
         children: [
-          // Filter Bar (Horizontally scrollable for mobile)
+          // Filter Bar
           Container(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s24, vertical: AppSpacing.s16),
             color: Colors.white,
@@ -51,6 +91,8 @@ class ClientsScreen extends StatelessWidget {
                         ],
                       ),
                       child: TextField(
+                        controller: _searchController,
+                        onChanged: (_) => setState(() {}),
                         decoration: InputDecoration(
                           hintText: 'Search by client name, CNIC',
                           hintStyle: AppTypography.bodyInter.copyWith(color: AppColors.textMuted),
@@ -71,30 +113,63 @@ class ClientsScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: AppSpacing.s16),
-                  _buildFilterDropdown('All Status'),
+                  _buildFilterDropdown(
+                    _selectedStatusFilter,
+                    ['All Status', 'Active', 'Inactive'],
+                    (val) => setState(() => _selectedStatusFilter = val!),
+                  ),
                   const SizedBox(width: AppSpacing.s12),
-                  _buildFilterDropdown('All Client Types'),
+                  _buildFilterDropdown(
+                    _selectedTypeFilter,
+                    ['All Client Types', 'Individual', 'Corporate', 'Government', 'Other'],
+                    (val) => setState(() => _selectedTypeFilter = val!),
+                  ),
                   const SizedBox(width: AppSpacing.s12),
-                  _buildFilterDropdown('All Cities'),
+                  _buildFilterDropdown(
+                    _selectedCityFilter,
+                    ['All Cities', 'Lahore', 'Karachi', 'Islamabad', 'Rawalpindi'],
+                    (val) => setState(() => _selectedCityFilter = val!),
+                  ),
                 ],
               ),
             ),
           ),
-          
+
           // Data Table / List
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(AppSpacing.s24),
-              children: [
-                _buildClientRow(context, '1', 'Hamad Client', 'Individual', '34201-8787378-2', '03087878228', 'lioness99999999@gmail.com')
-                    .animate().fadeIn(duration: 400.ms).slideY(begin: 0.1, duration: 400.ms),
-                const SizedBox(height: 12),
-                _buildClientRow(context, '2', 'Arooj Client', 'Individual', '34989-2989898-9', '03098383388', 'mhamadansari228@gmail.com')
-                    .animate(delay: 100.ms).fadeIn(duration: 400.ms).slideY(begin: 0.1, duration: 400.ms),
-                const SizedBox(height: 12),
-                _buildClientRow(context, '3', 'Muhammad Ali', 'Individual', '35202-1234567-1', '03087676667', 'mahnoorakhtaransari999@gmail.com')
-                    .animate(delay: 200.ms).fadeIn(duration: 400.ms).slideY(begin: 0.1, duration: 400.ms),
-              ],
+            child: ValueListenableBuilder<List<ClientModel>>(
+              valueListenable: ClientService.instance,
+              builder: (context, allClients, _) {
+                final filteredClients = _filterClients(allClients);
+
+                if (filteredClients.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.people_outline, size: 64, color: AppColors.textMuted.withOpacity(0.5)),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No clients found',
+                          style: AppTypography.titleMedium.copyWith(color: AppColors.textMuted),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(AppSpacing.s24),
+                  itemCount: filteredClients.length,
+                  itemBuilder: (context, index) {
+                    final client = filteredClients[index];
+                    return _buildClientRow(context, client)
+                        .animate(delay: Duration(milliseconds: index * 50))
+                        .fadeIn(duration: 300.ms)
+                        .slideY(begin: 0.1, duration: 300.ms);
+                  },
+                );
+              },
             ),
           ),
         ],
@@ -102,7 +177,7 @@ class ClientsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFilterDropdown(String hint) {
+  Widget _buildFilterDropdown(String value, List<String> options, ValueChanged<String?> onChanged) {
     return Container(
       height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -116,9 +191,10 @@ class ClientsScreen extends StatelessWidget {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          hint: Text(hint, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy)),
-          items: const [],
-          onChanged: (val) {},
+          value: options.contains(value) ? value : options.first,
+          style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy),
+          items: options.map((opt) => DropdownMenuItem(value: opt, child: Text(opt))).toList(),
+          onChanged: onChanged,
           icon: const Padding(
             padding: EdgeInsets.only(left: 8.0),
             child: Icon(Icons.keyboard_arrow_down, color: AppColors.primaryNavy),
@@ -128,7 +204,7 @@ class ClientsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildClientRow(BuildContext context, String id, String name, String type, String cnic, String phone, String email) {
+  Widget _buildClientRow(BuildContext context, ClientModel client) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.s12),
       decoration: BoxDecoration(
@@ -154,11 +230,11 @@ class ClientsScreen extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) => ClientDetailsScreen(
-                  name: name,
-                  type: type,
-                  cnic: cnic,
-                  phone: phone,
-                  email: email,
+                  name: client.name,
+                  type: client.type,
+                  cnic: client.cnic,
+                  phone: client.phone,
+                  email: client.email,
                 ),
               ),
             );
@@ -177,18 +253,18 @@ class ClientsScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(name, style: AppTypography.titleMedium.copyWith(color: AppColors.primaryNavy, fontSize: 16)),
+                      Text(client.name, style: AppTypography.titleMedium.copyWith(color: AppColors.primaryNavy, fontSize: 16)),
                       const SizedBox(height: 4),
                       Wrap(
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           const Icon(Icons.category_outlined, size: 14, color: AppColors.textMuted),
                           const SizedBox(width: 4),
-                          Text(type, style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted)),
+                          Text(client.type, style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted)),
                           const SizedBox(width: 12),
                           const Icon(Icons.tag, size: 14, color: AppColors.textMuted),
                           const SizedBox(width: 2),
-                          Text('ID: $id', style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted)),
+                          Text('ID: ${client.id}', style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted)),
                         ],
                       ),
                     ],
@@ -209,5 +285,4 @@ class ClientsScreen extends StatelessWidget {
       ),
     );
   }
-
 }

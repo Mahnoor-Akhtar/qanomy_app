@@ -4,14 +4,53 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/qanomy_app_bar.dart';
-import '../../navigation/main_layout.dart';
+import '../models/team_member_model.dart';
+import '../services/team_service.dart';
 import 'team_member_details_screen.dart';
 import 'add_team_member_screen.dart';
 
-
-
-class TeamMembersScreen extends StatelessWidget {
+class TeamMembersScreen extends StatefulWidget {
   const TeamMembersScreen({super.key});
+
+  @override
+  State<TeamMembersScreen> createState() => _TeamMembersScreenState();
+}
+
+class _TeamMembersScreenState extends State<TeamMembersScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _selectedRoleFilter = 'All Roles';
+  String _selectedStatusFilter = 'All Status';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _openAddMemberScreen() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddTeamMemberScreen()),
+    );
+  }
+
+  List<TeamMemberModel> _filterMembers(List<TeamMemberModel> members) {
+    final query = _searchController.text.toLowerCase().trim();
+    return members.where((m) {
+      final matchesSearch = query.isEmpty ||
+          m.name.toLowerCase().contains(query) ||
+          m.email.toLowerCase().contains(query) ||
+          m.phone.toLowerCase().contains(query);
+
+      final matchesRole = _selectedRoleFilter == 'All Roles' ||
+          m.role.toUpperCase() == _selectedRoleFilter.toUpperCase();
+
+      final matchesStatus = _selectedStatusFilter == 'All Status' ||
+          m.status.toUpperCase() == _selectedStatusFilter.toUpperCase();
+
+      return matchesSearch && matchesRole && matchesStatus;
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,48 +61,69 @@ class TeamMembersScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: null,
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddTeamMemberScreen()),
-          );
-        },
+        onPressed: _openAddMemberScreen,
         backgroundColor: const Color(0xFFFF8A00),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.s24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildTopStatsRow(),
-            const SizedBox(height: AppSpacing.s24),
-            _buildMainContainer(context),
-          ],
-        ),
+      body: ValueListenableBuilder<List<TeamMemberModel>>(
+        valueListenable: TeamService.instance,
+        builder: (context, allMembers, _) {
+          final totalCount = allMembers.length;
+          final lawyersCount = allMembers.where((m) => m.role.toUpperCase() == 'LAWYER').length;
+          final clerksCount = allMembers.where((m) => m.role.toUpperCase() == 'CLERK').length;
+          final readOnlyCount = allMembers.where((m) => m.role.toUpperCase().contains('READ-ONLY')).length;
+          final activeCount = allMembers.where((m) => m.status.toUpperCase() == 'ACTIVE').length;
+          final inactiveCount = allMembers.where((m) => m.status.toUpperCase() == 'INACTIVE').length;
+
+          final filteredMembers = _filterMembers(allMembers);
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.s24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildTopStatsRow(
+                  total: totalCount,
+                  lawyers: lawyersCount,
+                  clerks: clerksCount,
+                  readOnly: readOnlyCount,
+                  active: activeCount,
+                  inactive: inactiveCount,
+                ),
+                const SizedBox(height: AppSpacing.s24),
+                _buildMainContainer(context, filteredMembers),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
-
-
-  Widget _buildTopStatsRow() {
+  Widget _buildTopStatsRow({
+    required int total,
+    required int lawyers,
+    required int clerks,
+    required int readOnly,
+    required int active,
+    required int inactive,
+  }) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          _buildStatCard('Total Members', '4', Icons.person_outline, const Color(0xFF00A980)),
+          _buildStatCard('Total Members', '$total', Icons.person_outline, const Color(0xFF00A980)),
           const SizedBox(width: 16),
-          _buildStatCard('Lawyers', '3', Icons.work_outline, const Color(0xFF42A5F5)),
+          _buildStatCard('Lawyers', '$lawyers', Icons.work_outline, const Color(0xFF42A5F5)),
           const SizedBox(width: 16),
-          _buildStatCard('Clerks', '1', Icons.people_outline, const Color(0xFFAB47BC)),
+          _buildStatCard('Clerks', '$clerks', Icons.people_outline, const Color(0xFFAB47BC)),
           const SizedBox(width: 16),
-          _buildStatCard('Read-only Users', '0', Icons.person_outline, const Color(0xFFFF9800)),
+          _buildStatCard('Read-only Users', '$readOnly', Icons.person_outline, const Color(0xFFFF9800)),
           const SizedBox(width: 16),
-          _buildStatCard('Active', '0', Icons.check_circle_outline, const Color(0xFF26A69A)),
+          _buildStatCard('Active', '$active', Icons.check_circle_outline, const Color(0xFF26A69A)),
           const SizedBox(width: 16),
-          _buildStatCard('Inactive', '0', Icons.cancel_outlined, const Color(0xFFEF5350)),
+          _buildStatCard('Inactive', '$inactive', Icons.cancel_outlined, const Color(0xFFEF5350)),
         ],
       ),
     );
@@ -105,13 +165,13 @@ class TeamMembersScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMainContainer(BuildContext context) {
+  Widget _buildMainContainer(BuildContext context, List<TeamMemberModel> filteredMembers) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildFilterBar(context),
         const SizedBox(height: AppSpacing.s24),
-        _buildTeamTable(),
+        _buildTeamTable(filteredMembers),
       ],
     );
   }
@@ -131,6 +191,8 @@ class TeamMembersScreen extends StatelessWidget {
               width: 250,
               height: 40,
               child: TextField(
+                controller: _searchController,
+                onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
                   fillColor: Colors.white,
                   filled: true,
@@ -144,18 +206,24 @@ class TeamMembersScreen extends StatelessWidget {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: const Color(0xFF00A980)),
+                    borderSide: const BorderSide(color: Color(0xFF00A980)),
                   ),
                 ),
               ),
             ),
             const SizedBox(width: 12),
             if (!isMobile) ...[
-              _buildDropdown('All Roles'),
+              _buildDropdown(
+                _selectedRoleFilter,
+                ['All Roles', 'Lawyer', 'Clerk', 'Read-only User', 'Owner'],
+                (val) => setState(() => _selectedRoleFilter = val!),
+              ),
               const SizedBox(width: 12),
-              _buildDropdown('All Status'),
-              const SizedBox(width: 12),
-              _buildFilterButton(Icons.filter_list, 'More Filters'),
+              _buildDropdown(
+                _selectedStatusFilter,
+                ['All Status', 'Active', 'Inactive'],
+                (val) => setState(() => _selectedStatusFilter = val!),
+              ),
             ],
           ],
         ),
@@ -163,53 +231,38 @@ class TeamMembersScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDropdown(String hint) {
+  Widget _buildDropdown(String value, List<String> options, ValueChanged<String?> onChanged) {
     return Container(
       height: 40,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.border.withOpacity(0.5)),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(hint, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 13)),
-          const SizedBox(width: 8),
-          const Icon(Icons.keyboard_arrow_down, color: AppColors.textSecondary, size: 16),
-        ],
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: options.contains(value) ? value : options.first,
+          style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 13),
+          items: options.map((opt) => DropdownMenuItem(value: opt, child: Text(opt))).toList(),
+          onChanged: onChanged,
+          icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.textSecondary, size: 16),
+        ),
       ),
     );
   }
 
-  Widget _buildFilterButton(IconData icon, String label) {
-    return Container(
-      height: 40,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.border.withOpacity(0.5)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: AppColors.textSecondary, size: 18),
-          const SizedBox(width: 8),
-          Text(label, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 13)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTeamTable() {
-    final members = [
-      {'id': '1', 'initial': 'F', 'name': 'Fatima', 'subtitle': 'LAWYER', 'email': 'noorlioness999@gmail.com', 'phone': '03076362440', 'status': 'ACTIVE', 'joined': '13/08/2026'},
-      {'id': '2', 'initial': 'A', 'name': 'Asim', 'subtitle': 'CLERK', 'email': 'qanomy8@gmail.com', 'phone': '03076962440', 'status': 'ACTIVE', 'joined': '10/08/2026'},
-      {'id': '3', 'initial': 'E', 'name': 'Ejaz', 'subtitle': 'LAWYER', 'email': 'ayesha.ansari12098@gmail.com', 'phone': '03078362440', 'status': 'ACTIVE', 'joined': '10/08/2026'},
-      {'id': '4', 'initial': 'H', 'name': 'Haris khan', 'subtitle': 'Owner', 'email': 'mahnoorakhtar002@gmail.com', 'phone': '03051180621', 'status': 'ACTIVE', 'joined': '07/08/2026'},
-    ];
+  Widget _buildTeamTable(List<TeamMemberModel> members) {
+    if (members.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(32),
+        alignment: Alignment.center,
+        child: Text(
+          'No team members found',
+          style: AppTypography.bodyInter.copyWith(color: AppColors.textMuted),
+        ),
+      );
+    }
 
     return ListView.separated(
       shrinkWrap: true,
@@ -218,12 +271,12 @@ class TeamMembersScreen extends StatelessWidget {
       separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
         final m = members[index];
-        return _buildTeamMemberItem(context, m['id']!, m['initial']!, m['name']!, m['subtitle']!, m['email']!, m['phone']!, m['status']!, m['joined']!);
+        return _buildTeamMemberItem(context, m);
       },
     );
   }
 
-  Widget _buildTeamMemberItem(BuildContext context, String id, String initial, String name, String subtitle, String email, String phone, String status, String joined) {
+  Widget _buildTeamMemberItem(BuildContext context, TeamMemberModel member) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
@@ -249,12 +302,12 @@ class TeamMembersScreen extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) => TeamMemberDetailsScreen(
-                  name: name,
-                  role: subtitle,
-                  email: email,
-                  phone: phone,
-                  status: status,
-                  joined: joined,
+                  name: member.name,
+                  role: member.role,
+                  email: member.email,
+                  phone: member.phone,
+                  status: member.status,
+                  joined: member.joined,
                 ),
               ),
             );
@@ -263,28 +316,31 @@ class TeamMembersScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s16, vertical: AppSpacing.s16),
             child: Row(
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 24,
-                  backgroundColor: Color(0xFFE8F5E9),
-                  backgroundImage: AssetImage('assets/images/default_avatar.png'),
+                  backgroundColor: const Color(0xFFE8F5E9),
+                  child: Text(
+                    member.initial,
+                    style: AppTypography.titleMedium.copyWith(color: const Color(0xFF00A980), fontWeight: FontWeight.bold),
+                  ),
                 ),
                 const SizedBox(width: AppSpacing.s16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(name, style: AppTypography.titleMedium.copyWith(color: AppColors.primaryNavy, fontSize: 16)),
+                      Text(member.name, style: AppTypography.titleMedium.copyWith(color: AppColors.primaryNavy, fontSize: 16)),
                       const SizedBox(height: 4),
                       Wrap(
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           const Icon(Icons.work_outline, size: 14, color: AppColors.textMuted),
                           const SizedBox(width: 4),
-                          Text(subtitle.toUpperCase(), style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted)),
+                          Text(member.role.toUpperCase(), style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted)),
                           const SizedBox(width: 12),
                           const Icon(Icons.tag, size: 14, color: AppColors.textMuted),
                           const SizedBox(width: 2),
-                          Text('ID: $id', style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted)),
+                          Text('ID: ${member.id}', style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted)),
                         ],
                       ),
                     ],

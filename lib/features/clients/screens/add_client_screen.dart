@@ -1,11 +1,141 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/utils/responsive.dart';
+import '../models/client_model.dart';
+import '../services/client_service.dart';
 
-class AddClientScreen extends StatelessWidget {
+class CnicInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    var text = newValue.text.replaceAll(RegExp(r'\D'), '');
+    if (text.length > 13) {
+      text = text.substring(0, 13);
+    }
+
+    var newString = '';
+    for (int i = 0; i < text.length; i++) {
+      if (i == 5 || i == 12) {
+        newString += '-';
+      }
+      newString += text[i];
+    }
+
+    return TextEditingValue(
+      text: newString,
+      selection: TextSelection.collapsed(offset: newString.length),
+    );
+  }
+}
+
+class PhoneInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    var text = newValue.text.replaceAll(RegExp(r'\D'), '');
+    if (text.length > 11) {
+      text = text.substring(0, 11);
+    }
+
+    var newString = '';
+    for (int i = 0; i < text.length; i++) {
+      if (i == 4) {
+        newString += '-';
+      }
+      newString += text[i];
+    }
+
+    return TextEditingValue(
+      text: newString,
+      selection: TextSelection.collapsed(offset: newString.length),
+    );
+  }
+}
+
+class AddClientScreen extends StatefulWidget {
   const AddClientScreen({super.key});
+
+  @override
+  State<AddClientScreen> createState() => _AddClientScreenState();
+}
+
+class _AddClientScreenState extends State<AddClientScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController _companyNameController = TextEditingController();
+  final TextEditingController _clientNameController = TextEditingController();
+  final TextEditingController _ntnController = TextEditingController();
+  final TextEditingController _cnicController = TextEditingController();
+  final TextEditingController _occupationController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _referredByController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _cityController = TextEditingController(text: 'Lahore');
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _notesController = TextEditingController();
+
+  String _selectedClientType = 'Individual';
+  String _selectedStatus = 'Active';
+  bool _enablePortalAccess = true;
+
+  final List<String> _clientTypes = ['Individual', 'Corporate', 'Government', 'Other'];
+  final List<String> _statusOptions = ['Active', 'Inactive'];
+
+  @override
+  void dispose() {
+    _companyNameController.dispose();
+    _clientNameController.dispose();
+    _ntnController.dispose();
+    _cnicController.dispose();
+    _occupationController.dispose();
+    _phoneController.dispose();
+    _referredByController.dispose();
+    _emailController.dispose();
+    _cityController.dispose();
+    _addressController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  void _saveClient() {
+    if (_formKey.currentState!.validate()) {
+      final newClient = ClientModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString().substring(7),
+        name: _clientNameController.text.trim(),
+        type: _selectedClientType,
+        companyName: _companyNameController.text.trim(),
+        ntn: _ntnController.text.trim(),
+        cnic: _cnicController.text.trim(),
+        occupation: _occupationController.text.trim(),
+        phone: _phoneController.text.trim(),
+        referredBy: _referredByController.text.trim(),
+        email: _emailController.text.trim(),
+        city: _cityController.text.trim().isEmpty ? 'Lahore' : _cityController.text.trim(),
+        address: _addressController.text.trim(),
+        notes: _notesController.text.trim(),
+        status: _selectedStatus,
+        portalAccess: _enablePortalAccess,
+      );
+
+      ClientService.instance.addClient(newClient);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Client "${newClient.name}" added successfully!'),
+          backgroundColor: const Color(0xFF00A980),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      Navigator.pop(context, newClient);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,51 +155,22 @@ class AddClientScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.s24),
-        child: Responsive(
-          mobile: _buildMobileLayout(),
-          tablet: _buildDesktopLayout(),
-          desktop: _buildDesktopLayout(),
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpacing.s24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildClientInfoSection(),
+              const SizedBox(height: AppSpacing.s24),
+              _buildPortalAccessSection(),
+              const SizedBox(height: AppSpacing.s32),
+              _buildActionButtons(),
+            ],
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _buildMobileLayout() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _buildClientInfoSection(),
-        const SizedBox(height: AppSpacing.s24),
-        _buildPortalAccessSection(),
-        const SizedBox(height: AppSpacing.s32),
-        _buildActionButtons(),
-      ],
-    );
-  }
-
-  Widget _buildDesktopLayout() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 3,
-              child: _buildClientInfoSection(),
-            ),
-            const SizedBox(width: AppSpacing.s24),
-            Expanded(
-              flex: 1,
-              child: _buildPortalAccessSection(),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.s32),
-        _buildActionButtons(),
-      ],
     );
   }
 
@@ -109,60 +210,125 @@ class AddClientScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.s32),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: _buildDropdownField('Client Type', 'Individual', isRequired: true, prefixIcon: Icons.category_outlined)),
-              const SizedBox(width: AppSpacing.s24),
-              Expanded(child: _buildTextField('Company Name (If applicable)', 'Enter company name', prefixIcon: Icons.business_outlined)),
-            ],
+
+          _buildDropdownField(
+            'Client Type',
+            _selectedClientType,
+            _clientTypes,
+            (val) => setState(() => _selectedClientType = val!),
+            isRequired: true,
+            prefixIcon: Icons.category_outlined,
           ),
           const SizedBox(height: AppSpacing.s24),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: _buildTextField('Client Name', 'Enter client full name', isRequired: true, prefixIcon: Icons.badge_outlined)),
-              const SizedBox(width: AppSpacing.s24),
-              Expanded(child: _buildTextField('NTN (If applicable)', 'Enter NTN number', prefixIcon: Icons.numbers_outlined)),
-            ],
+
+          _buildTextField(
+            'Company Name (If applicable)',
+            'Enter company name',
+            controller: _companyNameController,
+            prefixIcon: Icons.business_outlined,
           ),
           const SizedBox(height: AppSpacing.s24),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: _buildTextField('CNIC', 'XXXXX-XXXXXXX-X', isRequired: true, prefixIcon: Icons.credit_card_outlined)),
-              const SizedBox(width: AppSpacing.s24),
-              Expanded(child: _buildTextField('Occupation / Business', 'Enter occupation or business', prefixIcon: Icons.work_outline)),
-            ],
+
+          _buildTextField(
+            'Client Name',
+            'Enter client full name',
+            controller: _clientNameController,
+            isRequired: true,
+            validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter client name' : null,
+            prefixIcon: Icons.badge_outlined,
           ),
           const SizedBox(height: AppSpacing.s24),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: _buildTextField('Phone / WhatsApp', 'Enter phone number', isRequired: true, prefixIcon: Icons.phone_outlined)),
-              const SizedBox(width: AppSpacing.s24),
-              Expanded(child: _buildTextField('Referred By', 'Enter name (optional)', prefixIcon: Icons.handshake_outlined)),
-            ],
+
+          _buildTextField(
+            'NTN (If applicable)',
+            'Enter NTN number',
+            controller: _ntnController,
+            prefixIcon: Icons.numbers_outlined,
           ),
           const SizedBox(height: AppSpacing.s24),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildTextField('Email', 'Enter email address', prefixIcon: Icons.email_outlined),
-                    const SizedBox(height: AppSpacing.s24),
-                    _buildTextField('City', 'Lahore', prefixIcon: Icons.location_city_outlined),
-                    const SizedBox(height: AppSpacing.s24),
-                    _buildTextField('Address', 'Enter full address', maxLines: 3, prefixIcon: Icons.home_outlined),
-                  ],
-                ),
-              ),
-              const SizedBox(width: AppSpacing.s24),
-              Expanded(child: _buildTextField('Notes', 'Enter any notes about client', maxLines: 9, prefixIcon: Icons.note_alt_outlined)),
-            ],
+
+          _buildTextField(
+            'CNIC',
+            '35202-1234567-1',
+            controller: _cnicController,
+            isRequired: true,
+            keyboardType: TextInputType.number,
+            inputFormatters: [CnicInputFormatter()],
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) return 'Please enter CNIC';
+              final clean = v.replaceAll('-', '');
+              if (clean.length != 13) return 'CNIC must be 13 digits (e.g. 35202-1234567-1)';
+              return null;
+            },
+            prefixIcon: Icons.credit_card_outlined,
+          ),
+          const SizedBox(height: AppSpacing.s24),
+
+          _buildTextField(
+            'Occupation / Business',
+            'Enter occupation or business',
+            controller: _occupationController,
+            prefixIcon: Icons.work_outline,
+          ),
+          const SizedBox(height: AppSpacing.s24),
+
+          _buildTextField(
+            'Phone / WhatsApp',
+            '0300-1234567',
+            controller: _phoneController,
+            isRequired: true,
+            keyboardType: TextInputType.phone,
+            inputFormatters: [PhoneInputFormatter()],
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) return 'Please enter phone number';
+              final clean = v.replaceAll('-', '');
+              if (clean.length < 10 || clean.length > 11) return 'Phone must be 11 digits (e.g. 0300-1234567)';
+              return null;
+            },
+            prefixIcon: Icons.phone_outlined,
+          ),
+          const SizedBox(height: AppSpacing.s24),
+
+          _buildTextField(
+            'Referred By',
+            'Enter name (optional)',
+            controller: _referredByController,
+            prefixIcon: Icons.handshake_outlined,
+          ),
+          const SizedBox(height: AppSpacing.s24),
+
+          _buildTextField(
+            'Email',
+            'Enter email address',
+            controller: _emailController,
+            keyboardType: TextInputType.emailAddress,
+            prefixIcon: Icons.email_outlined,
+          ),
+          const SizedBox(height: AppSpacing.s24),
+
+          _buildTextField(
+            'City',
+            'Lahore',
+            controller: _cityController,
+            prefixIcon: Icons.location_city_outlined,
+          ),
+          const SizedBox(height: AppSpacing.s24),
+
+          _buildTextField(
+            'Address',
+            'Enter full address',
+            controller: _addressController,
+            maxLines: 3,
+            prefixIcon: Icons.home_outlined,
+          ),
+          const SizedBox(height: AppSpacing.s24),
+
+          _buildTextField(
+            'Notes',
+            'Enter any notes about client',
+            controller: _notesController,
+            maxLines: 4,
+            prefixIcon: Icons.note_alt_outlined,
           ),
         ],
       ),
@@ -210,7 +376,12 @@ class AddClientScreen extends StatelessWidget {
             style: AppTypography.bodyInter.copyWith(color: AppColors.textMuted, fontSize: 13, height: 1.5),
           ),
           const SizedBox(height: AppSpacing.s24),
-          _buildDropdownField('Client Status', 'Active'),
+          _buildDropdownField(
+            'Client Status',
+            _selectedStatus,
+            _statusOptions,
+            (val) => setState(() => _selectedStatus = val!),
+          ),
           const SizedBox(height: AppSpacing.s24),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -227,8 +398,8 @@ class AddClientScreen extends StatelessWidget {
                   style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy),
                 ),
                 Switch(
-                  value: true,
-                  onChanged: (val) {},
+                  value: _enablePortalAccess,
+                  onChanged: (val) => setState(() => _enablePortalAccess = val),
                   activeColor: const Color(0xFF00A980),
                 ),
               ],
@@ -242,7 +413,16 @@ class AddClientScreen extends StatelessWidget {
             style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
           ),
           const SizedBox(height: AppSpacing.s16),
-          _buildCopyField('Email', 'client_portal@noorportal.pk'),
+          ListenableBuilder(
+            listenable: _emailController,
+            builder: (context, _) {
+              final emailText = _emailController.text.trim();
+              return _buildCopyField(
+                'Email',
+                emailText.isEmpty ? 'Enter email address above...' : emailText,
+              );
+            },
+          ),
           const SizedBox(height: AppSpacing.s16),
           _buildCopyField('Temporary Password', 'nOzfEQ3x'),
           const SizedBox(height: AppSpacing.s24),
@@ -276,7 +456,7 @@ class AddClientScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         OutlinedButton.icon(
-          onPressed: () {},
+          onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.close, size: 16, color: AppColors.primaryNavy),
           label: Text(
             'Cancel',
@@ -290,14 +470,14 @@ class AddClientScreen extends StatelessWidget {
         ),
         const SizedBox(width: AppSpacing.s16),
         ElevatedButton.icon(
-          onPressed: () {},
+          onPressed: _saveClient,
           icon: const Icon(Icons.save_outlined, size: 16, color: Colors.white),
           label: Text(
             'Save Client',
             style: AppTypography.bodyInterMedium.copyWith(color: Colors.white),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF00A980), // Vibrant mint green from mockup
+            backgroundColor: const Color(0xFF00A980),
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             elevation: 0,
@@ -308,7 +488,17 @@ class AddClientScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTextField(String label, String hint, {bool isRequired = false, int maxLines = 1, IconData? prefixIcon}) {
+  Widget _buildTextField(
+    String label,
+    String hint, {
+    required TextEditingController controller,
+    bool isRequired = false,
+    int maxLines = 1,
+    IconData? prefixIcon,
+    TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
+    String? Function(String?)? validator,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -331,7 +521,11 @@ class AddClientScreen extends StatelessWidget {
             ],
           ),
           child: TextFormField(
+            controller: controller,
             maxLines: maxLines,
+            keyboardType: keyboardType,
+            inputFormatters: inputFormatters,
+            validator: validator,
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTypography.bodyInter.copyWith(color: AppColors.textMuted.withOpacity(0.7), fontSize: 14),
@@ -358,7 +552,14 @@ class AddClientScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDropdownField(String label, String hint, {bool isRequired = false, IconData? prefixIcon}) {
+  Widget _buildDropdownField(
+    String label,
+    String currentValue,
+    List<String> options,
+    ValueChanged<String?> onChanged, {
+    bool isRequired = false,
+    IconData? prefixIcon,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -370,48 +571,43 @@ class AddClientScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.s8),
-        _buildDropdownInput(hint, prefixIcon: prefixIcon),
-      ],
-    );
-  }
-
-  Widget _buildDropdownInput(String hint, {IconData? prefixIcon}) {
-    return Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+        Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: DropdownButtonFormField<String>(
-        isExpanded: true,
-        items: const [],
-        onChanged: (val) {},
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: AppTypography.bodyInter.copyWith(color: AppColors.textMuted.withOpacity(0.7), fontSize: 14),
-          prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: AppColors.textMuted, size: 20) : null,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: AppColors.border.withOpacity(0.3)),
+          child: DropdownButtonFormField<String>(
+            value: currentValue,
+            isExpanded: true,
+            items: options.map((opt) => DropdownMenuItem(value: opt, child: Text(opt))).toList(),
+            onChanged: onChanged,
+            decoration: InputDecoration(
+              prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: AppColors.textMuted, size: 20) : null,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppColors.border.withOpacity(0.3)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppColors.border.withOpacity(0.3)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFF00A980), width: 1.5),
+              ),
+              filled: true,
+              fillColor: const Color(0xFFF8FAFC),
+            ),
+            icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.primaryNavy),
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: AppColors.border.withOpacity(0.3)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFF00A980), width: 1.5),
-          ),
-          filled: true,
-          fillColor: const Color(0xFFF8FAFC),
         ),
-        icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.primaryNavy),
-      ),
+      ],
     );
   }
 
@@ -441,7 +637,11 @@ class AddClientScreen extends StatelessWidget {
               ),
               IconButton(
                 icon: const Icon(Icons.copy_rounded, size: 18, color: Color(0xFF00A980)),
-                onPressed: () {},
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Copied to clipboard'), duration: Duration(seconds: 1)),
+                  );
+                },
                 tooltip: 'Copy',
               ),
             ],

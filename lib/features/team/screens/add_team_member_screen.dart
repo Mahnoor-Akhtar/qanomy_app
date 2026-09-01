@@ -1,8 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/utils/responsive.dart';
+import '../models/team_member_model.dart';
+import '../services/team_service.dart';
+
+class TeamPhoneInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    var text = newValue.text.replaceAll(RegExp(r'\D'), '');
+    if (text.length > 10) {
+      text = text.substring(0, 10);
+    }
+
+    var newString = '';
+    for (int i = 0; i < text.length; i++) {
+      if (i == 3) {
+        newString += '-';
+      }
+      newString += text[i];
+    }
+
+    return TextEditingValue(
+      text: newString,
+      selection: TextSelection.collapsed(offset: newString.length),
+    );
+  }
+}
 
 class AddTeamMemberScreen extends StatefulWidget {
   const AddTeamMemberScreen({super.key});
@@ -12,6 +40,18 @@ class AddTeamMemberScreen extends StatefulWidget {
 }
 
 class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _designationController = TextEditingController();
+
+  String _selectedRole = 'Lawyer';
+  final List<String> _roles = ['Lawyer', 'Clerk', 'Read-only User', 'Owner'];
+
   final Map<String, bool> _permissions = {
     'View Dashboard': true,
     'View Cases': true,
@@ -38,17 +78,79 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
   bool _obscureConfirmPassword = true;
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _phoneController.dispose();
+    _designationController.dispose();
+    super.dispose();
+  }
+
+  void _saveTeamMember() {
+    if (_formKey.currentState!.validate()) {
+      if (_passwordController.text.isNotEmpty &&
+          _passwordController.text != _confirmPasswordController.text) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Passwords do not match'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      final rawName = _nameController.text.trim();
+      final initial = rawName.isNotEmpty ? rawName[0].toUpperCase() : 'M';
+      final roleUpper = _selectedRole.toUpperCase();
+
+      final now = DateTime.now();
+      final formattedDate =
+          '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
+
+      final newMember = TeamMemberModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString().substring(7),
+        initial: initial,
+        name: rawName,
+        role: roleUpper,
+        email: _emailController.text.trim(),
+        phone: '0${_phoneController.text.trim().replaceAll('-', '')}',
+        designation: _designationController.text.trim(),
+        status: 'ACTIVE',
+        joined: formattedDate,
+        permissions: Map.from(_permissions),
+      );
+
+      TeamService.instance.addMember(newMember);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Team member "${newMember.name}" added successfully!'),
+          backgroundColor: const Color(0xFF00A980),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      Navigator.pop(context, newMember);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
       appBar: _buildAppBar(context),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.s24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildMainContainer(context),
-          ],
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpacing.s24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildMainContainer(context),
+            ],
+          ),
         ),
       ),
     );
@@ -67,7 +169,7 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
         ),
         const SizedBox(width: 8),
         ElevatedButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: _saveTeamMember,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF00A980),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -110,60 +212,71 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
   }
 
   Widget _buildPersonalInformationForm(BuildContext context) {
-    final isMobile = Responsive.isMobile(context);
-
-    Widget buildRow(Widget child1, Widget child2) {
-      if (isMobile) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            child1,
-            const SizedBox(height: AppSpacing.s16),
-            child2,
-          ],
-        );
-      } else {
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(child: child1),
-            const SizedBox(width: AppSpacing.s32),
-            Expanded(child: child2),
-          ],
-        );
-      }
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        buildRow(
-          _buildTextField('Full Name', true, 'Enter full name'),
-          _buildDropdownField('Role', true, 'Lawyer'),
+        _buildTextField(
+          'Full Name',
+          true,
+          'Enter full name',
+          controller: _nameController,
+          validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter full name' : null,
         ),
         const SizedBox(height: AppSpacing.s24),
-        buildRow(
-          _buildTextField('Email', true, 'Enter email address'),
-          _buildPasswordField('Password', true, 'Enter password', _obscurePassword, () {
+
+        _buildDropdownField('Role', true, _selectedRole, _roles, (val) => setState(() => _selectedRole = val!)),
+        const SizedBox(height: AppSpacing.s24),
+
+        _buildTextField(
+          'Email',
+          true,
+          'Enter email address',
+          controller: _emailController,
+          validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter email' : null,
+        ),
+        const SizedBox(height: AppSpacing.s24),
+
+        _buildPasswordField(
+          'Password',
+          true,
+          'Enter password',
+          _passwordController,
+          _obscurePassword,
+          () {
             setState(() {
               _obscurePassword = !_obscurePassword;
             });
-          }),
+          },
+          validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter password' : null,
         ),
         const SizedBox(height: AppSpacing.s24),
-        buildRow(
-          _buildPhoneField('Phone / WhatsApp', true),
-          _buildPasswordField('Confirm Password', true, 'Confirm password', _obscureConfirmPassword, () {
+
+        _buildPasswordField(
+          'Confirm Password',
+          true,
+          'Confirm password',
+          _confirmPasswordController,
+          _obscureConfirmPassword,
+          () {
             setState(() {
               _obscureConfirmPassword = !_obscureConfirmPassword;
             });
-          }),
+          },
         ),
         const SizedBox(height: AppSpacing.s24),
-        buildRow(
-          _buildTextField('Designation', false, 'e.g. Senior Lawyer'),
-          _buildInfoBox(),
+
+        _buildPhoneField('Phone / WhatsApp', true),
+        const SizedBox(height: AppSpacing.s24),
+
+        _buildTextField(
+          'Designation',
+          false,
+          'e.g. Senior Lawyer',
+          controller: _designationController,
         ),
+        const SizedBox(height: AppSpacing.s24),
+
+        _buildInfoBox(),
       ],
     );
   }
@@ -187,12 +300,20 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
     );
   }
 
-  Widget _buildTextField(String label, bool isRequired, String hintText) {
+  Widget _buildTextField(
+    String label,
+    bool isRequired,
+    String hintText, {
+    required TextEditingController controller,
+    String? Function(String?)? validator,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildLabel(label, isRequired),
-        TextField(
+        TextFormField(
+          controller: controller,
+          validator: validator,
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: AppTypography.bodyInter.copyWith(color: AppColors.textMuted),
@@ -206,8 +327,8 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
               borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: const Color(0xFF00A980)),
+              borderRadius: const BorderRadius.all(Radius.circular(12)),
+              borderSide: const BorderSide(color: Color(0xFF00A980)),
             ),
           ),
         ),
@@ -215,7 +336,13 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
     );
   }
 
-  Widget _buildDropdownField(String label, bool isRequired, String hintText) {
+  Widget _buildDropdownField(
+    String label,
+    bool isRequired,
+    String currentValue,
+    List<String> options,
+    ValueChanged<String?> onChanged,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -229,15 +356,15 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               isExpanded: true,
-              value: hintText,
+              value: currentValue,
               icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.textSecondary),
-              items: [hintText].map((String value) {
+              items: options.map((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(value, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy)),
                 );
               }).toList(),
-              onChanged: (_) {},
+              onChanged: onChanged,
             ),
           ),
         ),
@@ -245,13 +372,23 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
     );
   }
 
-  Widget _buildPasswordField(String label, bool isRequired, String hintText, bool obscureText, VoidCallback onToggle) {
+  Widget _buildPasswordField(
+    String label,
+    bool isRequired,
+    String hintText,
+    TextEditingController controller,
+    bool obscureText,
+    VoidCallback onToggle, {
+    String? Function(String?)? validator,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildLabel(label, isRequired),
-        TextField(
+        TextFormField(
+          controller: controller,
           obscureText: obscureText,
+          validator: validator,
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: AppTypography.bodyInter.copyWith(color: AppColors.textMuted),
@@ -265,8 +402,8 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
               borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: const Color(0xFF00A980)),
+              borderRadius: const BorderRadius.all(Radius.circular(12)),
+              borderSide: const BorderSide(color: Color(0xFF00A980)),
             ),
             suffixIcon: IconButton(
               icon: Icon(
@@ -309,9 +446,18 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
                 ),
               ),
               Expanded(
-                child: TextField(
+                child: TextFormField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [TeamPhoneInputFormatter()],
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return 'Enter phone number';
+                    final clean = v.replaceAll('-', '');
+                    if (clean.length < 10) return 'Phone must be 10 digits after +92 (e.g. 300-1234567)';
+                    return null;
+                  },
                   decoration: InputDecoration(
-                    hintText: 'Enter phone number',
+                    hintText: '300-1234567',
                     hintStyle: AppTypography.bodyInter.copyWith(color: AppColors.textMuted),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -329,7 +475,7 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F7FF),
+        color: const Color(0xFFF0F0FF),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFBBDEFB)),
       ),
@@ -350,41 +496,34 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
   }
 
   Widget _buildPermissionsGrid(BuildContext context) {
-    final isMobile = Responsive.isMobile(context);
-
-    Widget buildRow(List<Widget> children) {
-      if (isMobile) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: children.map((c) => Padding(padding: const EdgeInsets.only(bottom: 24), child: c)).toList(),
-        );
-      } else {
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: children.map((c) => Expanded(child: c)).toList(),
-        );
-      }
-    }
-
     return Column(
       children: [
-        buildRow([
-          _buildPermissionCategory('Dashboard', ['View Dashboard']),
-          _buildPermissionCategory('Documents', ['View Documents', 'Upload Documents', 'Delete Documents']),
-          _buildPermissionCategory('Team & Reports', ['View Team', 'View Reports']),
-        ]),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: _buildPermissionCategory('Dashboard', ['View Dashboard'])),
+            Expanded(child: _buildPermissionCategory('Documents', ['View Documents', 'Upload Documents', 'Delete Documents'])),
+            Expanded(child: _buildPermissionCategory('Team & Reports', ['View Team', 'View Reports'])),
+          ],
+        ),
         const SizedBox(height: 24),
-        buildRow([
-          _buildPermissionCategory('Cases', ['View Cases', 'Add / Edit Cases', 'Delete Cases']),
-          _buildPermissionCategory('Clients', ['View Clients', 'Add / Edit Clients', 'Delete Clients']),
-          _buildPermissionCategory('Notifications & Settings', ['View Notifications', 'View Settings']),
-        ]),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: _buildPermissionCategory('Cases', ['View Cases', 'Add / Edit Cases', 'Delete Cases'])),
+            Expanded(child: _buildPermissionCategory('Clients', ['View Clients', 'Add / Edit Clients', 'Delete Clients'])),
+            Expanded(child: _buildPermissionCategory('Notifications & Settings', ['View Notifications', 'View Settings'])),
+          ],
+        ),
         const SizedBox(height: 24),
-        buildRow([
-          _buildPermissionCategory('Hearings', ['View Hearings', 'Add / Edit Hearings', 'Mark Hearing Done']),
-          _buildPermissionCategory('Billing & Invoices', ['View Invoices', 'Create Invoices']),
-          const SizedBox(), // Empty space for alignment
-        ]),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: _buildPermissionCategory('Hearings', ['View Hearings', 'Add / Edit Hearings', 'Mark Hearing Done'])),
+            Expanded(child: _buildPermissionCategory('Billing & Invoices', ['View Invoices', 'Create Invoices'])),
+            const Expanded(child: SizedBox()),
+          ],
+        ),
       ],
     );
   }
@@ -395,14 +534,14 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
       children: [
         Text(title, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy, fontSize: 15, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
-        ...permissions.map((p) => _buildCheckbox(p)).toList(),
+        ...permissions.map((p) => _buildCheckbox(p)),
       ],
     );
   }
 
   Widget _buildCheckbox(String label) {
     final isChecked = _permissions[label] ?? false;
-    
+
     return GestureDetector(
       onTap: () {
         setState(() {

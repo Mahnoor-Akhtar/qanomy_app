@@ -25,29 +25,31 @@ class SecondaryButton extends StatelessWidget {
         child: SizedBox(
           width: double.infinity,
           child: OutlinedButton(
-        onPressed: isLoading ? null : onPressed,
-        style: OutlinedButton.styleFrom(
-          backgroundColor: Colors.white,
-          foregroundColor: AppColors.primaryNavy,
-          side: const BorderSide(color: AppColors.primaryNavy, width: 1.5),
-          shape: RoundedRectangleBorder(
-            borderRadius: AppRadius.buttons,
-          ),
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.s16),
-        ),
-        child: isLoading
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryNavy),
-                ),
-              )
-            : Text(
-                text,
-                style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy),
+            onPressed: isLoading ? null : onPressed,
+            style: OutlinedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: AppColors.primaryNavy,
+              side: const BorderSide(color: AppColors.primaryNavy, width: 1.5),
+              shape: RoundedRectangleBorder(
+                borderRadius: AppRadius.buttons,
               ),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s16),
+            ),
+            child: isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryNavy),
+                    ),
+                  )
+                : Text(
+                    text,
+                    style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy),
+                  ),
+          ),
+        ),
       ),
     );
   }

@@ -25,29 +25,31 @@ class PrimaryButton extends StatelessWidget {
         child: SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.princetonOrange,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: AppRadius.buttons,
-          ),
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.s16),
-          elevation: 0,
-        ),
-        child: isLoading
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : Text(
-                text,
-                style: AppTypography.bodyInterMedium.copyWith(color: Colors.white),
+            onPressed: isLoading ? null : onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.princetonOrange,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: AppRadius.buttons,
               ),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s16),
+              elevation: 0,
+            ),
+            child: isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : Text(
+                    text,
+                    style: AppTypography.bodyInterMedium.copyWith(color: Colors.white),
+                  ),
+          ),
+        ),
       ),
     );
   }
