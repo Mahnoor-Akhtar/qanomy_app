@@ -144,56 +144,87 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
     final isMobile = Responsive.isMobile(context);
     final isTablet = Responsive.isTablet(context);
 
-    int crossAxisCount = 4;
-    double aspectRatio = 2.4;
+    final card1 = _buildLawyerStyleStatCard(
+      title: 'Total Invoices',
+      value: '${_invoices.length}',
+      subtitle: 'All Time',
+      iconWidget: const Icon(Icons.description_outlined, color: Color(0xFFF97316), size: 18),
+      bgColor: const Color(0xFFFFF0E6),
+      trendColor: const Color(0xFFF97316),
+    );
+
+    final card2 = _buildLawyerStyleStatCard(
+      title: 'Total Billed',
+      value: 'PKR 150,000',
+      subtitle: 'All Time',
+      iconWidget: const Text('Rs', style: TextStyle(color: Color(0xFF2563EB), fontWeight: FontWeight.bold, fontSize: 13)),
+      bgColor: const Color(0xFFEFF6FF),
+      trendColor: const Color(0xFF2563EB),
+    );
+
+    final card3 = _buildLawyerStyleStatCard(
+      title: 'Paid Amount',
+      value: 'PKR 0',
+      subtitle: 'All Time',
+      iconWidget: const Icon(Icons.account_balance_wallet_outlined, color: Color(0xFF10B981), size: 18),
+      bgColor: const Color(0xFFECFDF5),
+      trendColor: const Color(0xFF10B981),
+    );
+
+    final card4 = _buildLawyerStyleStatCard(
+      title: 'Outstanding',
+      value: 'PKR 150,000',
+      subtitle: 'All Time',
+      iconWidget: const Icon(Icons.error_outline_rounded, color: Color(0xFFEF4444), size: 18),
+      bgColor: const Color(0xFFFEF2F2),
+      trendColor: const Color(0xFFEF4444),
+    );
+
     if (isMobile) {
-      crossAxisCount = 1;
-      aspectRatio = 3.2;
-    } else if (isTablet) {
-      crossAxisCount = 2;
-      aspectRatio = 2.2;
+      return Column(
+        children: [
+          card1,
+          const SizedBox(height: 12),
+          card2,
+          const SizedBox(height: 12),
+          card3,
+          const SizedBox(height: 12),
+          card4,
+        ],
+      );
     }
 
-    return GridView.count(
-      crossAxisCount: crossAxisCount,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: aspectRatio,
+    if (isTablet) {
+      return Column(
+        children: [
+          Row(
+            children: [
+              Expanded(child: card1),
+              const SizedBox(width: 12),
+              Expanded(child: card2),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(child: card3),
+              const SizedBox(width: 12),
+              Expanded(child: card4),
+            ],
+          ),
+        ],
+      );
+    }
+
+    return Row(
       children: [
-        _buildLawyerStyleStatCard(
-          title: 'Total Invoices',
-          value: '${_invoices.length}',
-          subtitle: 'All Time',
-          iconWidget: const Icon(Icons.description_outlined, color: Color(0xFFF97316), size: 18),
-          bgColor: const Color(0xFFFFF0E6),
-          trendColor: const Color(0xFFF97316),
-        ),
-        _buildLawyerStyleStatCard(
-          title: 'Total Billed',
-          value: 'PKR 150,000',
-          subtitle: 'All Time',
-          iconWidget: const Text('Rs', style: TextStyle(color: Color(0xFF2563EB), fontWeight: FontWeight.bold, fontSize: 13)),
-          bgColor: const Color(0xFFEFF6FF),
-          trendColor: const Color(0xFF2563EB),
-        ),
-        _buildLawyerStyleStatCard(
-          title: 'Paid Amount',
-          value: 'PKR 0',
-          subtitle: 'All Time',
-          iconWidget: const Icon(Icons.account_balance_wallet_outlined, color: Color(0xFF10B981), size: 18),
-          bgColor: const Color(0xFFECFDF5),
-          trendColor: const Color(0xFF10B981),
-        ),
-        _buildLawyerStyleStatCard(
-          title: 'Outstanding',
-          value: 'PKR 150,000',
-          subtitle: 'All Time',
-          iconWidget: const Icon(Icons.error_outline_rounded, color: Color(0xFFEF4444), size: 18),
-          bgColor: const Color(0xFFFEF2F2),
-          trendColor: const Color(0xFFEF4444),
-        ),
+        Expanded(child: card1),
+        const SizedBox(width: 12),
+        Expanded(child: card2),
+        const SizedBox(width: 12),
+        Expanded(child: card3),
+        const SizedBox(width: 12),
+        Expanded(child: card4),
       ],
     );
   }
