@@ -147,8 +147,8 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
     int crossAxisCount = 4;
     double aspectRatio = 2.4;
     if (isMobile) {
-      crossAxisCount = 2;
-      aspectRatio = 1.6;
+      crossAxisCount = 1;
+      aspectRatio = 3.2;
     } else if (isTablet) {
       crossAxisCount = 2;
       aspectRatio = 2.2;
@@ -207,7 +207,7 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
     required Color trendColor,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -281,6 +281,75 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
     final filtered = _filteredInvoices;
     final isMobile = Responsive.isMobile(context);
 
+    final Widget searchBox = Container(
+      height: 44,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
+      ),
+      child: Row(
+        children: [
+          const SizedBox(width: 14),
+          const Icon(Icons.search, color: AppColors.textMuted, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              onChanged: (_) => setState(() {}),
+              style: AppTypography.bodyInter.copyWith(
+                fontSize: 13,
+                color: AppColors.primaryNavy,
+              ),
+              decoration: InputDecoration(
+                hintText: 'Search by invoice no., case, amount...',
+                hintStyle: AppTypography.bodyInter.copyWith(
+                  color: AppColors.textMuted,
+                  fontSize: 13,
+                ),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+          ),
+          if (_searchController.text.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.clear, size: 16, color: AppColors.textMuted),
+              onPressed: () => setState(() => _searchController.clear()),
+            ),
+        ],
+      ),
+    );
+
+    final Widget statusDropdown = Container(
+      height: 44,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: _selectedStatusFilter,
+          isDense: true,
+          icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.primaryNavy, size: 18),
+          style: AppTypography.bodyInterMedium.copyWith(
+            color: AppColors.primaryNavy,
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+          ),
+          onChanged: (val) {
+            if (val != null) setState(() => _selectedStatusFilter = val);
+          },
+          items: ['All Status', 'Draft', 'Paid', 'Unpaid', 'Overdue']
+              .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+              .toList(),
+        ),
+      ),
+    );
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -300,86 +369,22 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
           // Filter Bar (Search Field & Status Dropdown)
           Padding(
             padding: const EdgeInsets.all(16),
-            child: Flex(
-              direction: isMobile ? Axis.vertical : Axis.horizontal,
-              crossAxisAlignment: isMobile ? CrossAxisAlignment.stretch : CrossAxisAlignment.center,
-              children: [
-                // Search Input Field
-                Expanded(
-                  flex: isMobile ? 0 : 1,
-                  child: Container(
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
-                    ),
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 14),
-                        const Icon(Icons.search, color: AppColors.textMuted, size: 18),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: (_) => setState(() {}),
-                            style: AppTypography.bodyInter.copyWith(
-                              fontSize: 13,
-                              color: AppColors.primaryNavy,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: 'Search by invoice no., case, amount...',
-                              hintStyle: AppTypography.bodyInter.copyWith(
-                                color: AppColors.textMuted,
-                                fontSize: 13,
-                              ),
-                              border: InputBorder.none,
-                              isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                            ),
-                          ),
-                        ),
-                        if (_searchController.text.isNotEmpty)
-                          IconButton(
-                            icon: const Icon(Icons.clear, size: 16, color: AppColors.textMuted),
-                            onPressed: () => setState(() => _searchController.clear()),
-                          ),
-                      ],
-                    ),
+            child: isMobile
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      searchBox,
+                      const SizedBox(height: 12),
+                      statusDropdown,
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Expanded(child: searchBox),
+                      const SizedBox(width: 16),
+                      statusDropdown,
+                    ],
                   ),
-                ),
-                SizedBox(width: isMobile ? 0 : 16, height: isMobile ? 12 : 0),
-
-                // Status Dropdown Filter Button
-                Container(
-                  height: 44,
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: _selectedStatusFilter,
-                      isDense: true,
-                      icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.primaryNavy, size: 18),
-                      style: AppTypography.bodyInterMedium.copyWith(
-                        color: AppColors.primaryNavy,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                      onChanged: (val) {
-                        if (val != null) setState(() => _selectedStatusFilter = val);
-                      },
-                      items: ['All Status', 'Draft', 'Paid', 'Unpaid', 'Overdue']
-                          .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                          .toList(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
           const Divider(color: AppColors.border, height: 1),
 
