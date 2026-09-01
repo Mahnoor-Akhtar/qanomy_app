@@ -145,8 +145,11 @@ class _ClientInvoicesScreenState extends State<ClientInvoicesScreen> {
     final isTablet = Responsive.isTablet(context);
 
     int crossAxisCount = 4;
-    if (isMobile) crossAxisCount = 2;
-    else if (isTablet) crossAxisCount = 2;
+    if (isMobile) {
+      crossAxisCount = 2;
+    } else if (isTablet) {
+      crossAxisCount = 2;
+    }
 
     return GridView.count(
       crossAxisCount: crossAxisCount,
