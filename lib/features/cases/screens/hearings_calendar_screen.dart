@@ -1,10 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/qanomy_app_bar.dart';
 import '../../../core/widgets/qanomy_card.dart';
+import '../widgets/add_hearing_dialog.dart';
 
 class MockHearing {
   final String id;
@@ -157,6 +158,38 @@ class _HearingsCalendarScreenState extends State<HearingsCalendarScreen> {
     });
   }
 
+  void _openAddHearingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AddHearingDialog(
+        onSave: (data) {
+          final newHearing = MockHearing(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            caseTitle: data['caseTitle'] as String,
+            clientName: 'Arooj Client',
+            lawyerName: 'Adv. Haris Khan',
+            courtName: 'High Court, Lahore',
+            location: data['location'] as String,
+            caseType: 'Legal Matter',
+            docName: data['docName'] as String,
+            dateTime: data['dateTime'] as DateTime,
+            status: 'Pending',
+          );
+
+          setState(() {
+            _hearings.add(newHearing);
+            _selectedDate = newHearing.dateTime;
+            _focusedDate = newHearing.dateTime;
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('New hearing added successfully!')),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final selectedDayHearings = _getHearingsForDate(_selectedDate);
@@ -165,6 +198,12 @@ class _HearingsCalendarScreenState extends State<HearingsCalendarScreen> {
       backgroundColor: AppColors.pageBackground,
       appBar: const QanomyAppBar(
         title: 'Hearings & Calendar',
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.princetonOrange,
+        tooltip: 'Add Hearing',
+        onPressed: () => _openAddHearingDialog(context),
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.s24),

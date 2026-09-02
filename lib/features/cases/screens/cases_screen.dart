@@ -208,6 +208,7 @@ class _CasesScreenState extends State<CasesScreen> with SingleTickerProviderStat
       final caseId = c.caseIdNo.toLowerCase();
       final client = c.client.toLowerCase();
       final assignee = c.assignee.toLowerCase();
+      final status = c.status.toLowerCase();
 
       final matchesSearch = query.isEmpty ||
           title.contains(query) ||
@@ -216,8 +217,9 @@ class _CasesScreenState extends State<CasesScreen> with SingleTickerProviderStat
           assignee.contains(query);
 
       final matchesMine = !myCasesOnly || (assignee != 'unassigned' && assignee.isNotEmpty);
+      final isNotClosed = !status.startsWith('closed') && !status.startsWith('disposed');
 
-      return matchesSearch && matchesMine;
+      return matchesSearch && matchesMine && isNotClosed;
     }).toList();
   }
 

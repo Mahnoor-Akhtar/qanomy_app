@@ -3,6 +3,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../clients/screens/add_client_screen.dart';
+import '../../navigation/main_layout.dart';
 
 import '../models/case_model.dart';
 import '../services/case_service.dart';
@@ -28,6 +29,7 @@ class _AddCaseScreenState extends State<AddCaseScreen> {
   String? _selectedCourtType;
   String? _selectedCaseType;
   String _selectedStatus = 'Open';
+  String _selectedOutcome = 'WIN';
   String? _selectedPriority;
   String? _selectedClient;
   String? _selectedLawyer;
@@ -56,7 +58,16 @@ class _AddCaseScreenState extends State<AddCaseScreen> {
     'Banking'
   ];
 
-  final List<String> _statusList = ['Open', 'Pending', 'In Progress', 'Disposed', 'Closed'];
+  final List<String> _statusList = [
+    'Open',
+    'Pending',
+    'In Progress',
+    'Disposed',
+    'Closed',
+    'Closed (WIN)',
+    'Closed (LOSS)',
+    'Closed (SETTLED)',
+  ];
   final List<String> _priorityList = ['High', 'Normal', 'Low', 'Urgent'];
   final List<String> _clientList = ['Hamad Client', 'Arooj Client', 'Muhammad Ali'];
   final List<String> _lawyerList = ['Fatima (Lawyer)', 'Ejaz (Lawyer)', 'Haris khan (Owner)'];
@@ -73,6 +84,13 @@ class _AddCaseScreenState extends State<AddCaseScreen> {
       _selectedCourtType = _courtTypes.contains(c.courtType) ? c.courtType : null;
       _selectedCaseType = _caseTypes.contains(c.caseType) ? c.caseType : null;
       _selectedStatus = _statusList.contains(c.status) ? c.status : 'Open';
+      if (_selectedStatus.contains('LOSS')) {
+        _selectedOutcome = 'LOSS';
+      } else if (_selectedStatus.contains('SETTLED')) {
+        _selectedOutcome = 'SETTLED';
+      } else if (_selectedStatus.contains('WIN')) {
+        _selectedOutcome = 'WIN';
+      }
       _selectedPriority = _priorityList.contains(c.priority) ? c.priority : null;
       _selectedClient = _clientList.contains(c.client) ? c.client : (_clientList.isNotEmpty ? _clientList.first : null);
       _selectedLawyer = _lawyerList.contains(c.assignee) ? c.assignee : (_lawyerList.isNotEmpty ? _lawyerList.first : null);
@@ -154,13 +172,33 @@ class _AddCaseScreenState extends State<AddCaseScreen> {
         CaseService.instance.addCase(caseModel);
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Case "${caseModel.displayTitle}" ${isEditing ? "updated" : "created"} successfully!'),
-          backgroundColor: const Color(0xFF00A980),
-          duration: const Duration(seconds: 2),
-        ),
-      );
+      final isClosed = _selectedStatus.toLowerCase().startsWith('closed') ||
+          _selectedStatus.toLowerCase().startsWith('disposed');
+
+      if (isClosed) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Case "${caseModel.displayTitle}" closed and moved to Case History!'),
+            backgroundColor: const Color(0xFF00A980),
+            action: SnackBarAction(
+              label: 'VIEW HISTORY',
+              textColor: Colors.white,
+              onPressed: () {
+                MainLayout.instance?.switchTab(13); // Go to Case History tab
+              },
+            ),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Case "${caseModel.displayTitle}" ${isEditing ? "updated" : "created"} successfully!'),
+            backgroundColor: const Color(0xFF00A980),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
 
       Navigator.pop(context, caseModel);
     }
@@ -366,10 +404,25 @@ class _AddCaseScreenState extends State<AddCaseScreen> {
             'Open',
             _selectedStatus,
             _statusList,
-            (val) => setState(() => _selectedStatus = val!),
+            (val) {
+              if (val != null) {
+                setState(() {
+                  _selectedStatus = val;
+                  if (val == 'Closed') {
+                    _selectedStatus = 'Closed ($_selectedOutcome)';
+                  }
+                });
+              }
+            },
             isRequired: true,
           ),
           const SizedBox(height: AppSpacing.s16),
+
+          if (_selectedStatus.toLowerCase().startsWith('closed') ||
+              _selectedStatus.toLowerCase().startsWith('disposed')) ...[
+            _buildOutcomeSelector(),
+            const SizedBox(height: AppSpacing.s16),
+          ],
 
           _buildDropdownField(
             'Priority',
@@ -650,7 +703,8 @@ class _AddCaseScreenState extends State<AddCaseScreen> {
     final validValue = (currentValue != null && opts.contains(currentValue)) ? currentValue : null;
 
     return DropdownButtonFormField<String>(
-      value: validValue,
+      initialValue: validValue,
+      isExpanded: true,
       items: opts.map((opt) => DropdownMenuItem(value: opt, child: Text(opt))).toList(),
       onChanged: onChanged,
       decoration: InputDecoration(
@@ -679,6 +733,111 @@ class _AddCaseScreenState extends State<AddCaseScreen> {
         fillColor: Colors.white,
       ),
       icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.primaryNavy),
+    );
+  }
+
+  Widget _buildOutcomeSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            style: AppTypography.bodyInterSemiBold.copyWith(color: AppColors.primaryNavy, fontSize: 14),
+            children: const [
+              TextSpan(text: 'Case Result / Outcome'),
+              TextSpan(text: ' *', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: _buildOutcomePill(
+                label: 'WIN',
+                icon: Icons.emoji_events_outlined,
+                color: const Color(0xFF00A980),
+                isSelected: _selectedStatus.contains('WIN') || _selectedOutcome == 'WIN',
+                onTap: () {
+                  setState(() {
+                    _selectedOutcome = 'WIN';
+                    _selectedStatus = 'Closed (WIN)';
+                  });
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _buildOutcomePill(
+                label: 'LOSS',
+                icon: Icons.cancel_outlined,
+                color: Colors.redAccent,
+                isSelected: _selectedStatus.contains('LOSS') || _selectedOutcome == 'LOSS',
+                onTap: () {
+                  setState(() {
+                    _selectedOutcome = 'LOSS';
+                    _selectedStatus = 'Closed (LOSS)';
+                  });
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _buildOutcomePill(
+                label: 'SETTLED',
+                icon: Icons.handshake_outlined,
+                color: Colors.amber[800]!,
+                isSelected: _selectedStatus.contains('SETTLED') || _selectedOutcome == 'SETTLED',
+                onTap: () {
+                  setState(() {
+                    _selectedOutcome = 'SETTLED';
+                    _selectedStatus = 'Closed (SETTLED)';
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOutcomePill({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withValues(alpha: 0.12) : Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isSelected ? color : AppColors.border,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: isSelected ? color : AppColors.textMuted, size: 18),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: AppTypography.bodyInterSemiBold.copyWith(
+                color: isSelected ? color : AppColors.primaryNavy,
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

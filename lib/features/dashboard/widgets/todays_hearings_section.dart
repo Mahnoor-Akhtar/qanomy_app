@@ -3,115 +3,132 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/qanomy_card.dart';
+import '../../cases/models/case_model.dart';
+import '../../cases/services/case_service.dart';
 import '../../navigation/main_layout.dart';
 
 class TodaysHearingsSection extends StatelessWidget {
   const TodaysHearingsSection({super.key});
 
+  bool _isSameDay(DateTime? a, DateTime b) {
+    if (a == null) return false;
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    return ValueListenableBuilder<List<CaseModel>>(
+      valueListenable: CaseService.instance,
+      builder: (context, cases, _) {
+        final int todayCount = cases.where((c) => _isSameDay(c.hearingDate, today)).length;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            RichText(
-              text: TextSpan(
-                style: AppTypography.titleMedium,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    style: AppTypography.titleMedium,
+                    children: [
+                      const TextSpan(text: 'Today\'s hearings '),
+                      TextSpan(
+                        text: '• $todayCount',
+                        style: AppTypography.bodyInterMedium.copyWith(color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    MainLayout.instance?.switchTab(2); // Go to Hearings
+                  },
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    'View all',
+                    style: AppTypography.labelMedium.copyWith(color: AppColors.primaryNavy),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.s16),
+            QanomyCard(
+              padding: const EdgeInsets.all(AppSpacing.s16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const TextSpan(text: 'Today\'s hearings '),
-                  TextSpan(
-                    text: '• 0',
-                    style: AppTypography.bodyInterMedium.copyWith(color: AppColors.textSecondary),
+                  InkWell(
+                    onTap: () {
+                      MainLayout.instance?.switchTab(2); // Go to Hearings
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(AppSpacing.s12),
+                          decoration: BoxDecoration(
+                            color: AppColors.pastelBlue,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.gavel, color: AppColors.primaryNavy, size: 24),
+                        ),
+                        const SizedBox(width: AppSpacing.s16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '$todayCount ${todayCount == 1 ? "case" : "cases"} today',
+                                style: AppTypography.bodyInterSemiBold.copyWith(fontSize: 15),
+                              ),
+                              const SizedBox(height: AppSpacing.s4),
+                              Text(
+                                'Tap to view your full docket',
+                                style: AppTypography.bodyInter.copyWith(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+                      ],
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: AppSpacing.s16),
+                    child: Divider(color: AppColors.border, height: 1),
+                  ),
+                  TextButton.icon(
+                    onPressed: () {
+                      MainLayout.instance?.switchTab(1); // Go to Cases to add
+                    },
+                    icon: const Icon(Icons.add, size: 18, color: AppColors.primaryNavy),
+                    label: Text(
+                      'Add case',
+                      style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy),
+                    ),
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
                   ),
                 ],
               ),
             ),
-            TextButton(
-              onPressed: () {
-                MainLayout.instance?.switchTab(2); // Go to Hearings
-              },
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: Text(
-                'View all',
-                style: AppTypography.labelMedium.copyWith(color: AppColors.primaryNavy),
-              ),
-            ),
           ],
-        ),
-        const SizedBox(height: AppSpacing.s16),
-        QanomyCard(
-          padding: const EdgeInsets.all(AppSpacing.s16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              InkWell(
-                onTap: () {
-                  MainLayout.instance?.switchTab(2); // Go to Hearings
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(AppSpacing.s12),
-                      decoration: BoxDecoration(
-                        color: AppColors.pastelBlue,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(Icons.gavel, color: AppColors.primaryNavy, size: 24),
-                    ),
-                    const SizedBox(width: AppSpacing.s16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '0 cases today',
-                            style: AppTypography.bodyInterSemiBold.copyWith(fontSize: 15),
-                          ),
-                          const SizedBox(height: AppSpacing.s4),
-                          Text(
-                            'Tap to view your full docket',
-                            style: AppTypography.bodyInter.copyWith(
-                              color: AppColors.textSecondary,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(Icons.chevron_right, color: AppColors.textSecondary),
-                  ],
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: AppSpacing.s16),
-                child: Divider(color: AppColors.border, height: 1),
-              ),
-              TextButton.icon(
-                onPressed: () {
-                  MainLayout.instance?.switchTab(1); // Go to Cases to add
-                },
-                icon: const Icon(Icons.add, size: 18, color: AppColors.primaryNavy),
-                label: Text(
-                  'Add case',
-                  style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy),
-                ),
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 }

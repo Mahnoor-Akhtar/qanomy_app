@@ -7,6 +7,7 @@ class CaseModel {
   final String caseType;
   final List<String> judges;
   final String status;
+  final DateTime? hearingDate;
   final String priority;
   final String remarks;
   final String client;
@@ -21,7 +22,8 @@ class CaseModel {
     this.courtType = '',
     this.caseType = '',
     this.judges = const [],
-    this.status = 'Open',
+    this.status = 'Running',
+    this.hearingDate,
     this.priority = 'Normal',
     this.remarks = '',
     this.client = '',

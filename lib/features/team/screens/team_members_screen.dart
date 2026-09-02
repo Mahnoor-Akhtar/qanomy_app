@@ -564,6 +564,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> with SingleTicker
               context,
               MaterialPageRoute(
                 builder: (context) => TeamMemberDetailsScreen(
+                  member: member,
                   name: member.name,
                   role: member.role,
                   email: member.email,
