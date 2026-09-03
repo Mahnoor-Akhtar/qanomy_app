@@ -38,6 +38,7 @@ class _CasesScreenState extends State<CasesScreen> with SingleTickerProviderStat
       reverseCurve: Curves.easeOutQuad,
       parent: _animationController,
     );
+    CaseService.instance.fetchCasesFromBackend();
   }
 
   @override
@@ -208,7 +209,6 @@ class _CasesScreenState extends State<CasesScreen> with SingleTickerProviderStat
       final caseId = c.caseIdNo.toLowerCase();
       final client = c.client.toLowerCase();
       final assignee = c.assignee.toLowerCase();
-      final status = c.status.toLowerCase();
 
       final matchesSearch = query.isEmpty ||
           title.contains(query) ||
@@ -216,10 +216,7 @@ class _CasesScreenState extends State<CasesScreen> with SingleTickerProviderStat
           client.contains(query) ||
           assignee.contains(query);
 
-      final matchesMine = !myCasesOnly || (assignee != 'unassigned' && assignee.isNotEmpty);
-      final isNotClosed = !status.startsWith('closed') && !status.startsWith('disposed');
-
-      return matchesSearch && matchesMine && isNotClosed;
+      return matchesSearch;
     }).toList();
   }
 
@@ -527,36 +524,43 @@ class _CasesScreenState extends State<CasesScreen> with SingleTickerProviderStat
   }
 
   Widget _buildCasesList(List<CaseModel> cases) {
-    if (cases.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.folder_open_outlined, size: 64, color: AppColors.textMuted.withOpacity(0.5)),
-            const SizedBox(height: 16),
-            Text(
-              'No cases found',
-              style: AppTypography.titleMedium.copyWith(color: AppColors.textMuted),
+    return RefreshIndicator(
+      onRefresh: () => CaseService.instance.fetchCasesFromBackend(),
+      child: cases.isEmpty
+          ? SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.5,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.folder_open_outlined, size: 64, color: AppColors.textMuted.withOpacity(0.5)),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No cases found',
+                        style: AppTypography.titleMedium.copyWith(color: AppColors.textMuted),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(AppSpacing.s24),
+              itemCount: cases.length,
+              itemBuilder: (context, index) {
+                final caseData = cases[index];
+                return CaseListItem(
+                  caseItem: caseData,
+                  showEditButton: _actionMode == CaseActionMode.edit,
+                  showDeleteButton: _actionMode == CaseActionMode.delete,
+                  onEdit: () => _navigateToEditScreen(caseData),
+                  onDelete: () => _confirmDeleteCase(caseData),
+                  onLongPress: () => _showCaseOptionsSheet(caseData),
+                );
+              },
             ),
-          ],
-        ),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(AppSpacing.s24),
-      itemCount: cases.length,
-      itemBuilder: (context, index) {
-        final caseData = cases[index];
-        return CaseListItem(
-          caseItem: caseData,
-          showEditButton: _actionMode == CaseActionMode.edit,
-          showDeleteButton: _actionMode == CaseActionMode.delete,
-          onEdit: () => _navigateToEditScreen(caseData),
-          onDelete: () => _confirmDeleteCase(caseData),
-          onLongPress: () => _showCaseOptionsSheet(caseData),
-        );
-      },
     );
   }
 }

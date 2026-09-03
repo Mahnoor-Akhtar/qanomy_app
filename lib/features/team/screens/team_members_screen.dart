@@ -4,6 +4,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/qanomy_app_bar.dart';
+import '../../../core/services/api_service.dart';
 import '../models/team_member_model.dart';
 import '../services/team_service.dart';
 import 'team_member_details_screen.dart';
@@ -40,6 +41,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> with SingleTicker
       reverseCurve: Curves.easeOutQuad,
       parent: _animationController,
     );
+    TeamService.instance.fetchTeamFromBackend();
   }
 
   @override
@@ -68,17 +70,23 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> with SingleTicker
     setState(() {
       _actionMode = TeamActionMode.none;
     });
-    await Navigator.push(
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const AddTeamMemberScreen()),
     );
+    if (result != null) {
+      await TeamService.instance.fetchTeamFromBackend();
+    }
   }
 
   void _navigateToEditScreen(TeamMemberModel member) async {
-    await Navigator.push(
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => AddTeamMemberScreen(initialMember: member)),
     );
+    if (result != null) {
+      await TeamService.instance.fetchTeamFromBackend();
+    }
   }
 
   void _toggleEditMode() {
@@ -117,15 +125,22 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> with SingleTicker
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () {
-              TeamService.instance.deleteMember(member.id);
+            onPressed: () async {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Team member "${member.name}" deleted'),
-                  backgroundColor: Colors.red,
-                ),
-              );
+              final res = await ApiService.deleteUser(member.id);
+              if (res['success'] == true) {
+                await TeamService.instance.fetchTeamFromBackend();
+              } else {
+                TeamService.instance.deleteMember(member.id);
+              }
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Team member "${member.name}" deleted from database'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             },
             child: const Text('Delete', style: TextStyle(color: Colors.white)),
           ),
@@ -172,8 +187,11 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> with SingleTicker
 
           final filteredMembers = _filterMembers(allMembers);
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.s24),
+          return RefreshIndicator(
+            onRefresh: () => TeamService.instance.fetchTeamFromBackend(),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(AppSpacing.s24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -240,8 +258,9 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> with SingleTicker
                 _buildMainContainer(context, filteredMembers),
               ],
             ),
-          );
-        },
+          ),
+        );
+      },
       ),
     );
   }
@@ -609,44 +628,46 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> with SingleTicker
                     ],
                   ),
                 ),
-                if (_actionMode == TeamActionMode.edit) ...[
-                  InkWell(
-                    onTap: () => _navigateToEditScreen(member),
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF8A00).withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.edit_outlined,
-                        color: Color(0xFFFF8A00),
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                if (_actionMode == TeamActionMode.delete) ...[
-                  InkWell(
-                    onTap: () => _confirmDeleteMember(member),
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.delete_outline,
-                        color: Colors.red,
-                        size: 18,
+                // Always display Edit & Delete buttons on each team card for fast management
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    InkWell(
+                      onTap: () => _navigateToEditScreen(member),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF8A00).withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.edit_outlined,
+                          color: Color(0xFFFF8A00),
+                          size: 18,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
+                    const SizedBox(width: 6),
+                    InkWell(
+                      onTap: () => _confirmDeleteMember(member),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.red,
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(

@@ -87,23 +87,30 @@ class MetricsGrid extends StatelessWidget {
               ),
               child: Icon(icon, size: 14, color: iconColor),
             ),
-            const SizedBox(width: AppSpacing.s12),
-            Text(
-              value,
-              style: AppTypography.header.copyWith(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: AppColors.primaryNavy,
+            const SizedBox(width: AppSpacing.s8),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                value,
+                style: AppTypography.header.copyWith(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primaryNavy,
+                ),
               ),
             ),
           ],
         ),
         const SizedBox(height: AppSpacing.s8),
-        Text(
-          label,
-          style: AppTypography.labelSmall.copyWith(
-            color: AppColors.textSecondary,
-            letterSpacing: 1,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            label,
+            style: AppTypography.labelSmall.copyWith(
+              color: AppColors.textSecondary,
+              letterSpacing: 0.5,
+              fontSize: 11,
+            ),
           ),
         ),
       ],

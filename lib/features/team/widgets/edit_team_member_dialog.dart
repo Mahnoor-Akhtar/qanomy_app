@@ -325,16 +325,22 @@ class _EditTeamMemberDialogState extends State<EditTeamMemberDialog>
           LayoutBuilder(
             builder: (context, constraints) {
               final isMobile = constraints.maxWidth < 600;
+              final roleOptions = ['LAWYER', 'CLERK', 'OWNER', 'READ-ONLY'];
+              final normalizedRole = roleOptions.firstWhere(
+                (opt) => opt.toUpperCase() == _selectedRole.toUpperCase(),
+                orElse: () => roleOptions.first,
+              );
+
               final roleDropdown = Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Role', style: AppTypography.bodyInterSemiBold.copyWith(color: AppColors.primaryNavy)),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
-                    initialValue: _selectedRole,
+                    initialValue: normalizedRole,
                     isExpanded: true,
                     decoration: _getInputDecoration(color: const Color(0xFF00A980)),
-                    items: ['LAWYER', 'CLERK', 'OWNER', 'READ-ONLY'].map((role) {
+                    items: roleOptions.map((role) {
                       return DropdownMenuItem<String>(
                         value: role,
                         child: Text(role, style: AppTypography.bodyInterSemiBold.copyWith(color: const Color(0xFF00A980))),
@@ -527,16 +533,22 @@ class _EditTeamMemberDialogState extends State<EditTeamMemberDialog>
   }
 
   Widget _buildStatusDropdown() {
+    final options = ['Active', 'Inactive'];
+    final normalizedStatus = options.firstWhere(
+      (opt) => opt.toUpperCase() == _selectedStatus.toUpperCase(),
+      orElse: () => options.first,
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Status', style: AppTypography.bodyInterSemiBold.copyWith(color: AppColors.primaryNavy, fontSize: 14)),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          initialValue: _selectedStatus,
+          initialValue: normalizedStatus,
           isExpanded: true,
           decoration: _getInputDecoration(),
-          items: ['Active', 'Inactive'].map((st) {
+          items: options.map((st) {
             return DropdownMenuItem<String>(
               value: st,
               child: Text(st, style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy)),

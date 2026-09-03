@@ -3,6 +3,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/services/auth_service.dart';
+import '../../../core/services/api_service.dart';
 import '../../splash/widgets/qanomy_animated_logo.dart';
 import '../../navigation/main_layout.dart';
 import '../../super_admin/screens/super_admin_main_layout.dart';
@@ -23,8 +25,8 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isForgotPassword = false;
 
   // Sign In Controllers
-  final _loginEmailController = TextEditingController(text: 'mahnoor@gmail.com');
-  final _loginPasswordController = TextEditingController(text: 'Mahnoor123');
+  final _loginEmailController = TextEditingController();
+  final _loginPasswordController = TextEditingController();
 
   // Forgot Password Controller
   final _forgotPasswordEmailController = TextEditingController();
@@ -55,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  // Handle mock authentication flow
+  // Handle authentication flow via API with fallback to local UI routing
   Future<void> _handleSubmit() async {
     if (_isSignUp && !_agreeToTerms) {
       ScaffoldMessenger.of(context).clearSnackBars();
@@ -81,44 +83,71 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       return;
     }
+
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
-      
-      // Simulate validation latency
-      await Future.delayed(const Duration(milliseconds: 1200));
-      
-      if (mounted) {
-        setState(() => _isLoading = false);
 
-        if (_isSignUp) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.check_circle, color: Colors.white),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Account created successfully!',
-                      style: AppTypography.bodyInterMedium.copyWith(color: Colors.white),
+      if (_isSignUp) {
+        final result = await AuthService.register(
+          name: _signUpNameController.text.trim(),
+          email: _signUpEmailController.text.trim(),
+          password: _signUpPasswordController.text.trim(),
+          firmName: _signUpFirmController.text.trim(),
+          phone: _signUpPhoneController.text.trim(),
+        );
+
+        if (mounted) {
+          setState(() => _isLoading = false);
+          if (result['success'] == true) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.check_circle, color: Colors.white),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        result['message'] ?? 'Account created successfully!',
+                        style: AppTypography.bodyInterMedium.copyWith(color: Colors.white),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+                backgroundColor: AppColors.primaryNavy,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.inputs),
+                duration: const Duration(seconds: 2),
               ),
-              backgroundColor: AppColors.primaryNavy,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: AppRadius.inputs),
-              duration: const Duration(seconds: 2),
-            ),
-          );
-          setState(() {
-            _showEmailConfirmation = true;
-          });
-        } else {
-          final email = _loginEmailController.text.trim();
-          final password = _loginPasswordController.text.trim();
+            );
+            setState(() {
+              _showEmailConfirmation = true;
+            });
+          } else {
+            ScaffoldMessenger.of(context).clearSnackBars();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  result['message'] ?? 'Registration failed',
+                  style: AppTypography.bodyInterMedium.copyWith(color: Colors.white),
+                ),
+                backgroundColor: Colors.redAccent,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.inputs),
+              ),
+            );
+          }
+        }
+      } else {
+        final email = _loginEmailController.text.trim();
+        final password = _loginPasswordController.text.trim();
 
-          if (email == 'haris@gmail.com' && password == 'Mahnoor123') {
+        // Attempt API login with database
+        final apiResult = await AuthService.login(email: email, password: password);
+
+        if (mounted) {
+          setState(() => _isLoading = false);
+
+          if (apiResult['success'] == true) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Row(
@@ -139,69 +168,28 @@ class _LoginScreenState extends State<LoginScreen> {
                 duration: const Duration(seconds: 2),
               ),
             );
+
+            // Save authentication token for API requests
+            final token = apiResult['data']?['accessToken']?.toString();
+            if (token != null) {
+              ApiService.setToken(token);
+            }
+
+            // Determine target layout based on database user role
+            final userData = apiResult['data']?['user'] as Map<String, dynamic>?;
+            final role = userData?['role']?.toString().toUpperCase();
+            final isSuperAdmin = userData?['isSuperAdmin'] == true;
+
+            Widget targetLayout = const MainLayout(); // Lawyer / Firm Portal
+            if (role == 'ADMIN' || role == 'SUPER_ADMIN' || isSuperAdmin) {
+              targetLayout = const SuperAdminMainLayout(); // Super Admin Portal
+            } else if (role == 'CLIENT') {
+              targetLayout = const ClientPortalMainLayout(); // Client Portal
+            }
+
             Navigator.of(context).pushReplacement(
               PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) => const SuperAdminMainLayout(),
-                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                  return FadeTransition(opacity: animation, child: child);
-                },
-                transitionDuration: const Duration(milliseconds: 400),
-              ),
-            );
-          } else if (email == 'mahnoor@gmail.com' && password == 'Mahnoor123') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    const Icon(Icons.check_circle, color: Colors.white),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Logged in successfully as $email',
-                        style: AppTypography.bodyInterMedium.copyWith(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                backgroundColor: AppColors.primaryNavy,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: AppRadius.inputs),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-            Navigator.of(context).pushReplacement(
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) => const MainLayout(),
-                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                  return FadeTransition(opacity: animation, child: child);
-                },
-                transitionDuration: const Duration(milliseconds: 400),
-              ),
-            );
-          } else if (email == 'beerus@gmail.com' && password == 'Mahnoor123') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    const Icon(Icons.check_circle, color: Colors.white),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Logged in successfully as $email (Client Portal)',
-                        style: AppTypography.bodyInterMedium.copyWith(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                backgroundColor: AppColors.primaryNavy,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: AppRadius.inputs),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-            Navigator.of(context).pushReplacement(
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) => const ClientPortalMainLayout(),
+                pageBuilder: (context, animation, secondaryAnimation) => targetLayout,
                 transitionsBuilder: (context, animation, secondaryAnimation, child) {
                   return FadeTransition(opacity: animation, child: child);
                 },
@@ -212,22 +200,13 @@ class _LoginScreenState extends State<LoginScreen> {
             ScaffoldMessenger.of(context).clearSnackBars();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Row(
-                  children: [
-                    const Icon(Icons.warning_amber_rounded, color: Colors.white),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Invalid credentials! Use mahnoor@gmail.com / Mahnoor123 or haris@gmail.com / Mahnoor123.',
-                        style: AppTypography.bodyInterMedium.copyWith(color: Colors.white),
-                      ),
-                    ),
-                  ],
+                content: Text(
+                  apiResult['message'] ?? 'Invalid email or password',
+                  style: AppTypography.bodyInterMedium.copyWith(color: Colors.white),
                 ),
                 backgroundColor: Colors.redAccent,
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(borderRadius: AppRadius.inputs),
-                duration: const Duration(seconds: 4),
               ),
             );
           }

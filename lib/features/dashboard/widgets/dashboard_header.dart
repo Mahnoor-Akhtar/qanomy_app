@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../cases/models/case_model.dart';
+import '../../cases/services/case_service.dart';
 
 class DashboardHeader extends StatelessWidget {
   const DashboardHeader({super.key});
@@ -45,19 +47,32 @@ class DashboardHeader extends StatelessWidget {
                                 fontSize: 28,
                               ),
                             ),
-                            const SizedBox(height: AppSpacing.s4),
-                            RichText(
-                              text: TextSpan(
-                                style: AppTypography.bodyInter.copyWith(color: Colors.white70, fontSize: 13),
-                                children: [
-                                  TextSpan(
-                                    text: '0 hearings',
-                                    style: AppTypography.bodyInterMedium.copyWith(color: AppColors.princetonOrange, fontSize: 13),
-                                  ),
-                                  const TextSpan(text: ' listed today'),
-                                ],
-                              ),
-                            ),
+                             const SizedBox(height: AppSpacing.s4),
+                             ValueListenableBuilder<List<CaseModel>>(
+                               valueListenable: CaseService.instance,
+                               builder: (context, cases, _) {
+                                 final now = DateTime.now();
+                                 final today = DateTime(now.year, now.month, now.day);
+                                 final todayCount = cases.where((c) {
+                                   if (c.hearingDate == null) return false;
+                                   final h = c.hearingDate!;
+                                   return h.year == today.year && h.month == today.month && h.day == today.day;
+                                 }).length;
+
+                                 return RichText(
+                                   text: TextSpan(
+                                     style: AppTypography.bodyInter.copyWith(color: Colors.white70, fontSize: 13),
+                                     children: [
+                                       TextSpan(
+                                         text: '$todayCount ${todayCount == 1 ? "hearing" : "hearings"}',
+                                         style: AppTypography.bodyInterMedium.copyWith(color: AppColors.princetonOrange, fontSize: 13),
+                                       ),
+                                       const TextSpan(text: ' listed today'),
+                                     ],
+                                   ),
+                                 );
+                               },
+                             ),
                           ],
                         ),
                       ),

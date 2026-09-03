@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/services/api_service.dart';
 import '../models/client_model.dart';
 import '../services/client_service.dart';
 
@@ -81,10 +82,12 @@ class _AddClientScreenState extends State<AddClientScreen> {
   final TextEditingController _cityController = TextEditingController(text: 'Lahore');
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController(text: 'nOzfEQ3x');
 
   String _selectedClientType = 'Individual';
   String _selectedStatus = 'Active';
   bool _enablePortalAccess = true;
+  bool _obscurePassword = false;
 
   final List<String> _clientTypes = ['Individual', 'Corporate', 'Government', 'Other'];
   final List<String> _statusOptions = ['Active', 'Inactive'];
@@ -124,16 +127,73 @@ class _AddClientScreenState extends State<AddClientScreen> {
     _cityController.dispose();
     _addressController.dispose();
     _notesController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
-  void _saveClient() {
+  Future<void> _saveClient() async {
     if (_formKey.currentState!.validate()) {
       final isEditing = widget.initialClient != null;
+      final rawName = _clientNameController.text.trim();
+      final nameParts = rawName.split(' ');
+      final firstName = nameParts.isNotEmpty && nameParts[0].isNotEmpty ? nameParts[0] : rawName;
+      final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : 'Client';
 
+      final clientPayload = {
+        'firstName': firstName,
+        'lastName': lastName,
+        if (_emailController.text.trim().isNotEmpty) 'email': _emailController.text.trim(),
+        if (_phoneController.text.trim().isNotEmpty) 'phone': _phoneController.text.trim(),
+        if (_passwordController.text.trim().isNotEmpty) 'password': _passwordController.text.trim(),
+        'clientType': _selectedClientType,
+        if (_cnicController.text.trim().isNotEmpty) 'cnic': _cnicController.text.trim(),
+        'city': _cityController.text.trim().isNotEmpty ? _cityController.text.trim() : 'Lahore',
+        if (_occupationController.text.trim().isNotEmpty) 'occupation': _occupationController.text.trim(),
+        if (_addressController.text.trim().isNotEmpty) 'address': _addressController.text.trim(),
+        if (_referredByController.text.trim().isNotEmpty) 'referredBy': _referredByController.text.trim(),
+        if (_notesController.text.trim().isNotEmpty) 'notes': _notesController.text.trim(),
+        'portalAccess': _enablePortalAccess,
+        'status': _selectedStatus.toUpperCase(),
+      };
+
+      if (isEditing) {
+        final res = await ApiService.updateClient(widget.initialClient!.id, clientPayload);
+        if (res['success'] == true) {
+          await ClientService.instance.fetchClientsFromBackend();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Client "$rawName" updated in database successfully!'),
+                backgroundColor: const Color(0xFF00A980),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+            Navigator.pop(context, true);
+          }
+          return;
+        }
+      } else {
+        final res = await ApiService.createClient(clientPayload);
+        if (res['success'] == true) {
+          await ClientService.instance.fetchClientsFromBackend();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Client "$rawName" stored in database successfully!'),
+                backgroundColor: const Color(0xFF00A980),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+            Navigator.pop(context, true);
+          }
+          return;
+        }
+      }
+
+      // Fallback
       final client = ClientModel(
         id: isEditing ? widget.initialClient!.id : DateTime.now().millisecondsSinceEpoch.toString().substring(7),
-        name: _clientNameController.text.trim(),
+        name: rawName,
         type: _selectedClientType,
         companyName: _companyNameController.text.trim(),
         ntn: _ntnController.text.trim(),
@@ -456,7 +516,61 @@ class _AddClientScreenState extends State<AddClientScreen> {
             },
           ),
           const SizedBox(height: AppSpacing.s16),
-          _buildCopyField('Temporary Password', 'nOzfEQ3x'),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Temporary Password', style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy)),
+              const SizedBox(height: AppSpacing.s8),
+              TextFormField(
+                controller: _passwordController,
+                obscureText: _obscurePassword,
+                style: AppTypography.bodyInterMedium.copyWith(color: AppColors.primaryNavy),
+                decoration: InputDecoration(
+                  hintText: 'Enter temporary password...',
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.border.withOpacity(0.3)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.border.withOpacity(0.3)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFF00A980), width: 1.5),
+                  ),
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                          color: AppColors.textMuted,
+                          size: 20,
+                        ),
+                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.copy, color: Color(0xFF00A980), size: 20),
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: _passwordController.text.trim()));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Password copied to clipboard!'),
+                              duration: Duration(seconds: 2),
+                              backgroundColor: Color(0xFF00A980),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: AppSpacing.s24),
           Container(
             padding: const EdgeInsets.all(AppSpacing.s16),
@@ -592,6 +706,11 @@ class _AddClientScreenState extends State<AddClientScreen> {
     bool isRequired = false,
     IconData? prefixIcon,
   }) {
+    final safeValue = options.firstWhere(
+      (opt) => opt.toUpperCase() == currentValue.toUpperCase(),
+      orElse: () => options.first,
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -614,7 +733,7 @@ class _AddClientScreenState extends State<AddClientScreen> {
             ],
           ),
           child: DropdownButtonFormField<String>(
-            value: currentValue,
+            value: safeValue,
             isExpanded: true,
             items: options.map((opt) => DropdownMenuItem(value: opt, child: Text(opt))).toList(),
             onChanged: onChanged,

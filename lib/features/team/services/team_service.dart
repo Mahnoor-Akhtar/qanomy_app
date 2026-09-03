@@ -1,52 +1,50 @@
 import 'package:flutter/foundation.dart';
+import '../../../core/services/api_service.dart';
 import '../models/team_member_model.dart';
 
 class TeamService extends ValueNotifier<List<TeamMemberModel>> {
-  TeamService._()
-      : super([
-          TeamMemberModel(
-            id: '1',
-            initial: 'F',
-            name: 'Fatima',
-            role: 'LAWYER',
-            email: 'noorlioness999@gmail.com',
-            phone: '03076362440',
-            status: 'ACTIVE',
-            joined: '13/08/2026',
-          ),
-          TeamMemberModel(
-            id: '2',
-            initial: 'A',
-            name: 'Asim',
-            role: 'CLERK',
-            email: 'qanomy8@gmail.com',
-            phone: '03076962440',
-            status: 'ACTIVE',
-            joined: '10/08/2026',
-          ),
-          TeamMemberModel(
-            id: '3',
-            initial: 'E',
-            name: 'Ejaz',
-            role: 'LAWYER',
-            email: 'ayesha.ansari12098@gmail.com',
-            phone: '03078362440',
-            status: 'ACTIVE',
-            joined: '10/08/2026',
-          ),
-          TeamMemberModel(
-            id: '4',
-            initial: 'H',
-            name: 'Haris khan',
-            role: 'OWNER',
-            email: 'mahnoorakhtar002@gmail.com',
-            phone: '03051180621',
-            status: 'ACTIVE',
-            joined: '07/08/2026',
-          ),
-        ]);
+  TeamService._() : super([]);
 
   static final TeamService instance = TeamService._();
+
+  Future<void> fetchTeamFromBackend() async {
+    try {
+      String? firmId;
+      try {
+        final profileRes = await ApiService.getMe();
+        if (profileRes['success'] == true && profileRes['data'] != null) {
+          final profileData = profileRes['data'] as Map<String, dynamic>;
+          final teamProf = profileData['teamProfile'] as Map<String, dynamic>?;
+          firmId = teamProf?['firmId']?.toString() ??
+              profileData['firmId']?.toString() ??
+              profileData['id']?.toString();
+        }
+      } catch (_) {}
+
+      final response = await ApiService.getUsers(firmId: firmId);
+      if (response['success'] == true && response['data'] != null) {
+        List rawList = [];
+        if (response['data'] is List) {
+          rawList = response['data'] as List;
+        } else if (response['data'] is Map && response['data']['users'] is List) {
+          rawList = response['data']['users'] as List;
+        }
+
+        final memberList = rawList
+            .map((json) => TeamMemberModel.fromJson(json as Map<String, dynamic>))
+            .toList();
+
+        // Preserve any local members added in session
+        final localOnly = value.where((localMem) =>
+          !memberList.any((apiMem) => apiMem.id == localMem.id || (apiMem.email.isNotEmpty && apiMem.email == localMem.email))
+        ).toList();
+
+        value = [...memberList, ...localOnly];
+      }
+    } catch (e) {
+      debugPrint('Failed to fetch team users from database API: $e');
+    }
+  }
 
   void addMember(TeamMemberModel member) {
     value = [member, ...value];

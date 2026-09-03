@@ -1,70 +1,40 @@
 import 'package:flutter/foundation.dart';
+import '../../../core/services/api_service.dart';
 import '../models/case_model.dart';
 
 class CaseService extends ValueNotifier<List<CaseModel>> {
-  CaseService._()
-      : super([
-          CaseModel(
-            id: '1',
-            caseIdNo: 'Case-2024-001',
-            firstParty: 'Ali',
-            oppositeParty: 'Ahmed',
-            assignee: 'Haris Khan',
-            status: 'Running',
-            hearingDate: DateTime.now(),
-            isFavorite: false,
-          ),
-          CaseModel(
-            id: '2',
-            caseIdNo: 'Case-2024-002',
-            firstParty: 'Ejaz',
-            oppositeParty: 'Adnan',
-            assignee: 'Haris Khan',
-            status: 'Running',
-            hearingDate: DateTime.now(),
-            isFavorite: true,
-          ),
-          CaseModel(
-            id: '3',
-            caseIdNo: 'Case-2024-003',
-            firstParty: 'Alia',
-            oppositeParty: 'Adnan',
-            assignee: 'Fatima',
-            status: 'Awaited',
-            hearingDate: DateTime.now().add(const Duration(days: 1)),
-            isFavorite: true,
-          ),
-          CaseModel(
-            id: '4',
-            caseIdNo: 'Case-2024-004',
-            firstParty: 'Ali',
-            oppositeParty: 'Babar',
-            assignee: 'Fatima',
-            status: 'Running',
-            hearingDate: DateTime.now().add(const Duration(days: 1)),
-            isFavorite: false,
-          ),
-          CaseModel(
-            id: '5',
-            caseIdNo: 'Case-2024-005',
-            firstParty: 'Momina',
-            oppositeParty: 'Muheeb',
-            assignee: 'Unassigned',
-            status: 'Decided',
-            isFavorite: true,
-          ),
-          CaseModel(
-            id: '6',
-            caseIdNo: 'Case-2024-006',
-            firstParty: 'Ali',
-            oppositeParty: 'Naveed',
-            assignee: 'Unassigned',
-            status: 'Abandoned',
-            isFavorite: false,
-          ),
-        ]);
+  CaseService._() : super([]);
 
   static final CaseService instance = CaseService._();
+
+  Future<void> fetchCasesFromBackend({String? search, String? status}) async {
+    try {
+      final response = await ApiService.getCases(search: search, status: status);
+      if (response['success'] == true && response['data'] != null) {
+        List rawList = [];
+        if (response['data'] is List) {
+          rawList = response['data'] as List;
+        } else if (response['data'] is Map && response['data']['cases'] is List) {
+          rawList = response['data']['cases'] as List;
+        }
+
+        final casesList = rawList
+            .map((json) => CaseModel.fromJson(json as Map<String, dynamic>))
+            .toList();
+
+        // Preserve any locally added cases not yet in backend response
+        final localOnly = value.where((localCase) =>
+          !casesList.any((apiCase) => apiCase.id == localCase.id || apiCase.caseIdNo == localCase.caseIdNo)
+        ).toList();
+
+        value = [...casesList, ...localOnly];
+      } else {
+        debugPrint('Cases fetch warning (${response['statusCode']}): ${response['message']}');
+      }
+    } catch (e) {
+      debugPrint('Failed to fetch cases from database API: $e');
+    }
+  }
 
   void addCase(CaseModel caseItem) {
     value = [caseItem, ...value];

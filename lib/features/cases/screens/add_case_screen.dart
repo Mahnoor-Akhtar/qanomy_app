@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/services/api_service.dart';
 import '../../clients/screens/add_client_screen.dart';
 import '../../navigation/main_layout.dart';
 
@@ -69,12 +70,14 @@ class _AddCaseScreenState extends State<AddCaseScreen> {
     'Closed (SETTLED)',
   ];
   final List<String> _priorityList = ['High', 'Normal', 'Low', 'Urgent'];
-  final List<String> _clientList = ['Hamad Client', 'Arooj Client', 'Muhammad Ali'];
+  List<String> _clientList = ['Hamad Client', 'Arooj Client', 'Muhammad Ali'];
+  List<Map<String, dynamic>> _apiClients = [];
   final List<String> _lawyerList = ['Fatima (Lawyer)', 'Ejaz (Lawyer)', 'Haris khan (Owner)'];
 
   @override
   void initState() {
     super.initState();
+    _fetchDatabaseClients();
     if (widget.initialCase != null) {
       final c = widget.initialCase!;
       _caseIdController.text = c.caseIdNo;
@@ -104,18 +107,6 @@ class _AddCaseScreenState extends State<AddCaseScreen> {
     }
   }
 
-  @override
-  void dispose() {
-    _caseIdController.dispose();
-    _firstPartyController.dispose();
-    _oppositePartyController.dispose();
-    _remarksController.dispose();
-    for (var c in _judgeControllers) {
-      c.dispose();
-    }
-    super.dispose();
-  }
-
   void _addJudgeField() {
     setState(() {
       _judgeControllers.add(TextEditingController());
@@ -131,30 +122,98 @@ class _AddCaseScreenState extends State<AddCaseScreen> {
     }
   }
 
-  void _saveCase() {
-    if (_formKey.currentState!.validate()) {
-      if (_selectedClient == null || _selectedClient!.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please select a client'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
+  Future<void> _fetchDatabaseClients() async {
+    try {
+      final response = await ApiService.getClients();
+      if (response['success'] == true && response['data'] != null) {
+        List rawList = [];
+        if (response['data'] is List) {
+          rawList = response['data'] as List;
+        } else if (response['data'] is Map && response['data']['clients'] is List) {
+          rawList = response['data']['clients'] as List;
+        }
 
+        if (rawList.isNotEmpty) {
+          final List<String> fetchedNames = [];
+          final List<Map<String, dynamic>> clientMaps = [];
+          for (var item in rawList) {
+            final map = item as Map<String, dynamic>;
+            final name = '${map['firstName'] ?? ''} ${map['lastName'] ?? ''}'.trim();
+            final displayName = name.isNotEmpty ? name : (map['email']?.toString() ?? 'Client');
+            fetchedNames.add(displayName);
+            clientMaps.add(map);
+          }
+          if (mounted) {
+            setState(() {
+              _apiClients = clientMaps;
+              _clientList = fetchedNames;
+              if (_selectedClient == null || !_clientList.contains(_selectedClient)) {
+                _selectedClient = _clientList.first;
+              }
+            });
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to load clients from API: $e');
+    }
+  }
+
+  Future<void> _saveCase() async {
+    if (_formKey.currentState!.validate()) {
       final judgesList = _judgeControllers
           .map((c) => c.text.trim())
           .where((t) => t.isNotEmpty)
           .toList();
 
       final isEditing = widget.initialCase != null;
+      final firstParty = _firstPartyController.text.trim();
+      final oppositeParty = _oppositePartyController.text.trim();
+      final title = '$firstParty vs $oppositeParty';
+
+      // Find matching client ID from database
+      String? clientId;
+      for (var c in _apiClients) {
+        final name = '${c['firstName'] ?? ''} ${c['lastName'] ?? ''}'.trim();
+        if (name == _selectedClient || c['email'] == _selectedClient || c['id'] == _selectedClient) {
+          clientId = c['id']?.toString();
+          break;
+        }
+      }
+      if (clientId == null && _apiClients.isNotEmpty) {
+        clientId = _apiClients.first['id']?.toString();
+      }
+
+      if (clientId == null && !isEditing) {
+        // Auto-create client in DB if none exists yet
+        final uniqueEmail = 'client_${DateTime.now().millisecondsSinceEpoch}@qanomy.com';
+        final newClientRes = await ApiService.createClient({
+          'firstName': _selectedClient != null && _selectedClient!.isNotEmpty ? _selectedClient! : (firstParty.isNotEmpty ? firstParty : 'Client'),
+          'lastName': '(Client)',
+          'email': uniqueEmail,
+          'clientType': 'INDIVIDUAL',
+        });
+        if (newClientRes['success'] == true && newClientRes['data'] != null) {
+          clientId = newClientRes['data']['id']?.toString();
+        } else {
+          // Fallback: resolve client ID from existing database clients list
+          final existingClientsRes = await ApiService.getClients();
+          if (existingClientsRes['success'] == true && existingClientsRes['data'] != null) {
+            List list = existingClientsRes['data'] is List
+                ? existingClientsRes['data']
+                : (existingClientsRes['data']['clients'] ?? []);
+            if (list.isNotEmpty) {
+              clientId = list.first['id']?.toString();
+            }
+          }
+        }
+      }
 
       final caseModel = CaseModel(
         id: isEditing ? widget.initialCase!.id : DateTime.now().millisecondsSinceEpoch.toString().substring(7),
         caseIdNo: _caseIdController.text.trim(),
-        firstParty: _firstPartyController.text.trim(),
-        oppositeParty: _oppositePartyController.text.trim(),
+        firstParty: firstParty,
+        oppositeParty: oppositeParty,
         courtType: _selectedCourtType ?? '',
         caseType: _selectedCaseType ?? '',
         judges: judgesList,
@@ -166,6 +225,40 @@ class _AddCaseScreenState extends State<AddCaseScreen> {
         isFavorite: widget.initialCase?.isFavorite ?? false,
       );
 
+      // Submit case creation to backend API database
+      if (!isEditing && clientId != null) {
+        final casePayload = {
+          'title': title,
+          'firstParty': firstParty,
+          'oppositeParty': oppositeParty,
+          'caseNumber': _caseIdController.text.trim(),
+          'description': _remarksController.text.trim(),
+          'court': _selectedCourtType ?? 'Sessions Court',
+          'caseType': _selectedCaseType ?? 'Civil',
+          'priority': (_selectedPriority ?? 'NORMAL').toUpperCase(),
+          'status': 'RUNNING',
+          'clientId': clientId,
+        };
+
+        final apiResponse = await ApiService.createCase(casePayload);
+        CaseService.instance.addCase(caseModel);
+        if (apiResponse['success'] == true) {
+          await CaseService.instance.fetchCasesFromBackend();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Case "$title" stored in database successfully!'),
+                backgroundColor: const Color(0xFF00A980),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+            Navigator.pop(context, true);
+          }
+          return;
+        }
+      }
+
+      // Fallback update/add in case service
       if (isEditing) {
         CaseService.instance.updateCase(caseModel);
       } else {
@@ -184,7 +277,7 @@ class _AddCaseScreenState extends State<AddCaseScreen> {
               label: 'VIEW HISTORY',
               textColor: Colors.white,
               onPressed: () {
-                MainLayout.instance?.switchTab(13); // Go to Case History tab
+                MainLayout.instance?.switchTab(13);
               },
             ),
             duration: const Duration(seconds: 4),

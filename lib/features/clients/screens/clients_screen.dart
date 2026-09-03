@@ -41,6 +41,7 @@ class _ClientsScreenState extends State<ClientsScreen> with SingleTickerProvider
       reverseCurve: Curves.easeOutQuad,
       parent: _animationController,
     );
+    ClientService.instance.fetchClientsFromBackend();
   }
 
   @override

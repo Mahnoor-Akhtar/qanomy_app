@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/services/api_service.dart';
 import '../models/team_member_model.dart';
 import '../services/team_service.dart';
 
@@ -108,13 +109,12 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
     super.dispose();
   }
 
-  void _saveTeamMember() {
+  Future<void> _saveTeamMember() async {
     if (_formKey.currentState!.validate()) {
-      if (_passwordController.text.isNotEmpty &&
-          _passwordController.text != _confirmPasswordController.text) {
+      if (_selectedRole.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Passwords do not match'),
+            content: Text('Please select a role'),
             backgroundColor: Colors.red,
           ),
         );
@@ -123,9 +123,21 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
 
       final isEditing = widget.initialMember != null;
       final rawName = _nameController.text.trim();
-      final initial = rawName.isNotEmpty ? rawName[0].toUpperCase() : 'M';
+      final nameParts = rawName.split(' ');
+      final firstName = nameParts.isNotEmpty && nameParts[0].isNotEmpty ? nameParts[0] : rawName;
+      final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : 'Member';
       final roleUpper = _selectedRole.toUpperCase();
 
+      final userPayload = {
+        'firstName': firstName,
+        'lastName': lastName,
+        'email': _emailController.text.trim(),
+        'phone': _phoneController.text.trim(),
+        'password': 'Password@123',
+        'role': roleUpper,
+      };
+
+      final initial = rawName.isNotEmpty ? rawName[0].toUpperCase() : 'M';
       final now = DateTime.now();
       final formattedDate = widget.initialMember?.joined ??
           '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
@@ -136,18 +148,55 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
         name: rawName,
         role: roleUpper,
         email: _emailController.text.trim(),
-        phone: _phoneController.text.trim().startsWith('0')
-            ? _phoneController.text.trim()
-            : '0${_phoneController.text.trim().replaceAll('-', '')}',
+        phone: _phoneController.text.trim(),
         designation: _designationController.text.trim(),
         status: widget.initialMember?.status ?? 'ACTIVE',
         joined: formattedDate,
       );
 
-      if (isEditing) {
-        TeamService.instance.updateMember(member);
-      } else {
+      if (!isEditing) {
+        final res = await ApiService.createUser(userPayload);
         TeamService.instance.addMember(member);
+        if (res['success'] == true) {
+          await TeamService.instance.fetchTeamFromBackend();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Team member "$rawName" stored in database successfully!'),
+                backgroundColor: const Color(0xFF00A980),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+            Navigator.pop(context, true);
+          }
+          return;
+        }
+      }
+
+      if (isEditing) {
+        final updatePayload = {
+          'firstName': firstName,
+          'lastName': lastName,
+          if (_emailController.text.trim().isNotEmpty) 'email': _emailController.text.trim(),
+          if (_phoneController.text.trim().isNotEmpty) 'phone': _phoneController.text.trim(),
+          'role': roleUpper,
+          if (_designationController.text.trim().isNotEmpty) 'designation': _designationController.text.trim(),
+        };
+        final res = await ApiService.updateUser(widget.initialMember!.id, updatePayload);
+        if (res['success'] == true) {
+          await TeamService.instance.fetchTeamFromBackend();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Team member "$rawName" updated in database!'),
+                backgroundColor: const Color(0xFF00A980),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+            Navigator.pop(context, true);
+          }
+          return;
+        }
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -404,6 +453,11 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
     List<String> options,
     ValueChanged<String?> onChanged,
   ) {
+    final safeValue = options.firstWhere(
+      (opt) => opt.toUpperCase() == currentValue.toUpperCase(),
+      orElse: () => options.first,
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -417,7 +471,7 @@ class _AddTeamMemberScreenState extends State<AddTeamMemberScreen> {
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               isExpanded: true,
-              value: currentValue,
+              value: safeValue,
               icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.textSecondary),
               items: options.map((String value) {
                 return DropdownMenuItem<String>(
